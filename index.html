@@ -3,973 +3,499 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>QPAC Material Readiness Control</title>
 
 <style>
 :root{
-    --nav:#17324d;
-    --blue:#2f6fad;
-    --bg:#f3f6f9;
-    --line:#d7e0e8;
-    --green:#63be7b;
-    --yellow:#ffd966;
-    --red:#f8696b;
-    --lightblue:#eaf2f8;
-    --gray:#e8edf1;
+ --nav:#17324d;--blue:#2f6fad;--bg:#f3f6f9;--line:#d7e0e8;
+ --green:#63be7b;--yellow:#ffd966;--red:#f8696b;--gray:#e8edf1;
+ --purple:#d9ccff;
 }
-
 *{box-sizing:border-box}
-
-body{
-    margin:0;
-    font-family:Segoe UI,Arial,sans-serif;
-    background:var(--bg);
-    color:#18232d;
-}
-
-header{
-    background:var(--nav);
-    color:white;
-    padding:16px 24px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-header h1{
-    margin:0;
-    font-size:21px;
-}
-
-header span{
-    font-size:13px;
-    opacity:.85;
-}
-
-.mainnav{
-    background:white;
-    border-bottom:1px solid var(--line);
-    padding:0 20px;
-    display:flex;
-}
-
-.mainnav button{
-    border:0;
-    background:white;
-    padding:14px 16px;
-    cursor:pointer;
-    font-weight:600;
-    border-bottom:3px solid transparent;
-}
-
-.mainnav button.active{
-    color:var(--blue);
-    border-bottom-color:var(--blue);
-}
-
-main{
-    max-width:1650px;
-    margin:auto;
-    padding:18px;
-}
-
-.page{display:none}
-.page.active{display:block}
-
-.panel{
-    background:white;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:16px;
-    margin-bottom:16px;
-    overflow:auto;
-}
-
-.modtabs{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-    margin-bottom:16px;
-}
-
-.modtabs button{
-    border:1px solid #b8c6d2;
-    background:white;
-    padding:9px 17px;
-    border-radius:5px;
-    cursor:pointer;
-    font-weight:700;
-}
-
-.modtabs button.active{
-    background:var(--blue);
-    color:white;
-    border-color:var(--blue);
-}
-
-.toolbar{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    flex-wrap:wrap;
-    margin-bottom:12px;
-}
-
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:#18232d}
+header{background:var(--nav);color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:21px}
+header span{font-size:13px;opacity:.85}
+.mainnav{background:#fff;border-bottom:1px solid var(--line);padding:0 20px;display:flex}
+.mainnav button{border:0;background:#fff;padding:14px 16px;cursor:pointer;font-weight:600;border-bottom:3px solid transparent}
+.mainnav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{max-width:1700px;margin:auto;padding:18px}
+.page{display:none}.page.active{display:block}
+.panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px;overflow:auto}
+.modtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.modtabs button{border:1px solid #b8c6d2;background:#fff;padding:9px 17px;border-radius:5px;cursor:pointer;font-weight:700}
+.modtabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .right{margin-left:auto}
-
-button{
-    font-family:inherit;
-}
-
-.primary{
-    background:var(--blue);
-    color:white;
-    border:0;
-    padding:8px 12px;
-    border-radius:5px;
-    font-weight:600;
-    cursor:pointer;
-}
-
-.secondary{
-    background:white;
-    border:1px solid #aebdca;
-    padding:7px 11px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-.danger{
-    background:#b83c3c;
-    color:white;
-    border:0;
-    padding:7px 10px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-input,select,textarea{
-    border:1px solid #b9c6d2;
-    border-radius:4px;
-    padding:7px;
-    font-family:inherit;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-    white-space:nowrap;
-}
-
-th{
-    background:#eaf1f6;
-    padding:9px;
-    text-align:left;
-    border-bottom:1px solid #ccd8e2;
-}
-
-td{
-    padding:9px;
-    border-bottom:1px solid #e1e7ec;
-}
-
-tr:hover{
-    background:#f8fafc;
-}
-
-.status{
-    display:inline-block;
-    padding:4px 9px;
-    border-radius:13px;
-    font-weight:700;
-    font-size:12px;
-}
-
-.green{background:var(--green)}
-.yellow{background:var(--yellow)}
-.red{background:var(--red)}
-.gray{background:#dce5ec}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:12px;
-    margin-bottom:16px;
-}
-
-.card{
-    background:white;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:15px;
-}
-
-.card b{
-    display:block;
-    font-size:27px;
-    margin-top:6px;
-}
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:#0008;
-    z-index:20;
-    align-items:center;
-    justify-content:center;
-}
-
-.modal.open{
-    display:flex;
-}
-
-.modalbox{
-    width:95%;
-    max-width:1100px;
-    max-height:92vh;
-    overflow:auto;
-    background:white;
-    border-radius:9px;
-    padding:20px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
-}
-
-.grid label{
-    font-size:12px;
-    font-weight:600;
-}
-
-.grid input,
-.grid select,
-.grid textarea{
-    width:100%;
-    margin-top:4px;
-}
-
-.detailHeader{
-    background:#eef5fa;
-    border-left:5px solid var(--blue);
-    padding:14px;
-    margin-bottom:15px;
-}
-
-.process{
-    display:flex;
-    gap:8px;
-    align-items:stretch;
-    margin:15px 0;
-    flex-wrap:wrap;
-}
-
-.stage{
-    flex:1;
-    min-width:150px;
-    border:2px solid #bdcad5;
-    padding:12px;
-    border-radius:7px;
-    text-align:center;
-}
-
-.stage.done{
-    background:#dff1e4;
-    border-color:#63be7b;
-}
-
-.stage.progress{
-    background:#fff3c7;
-    border-color:#e2b93b;
-}
-
-.stage.risk{
-    background:#fbdada;
-    border-color:#f8696b;
-}
-
-.stage.pending{
-    background:#eef2f5;
-}
-
-.arrow{
-    align-self:center;
-    font-size:22px;
-}
-
-.sectionTitle{
-    margin-top:24px;
-    border-bottom:2px solid #d8e3eb;
-    padding-bottom:7px;
-}
-
-.small{
-    font-size:12px;
-    color:#647585;
-}
-
-.note{
-    background:#eef6ff;
-    border-left:4px solid var(--blue);
-    padding:10px;
-    margin:10px 0;
-}
-
-.overdue{
-    background:#f8696b!important;
-}
-
-@media(max-width:900px){
-    .cards{grid-template-columns:1fr 1fr}
-    .grid{grid-template-columns:1fr}
-    .arrow{display:none}
-}
+.primary,.secondary,.danger,.success,.warning{padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:600}
+.primary{background:var(--blue);color:#fff;border:0}
+.secondary{background:#fff;border:1px solid #aebdca;color:#18232d}
+.danger{background:#b83c3c;color:#fff;border:0}
+.success{background:#3f8f55;color:#fff;border:0}
+.warning{background:#e6b73b;border:0}
+input,select,textarea{border:1px solid #b9c6d2;border-radius:4px;padding:7px;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+th{background:#eaf1f6;padding:9px;text-align:left;border-bottom:1px solid #ccd8e2}
+td{padding:9px;border-bottom:1px solid #e1e7ec;vertical-align:middle}
+tr:hover{background:#f8fafc}
+.status{display:inline-block;padding:4px 9px;border-radius:13px;font-weight:700;font-size:12px}
+.green{background:var(--green)}.yellow{background:var(--yellow)}.red{background:var(--red)}
+.gray{background:#dce5ec}.purple{background:var(--purple)}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:15px}
+.card b{display:block;font-size:27px;margin-top:6px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modalbox{width:96%;max-width:1350px;max-height:94vh;overflow:auto;background:#fff;border-radius:9px;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid label{font-size:12px;font-weight:600}
+.grid input,.grid select,.grid textarea{width:100%;margin-top:4px}
+.detailHeader{background:#eef5fa;border-left:5px solid var(--blue);padding:14px;margin-bottom:15px}
+.process{display:flex;gap:7px;align-items:stretch;margin:15px 0;flex-wrap:wrap}
+.stage{flex:1;min-width:175px;border:2px solid #bdcad5;padding:12px;border-radius:7px;text-align:center}
+.stage.done{background:#dff1e4;border-color:#63be7b}
+.stage.progress{background:#fff3c7;border-color:#e2b93b}
+.stage.risk{background:#fbdada;border-color:#f8696b}
+.stage.pending{background:#eef2f5}
+.arrow{align-self:center;font-size:21px}
+.sectionTitle{margin-top:25px;border-bottom:2px solid #d8e3eb;padding-bottom:7px}
+.small{font-size:12px;color:#647585}
+.note{background:#eef6ff;border-left:4px solid var(--blue);padding:10px;margin:10px 0}
+.alert{background:#fff3c7;border-left:4px solid #e0ad20;padding:10px;margin:10px 0}
+.overdue{background:#f8696b!important}
+.sourceCard{border:1px solid var(--line);border-radius:7px;margin:12px 0;overflow:hidden}
+.sourceHead{background:#eaf1f6;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.sourceBody{padding:12px}
+.rolebox{background:#f8fafc;border:1px solid #dce4eb;border-radius:7px;padding:13px;margin-bottom:10px}
+.check{width:18px;height:18px}
+.wrap{white-space:normal}
+@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.arrow{display:none}}
 </style>
 </head>
 
 <body>
 
 <header>
-    <h1>QPAC Material Readiness Control</h1>
-    <span>T-3 Delivery → T-2 Verification → T-1 Recovery → T0 Production</span>
+ <h1>QPAC Material Readiness Control</h1>
+ <span>Picker → Warehouse QC → T-3 Delivery → T-2 Production Control → T-1 Recovery</span>
 </header>
 
 <div class="mainnav">
-    <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
-    <button onclick="showPage('shortages',this)">Central Shortage Report</button>
-    <button onclick="showPage('processPage',this)">Process Map</button>
-    <button onclick="showPage('backup',this)">Data / Backup</button>
+ <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
+ <button onclick="showPage('shortages',this)">Shortage Center</button>
+ <button onclick="showPage('notifications',this)">Notifications</button>
+ <button onclick="showPage('processPage',this)">Process Map</button>
+ <button onclick="showPage('settings',this)">Settings</button>
+ <button onclick="showPage('backup',this)">Data / Backup</button>
 </div>
 
 <main>
 
-<!-- KITTING PLAN -->
 <section id="kitting" class="page active">
+ <div class="modtabs" id="modTabs"></div>
 
-<div class="modtabs" id="modTabs"></div>
+ <div class="cards">
+  <div class="card">Displayed Subunits<b id="kpiUnits">0</b></div>
+  <div class="card">T-3 Delivered<b id="kpiDelivered">0</b></div>
+  <div class="card">Awaiting PC<b id="kpiPC">0</b></div>
+  <div class="card">Open Shortages<b id="kpiShort">0</b></div>
+  <div class="card">T-1 Risk<b id="kpiRisk">0</b></div>
+ </div>
 
-<div class="cards">
-    <div class="card">Displayed Subunits<b id="kpiUnits">0</b></div>
-    <div class="card">Ready<b id="kpiReady">0</b></div>
-    <div class="card">Open Shortages<b id="kpiShort">0</b></div>
-    <div class="card">Production Risk<b id="kpiRisk">0</b></div>
-    <div class="card">Average Kit %<b id="kpiPct">0%</b></div>
-</div>
-
-<div class="panel">
-
-<div class="toolbar">
-
-    <button class="primary" onclick="openAddSubunit()">
-        + Add Subunit
-    </button>
-
-    <strong id="workspaceTitle">ALL MODs</strong>
-
-    <span class="small" id="workspaceDescription"></span>
-
-    <div class="right">
-        Search
-        <input id="unitSearch"
-               placeholder="Subunit"
-               oninput="renderKitting()">
-    </div>
-
-</div>
-
-<div id="subunitTable"></div>
-
-</div>
-
+ <div class="panel">
+  <div class="toolbar">
+   <button class="primary" onclick="openAddSubunit()">+ Add Subunit</button>
+   <strong id="workspaceTitle">ALL MODs</strong>
+   <span class="small" id="workspaceDescription"></span>
+   <div class="right">
+    Search <input id="unitSearch" placeholder="Subunit" oninput="renderKitting()">
+   </div>
+  </div>
+  <div id="subunitTable"></div>
+ </div>
 </section>
 
-
-<!-- SHORTAGES -->
 <section id="shortages" class="page">
-
-<div class="panel">
-
-<div class="toolbar">
-    <h3 style="margin:0">Central Shortage Report</h3>
-
-    <div class="right">
-        <select id="shortStatusFilter" onchange="renderShortages()">
-            <option>ALL</option>
-            <option>OPEN</option>
-            <option>RECOVERING</option>
-            <option>CLOSED</option>
-        </select>
-
-        <input id="shortSearch"
-               placeholder="Part / owner / subunit"
-               oninput="renderShortages()">
-    </div>
-</div>
-
-<div id="shortageTable"></div>
-
-</div>
-
+ <div class="panel">
+  <div class="toolbar">
+   <h3 style="margin:0">Central Shortage Center</h3>
+   <div class="right">
+    <select id="shortTypeFilter" onchange="renderShortages()">
+     <option value="ALL">All Types</option>
+     <option value="PICKER">Picker Stock Shortage</option>
+     <option value="QC">Warehouse QC Shortage</option>
+     <option value="PC">Production Control Shortage</option>
+    </select>
+    <select id="shortStatusFilter" onchange="renderShortages()">
+     <option>ALL</option><option>OPEN</option><option>RECOVERING</option><option>CLOSED</option>
+    </select>
+    <input id="shortSearch" placeholder="Part / subunit / owner" oninput="renderShortages()">
+   </div>
+  </div>
+  <div id="shortageTable"></div>
+ </div>
 </section>
 
+<section id="notifications" class="page">
+ <div class="panel">
+  <h3>Notification Queue</h3>
+  <div class="note">
+   GitHub Pages cannot securely send server-side email by itself. Each submission below creates a notification record and an email draft addressed to the configured recipients. A mail service/API can be connected later for automatic sending.
+  </div>
+  <div id="notificationTable"></div>
+ </div>
+</section>
 
-<!-- PROCESS -->
 <section id="processPage" class="page">
+ <div class="panel">
+  <h2>Material Control Workflow</h2>
 
-<div class="panel">
+  <div class="process">
+   <div class="stage"><b>1. Warehouse Picker</b><p>Pick ERP pick ticket by source. Record stock shortages and submit completed pick.</p></div>
+   <div class="arrow">→</div>
+   <div class="stage"><b>2. Warehouse QC</b><p>Independently verify picker quantity. Record discrepancies and submit QC.</p></div>
+   <div class="arrow">→</div>
+   <div class="stage"><b>3. T-3 Delivery</b><p>Deliver verified material to production staging and confirm delivery.</p></div>
+   <div class="arrow">→</div>
+   <div class="stage"><b>4. T-2 Production Control</b><p>Verify received material by part and quantity. Submit discrepancies.</p></div>
+   <div class="arrow">→</div>
+   <div class="stage"><b>5. T-1 Recovery</b><p>Warehouse recovers shortages. Production Control confirms receipt and closes each shortage.</p></div>
+  </div>
 
-<h2>Material Readiness Process</h2>
-
-<div class="process">
-
-<div class="stage">
-    <b>KITTING</b>
-    <p>Warehouse picks required material by source.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>WAREHOUSE QC</b>
-    <p>Warehouse checks kit accuracy before delivery.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>T-3 DELIVERY</b>
-    <p>Kit delivered to production staging/location by 6 PM.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>T-2 PC VERIFICATION</b>
-    <p>Production Control physically verifies the kit.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>T-2 SHORTAGES</b>
-    <p>Missing parts entered into Central Shortage Report.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>T-1 RECOVERY</b>
-    <p>Warehouse / owner recovers remaining material.</p>
-</div>
-
-<div class="arrow">→</div>
-
-<div class="stage">
-    <b>T0 READY</b>
-    <p>Complete verified kit available for production.</p>
-</div>
-
-</div>
-
-<div class="note">
-Example: Production starts <b>10/10/2026 at 6:00 AM</b> →
-T-3 Delivery <b>10/07 at 6 PM</b> →
-T-2 Verification <b>10/08 at 6 PM</b> →
-T-1 Recovery <b>10/09 at 6 PM</b>.
-</div>
-
-</div>
-
+  <div class="note">
+   <b>Control principle:</b> Warehouse records what it picked, Warehouse QC independently verifies it, and Production Control performs the final receiving verification. A shortage remains visible until recovery is physically received and confirmed.
+  </div>
+ </div>
 </section>
 
+<section id="settings" class="page">
+ <div class="panel">
+  <h3>Email Routing Settings</h3>
+  <div class="grid">
+   <label>Purchaser / Buyer Email<input id="setBuyer"></label>
+   <label>Material Planner Email<input id="setPlanner"></label>
+   <label>Warehouse Supervisor Email<input id="setSupervisor"></label>
+  </div>
+  <br>
+  <button class="primary" onclick="saveSettings()">Save Email Settings</button>
 
-<!-- BACKUP -->
+  <div class="note">
+   Picker stock shortage → Buyer/Purchaser + Material Planner.<br>
+   Warehouse QC discrepancy → Warehouse Supervisor.<br>
+   Production Control shortage → Material Planner + Warehouse Supervisor.
+  </div>
+ </div>
+</section>
+
 <section id="backup" class="page">
-
-<div class="panel">
-
-<h3>Application Data</h3>
-
-<p>
-Data is currently stored in the browser used to access this GitHub Pages application.
-</p>
-
-<div class="toolbar">
-
-<button class="primary" onclick="downloadBackup()">
-Download Backup
-</button>
-
-<button class="secondary"
-        onclick="document.getElementById('restoreFile').click()">
-Restore Backup
-</button>
-
-<input hidden
-       id="restoreFile"
-       type="file"
-       accept=".json"
-       onchange="restoreBackup(event)">
-
-<button class="danger" onclick="resetDatabase()">
-Reset All Data
-</button>
-
-</div>
-
-</div>
-
+ <div class="panel">
+  <h3>Data / Backup</h3>
+  <button class="primary" onclick="downloadBackup()">Download Backup</button>
+  <button class="secondary" onclick="document.getElementById('restoreFile').click()">Restore Backup</button>
+  <input hidden id="restoreFile" type="file" accept=".json" onchange="restoreBackup(event)">
+  <button class="danger" onclick="resetDatabase()">Reset All Data</button>
+ </div>
 </section>
 
 </main>
 
-
-<!-- ADD SUBUNIT MODAL -->
+<!-- ADD SUBUNIT -->
 <div class="modal" id="addModal">
-
-<div class="modalbox">
-
-<h2>Add Production Subunit</h2>
-
-<div class="note">
-One subunit will automatically contain:
-<b>Main Warehouse, Machine Shop Warehouse, PLD and Jenbacher.</b>
+ <div class="modalbox">
+  <h2>Add Production Subunit</h2>
+  <div class="note">Main Warehouse, Machine Shop Warehouse, PLD and Jenbacher are created automatically.</div>
+  <div class="grid">
+   <label>Priority<input id="addPriority" value="1"></label>
+   <label>MOD<select id="addMod"></select></label>
+   <label>Subunit<input id="addSubunit" placeholder="P41"></label>
+   <label>Production Start Date & Time<input id="addProduction" type="datetime-local"></label>
+   <label>Comments<textarea id="addComments"></textarea></label>
+  </div>
+  <br>
+  <button class="primary" onclick="saveNewSubunit()">Create Subunit</button>
+  <button class="secondary" onclick="closeModal('addModal')">Cancel</button>
+ </div>
 </div>
 
-<div class="grid">
-
-<label>
-Priority
-<input id="addPriority" value="1">
-</label>
-
-<label>
-MOD
-<select id="addMod"></select>
-</label>
-
-<label>
-Subunit
-<input id="addSubunit" placeholder="Example: P41">
-</label>
-
-<label>
-Production Start Date & Time
-<input id="addProduction" type="datetime-local">
-</label>
-
-<label>
-Comments
-<textarea id="addComments"></textarea>
-</label>
-
-</div>
-
-<div class="toolbar" style="margin-top:18px">
-<button class="primary" onclick="saveNewSubunit()">Create Subunit</button>
-<button class="secondary" onclick="closeModal('addModal')">Cancel</button>
-</div>
-
-</div>
-</div>
-
-
-<!-- DETAIL MODAL -->
+<!-- DETAIL -->
 <div class="modal" id="detailModal">
-
-<div class="modalbox">
-
-<div id="detailContent"></div>
-
-</div>
+ <div class="modalbox">
+  <div id="detailContent"></div>
+ </div>
 </div>
 
-
-<!-- SHORTAGE MODAL -->
+<!-- SHORTAGE ENTRY -->
 <div class="modal" id="shortModal">
+ <div class="modalbox">
+  <h2 id="shortModalTitle">Shortage</h2>
 
-<div class="modalbox">
+  <div class="note" id="shortContext"></div>
 
-<h2 id="shortModalTitle">Add Shortage</h2>
+  <div class="grid">
+   <label>Part Number<input id="shortPart"></label>
+   <label>Description<input id="shortDesc"></label>
+   <label>Required Qty<input id="shortRequired" type="number" min="0"></label>
+   <label>Actual / Available Qty<input id="shortActual" type="number" min="0"></label>
+   <label>Owner<input id="shortOwner"></label>
+   <label>Comments<textarea id="shortComments"></textarea></label>
+  </div>
 
-<div class="grid">
-
-<label>
-Source
-<select id="shortSource"></select>
-</label>
-
-<label>
-Part Number
-<input id="shortPart">
-</label>
-
-<label>
-Description
-<input id="shortDesc">
-</label>
-
-<label>
-Required Qty
-<input id="shortRequired" type="number" min="0">
-</label>
-
-<label>
-Delivered Qty
-<input id="shortDelivered" type="number" min="0">
-</label>
-
-<label>
-Recovered Qty
-<input id="shortRecovered" type="number" min="0">
-</label>
-
-<label>
-Owner
-<input id="shortOwner" value="Warehouse Team">
-</label>
-
-<label>
-Comments
-<textarea id="shortComments"></textarea>
-</label>
-
+  <br>
+  <button class="primary" onclick="saveShortage()">Submit Shortage</button>
+  <button class="secondary" onclick="closeModal('shortModal')">Cancel</button>
+ </div>
 </div>
 
-<div class="toolbar" style="margin-top:18px">
-
-<button class="primary" onclick="saveShortage()">
-Save Shortage
-</button>
-
-<button class="secondary" onclick="closeModal('shortModal')">
-Cancel
-</button>
-
+<!-- PC VERIFICATION -->
+<div class="modal" id="pcModal">
+ <div class="modalbox">
+  <h2>Production Control Verification</h2>
+  <div id="pcContent"></div>
+ </div>
 </div>
-
-</div>
-</div>
-
 
 <script>
 
 /* =========================================================
-   MASTER DATA
+   CONFIGURATION
 ========================================================= */
 
-const MODS = ["A","B","C","D2","D2B","E"];
+const MODS=["A","B","C","D2","D2B","E"];
 
-const SOURCES = [
-    "Main Warehouse",
-    "Machine Shop Warehouse",
-    "PLD",
-    "Jenbacher"
+const SOURCES=[
+ "Main Warehouse",
+ "Machine Shop Warehouse",
+ "PLD",
+ "Jenbacher"
 ];
 
-const DBKEY = "qpacMaterialReadinessV3";
+const DBKEY="qpacMaterialReadinessV4";
 
-let db = JSON.parse(
-    localStorage.getItem(DBKEY) ||
-    '{"subunits":[],"shortages":[]}'
-);
+let db=JSON.parse(localStorage.getItem(DBKEY)||`{
+ "subunits":[],
+ "shortages":[],
+ "notifications":[],
+ "settings":{
+  "buyer":"",
+  "planner":"",
+  "supervisor":""
+ }
+}`);
 
-let selectedMod = "ALL";
-let currentDetailId = null;
-let editingShortageId = null;
+if(!db.notifications) db.notifications=[];
+if(!db.settings) db.settings={buyer:"",planner:"",supervisor:""};
+
+let selectedMod="ALL";
+let currentDetailId=null;
+let shortageContext=null;
+let currentPCUnit=null;
 
 
 /* =========================================================
-   DATABASE
+   UTILITIES
 ========================================================= */
-
-function saveDB(){
-    localStorage.setItem(DBKEY,JSON.stringify(db));
-    renderAll();
-
-    if(currentDetailId &&
-       document.getElementById("detailModal").classList.contains("open")){
-        renderDetail(currentDetailId);
-    }
-}
 
 function uid(){
-    return Date.now().toString(36) +
-           Math.random().toString(36).slice(2,8);
+ return Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
+
+function esc(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function saveDB(){
+ localStorage.setItem(DBKEY,JSON.stringify(db));
+ renderAll();
+
+ if(currentDetailId &&
+    document.getElementById("detailModal").classList.contains("open")){
+  renderDetail(currentDetailId);
+ }
+}
+
+function dt(v){
+ if(!v)return null;
+ const d=new Date(v);
+ return isNaN(d)?null:d;
+}
+
+function fmt(v){
+ const d=v instanceof Date?v:dt(v);
+ if(!d)return "";
+ return d.toLocaleString([],{
+  year:"numeric",month:"2-digit",day:"2-digit",
+  hour:"numeric",minute:"2-digit"
+ });
+}
+
+function milestone(start,days){
+ const d=dt(start);
+ if(!d)return null;
+ d.setDate(d.getDate()-days);
+ d.setHours(18,0,0,0);
+ return d;
+}
+
+function t3(u){return milestone(u.productionStart,3)}
+function t2(u){return milestone(u.productionStart,2)}
+function t1(u){return milestone(u.productionStart,1)}
+
+function plannedStart(u,s){
+ const due=t3(u);
+ const ct=Number(s.planningCT||0);
+ if(!due||!ct)return null;
+ return new Date(due.getTime()-ct*3600000);
+}
+
+function closeModal(id){
+ document.getElementById(id).classList.remove("open");
 }
 
 
 /* =========================================================
-   DATE FUNCTIONS
+   EMAIL / NOTIFICATION ROUTING
 ========================================================= */
 
-function dateFromInput(value){
-    if(!value) return null;
-    const d = new Date(value);
-    return isNaN(d) ? null : d;
+function recipientsFor(type){
+ if(type==="PICKER")
+  return [db.settings.buyer,db.settings.planner].filter(Boolean);
+
+ if(type==="QC")
+  return [db.settings.supervisor].filter(Boolean);
+
+ if(type==="PC")
+  return [db.settings.planner,db.settings.supervisor].filter(Boolean);
+
+ return [];
 }
 
-function fmtDateTime(value){
+function createNotification(type,unit,source,subject,message){
 
-    if(!value) return "";
+ const recipients=recipientsFor(type);
 
-    const d = value instanceof Date ?
-        value :
-        new Date(value);
+ db.notifications.unshift({
+  id:uid(),
+  created:new Date().toISOString(),
+  type,
+  mod:unit.mod,
+  subunit:unit.subunit,
+  source:source?.name||"",
+  recipients,
+  subject,
+  message
+ });
 
-    if(isNaN(d)) return "";
+ if(recipients.length){
 
-    return d.toLocaleString([],{
-        year:"numeric",
-        month:"2-digit",
-        day:"2-digit",
-        hour:"numeric",
-        minute:"2-digit"
-    });
-}
+  const link=
+   "mailto:"+encodeURIComponent(recipients.join(","))+
+   "?subject="+encodeURIComponent(subject)+
+   "&body="+encodeURIComponent(message);
 
-/*
-T-3 / T-2 / T-1 deadlines are always 6 PM
-relative to the production calendar date.
-*/
-
-function milestone(productionStart,daysBefore){
-
-    const prod = dateFromInput(productionStart);
-
-    if(!prod) return null;
-
-    const d = new Date(prod);
-
-    d.setDate(d.getDate()-daysBefore);
-
-    d.setHours(18,0,0,0);
-
-    return d;
-}
-
-function t3(unit){
-    return milestone(unit.productionStart,3);
-}
-
-function t2(unit){
-    return milestone(unit.productionStart,2);
-}
-
-function t1(unit){
-    return milestone(unit.productionStart,1);
-}
-
-/*
-Planned Kit Start:
-T-3 deadline minus Planning CT hours.
-*/
-
-function plannedKitStart(unit,source){
-
-    const deadline = t3(unit);
-
-    const ct = Number(source.planningCT || 0);
-
-    if(!deadline || !ct) return null;
-
-    return new Date(
-        deadline.getTime() -
-        ct * 60 * 60 * 1000
-    );
+  window.location.href=link;
+ }
 }
 
 
 /* =========================================================
-   SHORTAGE LOGIC
+   SHORTAGE MODEL
 ========================================================= */
 
-function shortageCalculation(s){
+function shortageCalc(s){
 
-    const required = Number(s.requiredQty || 0);
-    const delivered = Number(s.deliveredQty || 0);
-    const recovered = Number(s.recoveredQty || 0);
+ const req=Number(s.requiredQty||0);
+ const actual=Number(s.actualQty||0);
+ const recovered=Number(s.recoveredQty||0);
 
-    const shortage =
-        Math.max(0,required-delivered);
+ const short=Math.max(0,req-actual);
+ const remaining=Math.max(0,short-recovered);
 
-    const remaining =
-        Math.max(0,shortage-recovered);
+ let status="OPEN";
 
-    let status = "OPEN";
+ if(remaining===0 && s.pcRecoveryConfirmed)
+  status="CLOSED";
+ else if(recovered>0)
+  status="RECOVERING";
 
-    if(remaining === 0){
-        status = "CLOSED";
-    }
-    else if(recovered > 0){
-        status = "RECOVERING";
-    }
-
-    return {
-        shortage,
-        remaining,
-        status
-    };
+ return {short,remaining,status};
 }
 
-function unitShortages(unitId){
-
-    return db.shortages.filter(
-        s => s.subunitId === unitId
-    );
+function shortagesForUnit(id){
+ return db.shortages.filter(s=>s.subunitId===id);
 }
 
-function openUnitShortages(unitId){
+function openShortages(id){
+ return shortagesForUnit(id).filter(s=>shortageCalc(s).status!=="CLOSED");
+}
 
-    return unitShortages(unitId).filter(
-        s => shortageCalculation(s).status !== "CLOSED"
-    );
+function sourceShortages(unitId,sourceId,type=null){
+ return db.shortages.filter(s=>
+  s.subunitId===unitId &&
+  s.sourceId===sourceId &&
+  (!type||s.type===type)
+ );
 }
 
 
 /* =========================================================
-   SOURCE LOGIC
+   SUBUNIT STATUS
 ========================================================= */
 
-function sourcePercent(source){
-
-    const total = Number(source.totalParts || 0);
-    const kitted = Number(source.kittedParts || 0);
-
-    if(!total) return 0;
-
-    return Math.min(1,kitted/total);
+function sourcePct(s){
+ const total=Number(s.totalParts||0);
+ const picked=Number(s.pickedParts||0);
+ return total?Math.min(1,picked/total):0;
 }
 
-function sourceComplete(source){
-
-    return Number(source.totalParts || 0) > 0 &&
-           Number(source.kittedParts || 0) >=
-           Number(source.totalParts || 0);
+function totals(u){
+ let total=0,picked=0;
+ u.sources.forEach(s=>{
+  total+=Number(s.totalParts||0);
+  picked+=Number(s.pickedParts||0);
+ });
+ return {total,picked,pct:total?picked/total:0};
 }
 
-function unitTotals(unit){
+function statusFor(u){
 
-    let total = 0;
-    let kitted = 0;
+ const open=openShortages(u.id);
+ const allPicker=u.sources.every(s=>s.pickerSubmitted);
+ const allQC=u.sources.every(s=>s.qcSubmitted);
 
-    unit.sources.forEach(s=>{
-        total += Number(s.totalParts || 0);
-        kitted += Number(s.kittedParts || 0);
-    });
+ if(open.length && t1(u) && t1(u)<new Date())
+  return {text:"T-1 SHORTAGE RISK",css:"red"};
 
-    return {
-        total,
-        kitted,
-        pct: total ? kitted/total : 0
-    };
+ if(u.pcSubmitted && open.length)
+  return {text:"T-1 RECOVERY",css:"yellow"};
+
+ if(u.pcSubmitted && !open.length)
+  return {text:"PC VERIFIED",css:"green"};
+
+ if(u.t3Delivered)
+  return {text:"READY FOR PC VERIFICATION",css:"purple"};
+
+ if(allQC)
+  return {text:"READY FOR T-3 DELIVERY",css:"yellow"};
+
+ if(allPicker)
+  return {text:"WAREHOUSE QC",css:"yellow"};
+
+ return {text:"KITTING",css:"gray"};
 }
 
 
 /* =========================================================
-   OVERALL WORKFLOW STATUS
+   NAV
 ========================================================= */
 
-function unitStatus(unit){
-
-    const totals = unitTotals(unit);
-    const openShortages = openUnitShortages(unit.id);
-
-    const allSourceKitting =
-        unit.sources.every(sourceComplete);
-
-    const allWarehouseQC =
-        unit.sources.every(s=>s.warehouseQC);
-
-    if(unit.readyForProduction){
-        return {
-            text:"READY FOR PRODUCTION",
-            className:"green"
-        };
-    }
-
-    if(openShortages.length > 0){
-
-        const recoveryDue = t1(unit);
-
-        if(recoveryDue && recoveryDue < new Date()){
-            return {
-                text:"PRODUCTION RISK",
-                className:"red"
-            };
-        }
-
-        return {
-            text:"SHORTAGE RECOVERY",
-            className:"yellow"
-        };
-    }
-
-    if(unit.pcVerified){
-        return {
-            text:"T-2 VERIFIED",
-            className:"yellow"
-        };
-    }
-
-    if(unit.t3Delivered){
-        return {
-            text:"T-3 DELIVERED",
-            className:"yellow"
-        };
-    }
-
-    if(allWarehouseQC){
-        return {
-            text:"WAREHOUSE QC COMPLETE",
-            className:"yellow"
-        };
-    }
-
-    if(allSourceKitting){
-        return {
-            text:"KITTING COMPLETE",
-            className:"yellow"
-        };
-    }
-
-    if(totals.kitted > 0){
-        return {
-            text:"KITTING IN PROGRESS",
-            className:"yellow"
-        };
-    }
-
-    return {
-        text:"NOT STARTED",
-        className:"gray"
-    };
-}
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-function showPage(id,button){
-
-    document.querySelectorAll(".page")
-        .forEach(x=>x.classList.remove("active"));
-
-    document.getElementById(id)
-        .classList.add("active");
-
-    document.querySelectorAll(".mainnav button")
-        .forEach(x=>x.classList.remove("active"));
-
-    button.classList.add("active");
-
-    renderAll();
+function showPage(id,btn){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".mainnav button").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active");
+ renderAll();
 }
 
 
@@ -978,260 +504,111 @@ function showPage(id,button){
 ========================================================= */
 
 function buildModTabs(){
+ const box=document.getElementById("modTabs");
+ box.innerHTML="";
 
-    const holder =
-        document.getElementById("modTabs");
+ ["ALL",...MODS].forEach(m=>{
+  const b=document.createElement("button");
+  b.textContent=m==="ALL"?"ALL":"MOD "+m;
+  if(selectedMod===m)b.classList.add("active");
 
-    holder.innerHTML = "";
+  b.onclick=()=>{
+   selectedMod=m;
+   buildModTabs();
+   renderKitting();
+  };
 
-    ["ALL",...MODS].forEach(mod=>{
-
-        const button =
-            document.createElement("button");
-
-        button.textContent =
-            mod === "ALL" ?
-            "ALL" :
-            "MOD " + mod;
-
-        if(selectedMod === mod){
-            button.classList.add("active");
-        }
-
-        button.onclick = ()=>{
-
-            selectedMod = mod;
-
-            buildModTabs();
-            renderKitting();
-        };
-
-        holder.appendChild(button);
-    });
+  box.appendChild(b);
+ });
 }
-
-
-/* =========================================================
-   FILTER RULE
-
-   ALL:
-   Next 10 upcoming across all MODs.
-
-   Individual MOD:
-   ALL previous units +
-   NEXT 10 upcoming units.
-========================================================= */
 
 function visibleUnits(){
 
-    const now = new Date();
+ const now=new Date();
 
-    let units = [...db.subunits];
+ if(selectedMod==="ALL"){
+  return [...db.subunits]
+   .filter(u=>dt(u.productionStart)>=now)
+   .sort((a,b)=>dt(a.productionStart)-dt(b.productionStart))
+   .slice(0,10);
+ }
 
-    if(selectedMod === "ALL"){
+ const units=db.subunits.filter(u=>u.mod===selectedMod);
 
-        return units
-            .filter(u=>{
-                const d = dateFromInput(u.productionStart);
-                return d && d >= now;
-            })
-            .sort((a,b)=>
-                new Date(a.productionStart) -
-                new Date(b.productionStart)
-            )
-            .slice(0,10);
-    }
+ const old=units
+  .filter(u=>dt(u.productionStart)<now)
+  .sort((a,b)=>dt(b.productionStart)-dt(a.productionStart));
 
-    units = units.filter(
-        u=>u.mod === selectedMod
-    );
+ const next=units
+  .filter(u=>dt(u.productionStart)>=now)
+  .sort((a,b)=>dt(a.productionStart)-dt(b.productionStart))
+  .slice(0,10);
 
-    const previous =
-        units
-        .filter(u=>{
-            const d = dateFromInput(u.productionStart);
-            return d && d < now;
-        })
-        .sort((a,b)=>
-            new Date(b.productionStart) -
-            new Date(a.productionStart)
-        );
-
-    const upcoming =
-        units
-        .filter(u=>{
-            const d = dateFromInput(u.productionStart);
-            return d && d >= now;
-        })
-        .sort((a,b)=>
-            new Date(a.productionStart) -
-            new Date(b.productionStart)
-        )
-        .slice(0,10);
-
-    return [...previous,...upcoming];
+ return [...old,...next];
 }
 
 
 /* =========================================================
-   KITTING TABLE
+   MAIN KITTING VIEW
 ========================================================= */
 
 function renderKitting(){
 
-    let units = visibleUnits();
+ let units=visibleUnits();
 
-    const search =
-        document.getElementById("unitSearch")
-        .value.toLowerCase();
+ const q=document.getElementById("unitSearch").value.toLowerCase();
 
-    units = units.filter(
-        u=>
-        u.subunit.toLowerCase().includes(search)
-    );
+ units=units.filter(u=>u.subunit.toLowerCase().includes(q));
 
-    document.getElementById("workspaceTitle")
-        .textContent =
-        selectedMod === "ALL" ?
-        "ALL MODs" :
-        "MOD " + selectedMod;
+ document.getElementById("workspaceTitle").textContent=
+  selectedMod==="ALL"?"ALL MODs":"MOD "+selectedMod;
 
-    document.getElementById("workspaceDescription")
-        .textContent =
-        selectedMod === "ALL" ?
-        "Next 10 upcoming production subunits" :
-        "Previous units + next 10 upcoming units";
+ document.getElementById("workspaceDescription").textContent=
+  selectedMod==="ALL"?
+  "Next 10 upcoming subunits":
+  "Previous units + next 10 upcoming units";
 
-    let html = `
-    <table>
-    <thead>
-    <tr>
-        <th>Priority</th>
-        <th>MOD</th>
-        <th>Subunit</th>
-        <th>Production Start</th>
-        <th>T-3 Delivery</th>
-        <th>T-2 Verification</th>
-        <th>T-1 Recovery</th>
-        <th>Parts Kitted</th>
-        <th>Kit %</th>
-        <th>Open Shortages</th>
-        <th>Current Stage</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    `;
+ let html=`
+ <table>
+ <thead><tr>
+ <th>Priority</th><th>MOD</th><th>Subunit</th>
+ <th>Production Start</th><th>T-3 Delivery</th>
+ <th>T-2 Verification</th><th>T-1 Recovery</th>
+ <th>Picked Parts</th><th>Open Shortages</th>
+ <th>Current Stage</th><th>Action</th>
+ </tr></thead><tbody>`;
 
-    units.forEach(unit=>{
+ units.forEach(u=>{
 
-        const totals = unitTotals(unit);
-        const shortages =
-            openUnitShortages(unit.id).length;
+  const x=totals(u);
+  const st=statusFor(u);
 
-        const status =
-            unitStatus(unit);
+  html+=`
+  <tr>
+   <td>${esc(u.priority)}</td>
+   <td>${esc(u.mod)}</td>
+   <td><b>${esc(u.subunit)}</b></td>
+   <td>${fmt(u.productionStart)}</td>
+   <td>${fmt(t3(u))}</td>
+   <td>${fmt(t2(u))}</td>
+   <td>${fmt(t1(u))}</td>
+   <td>${x.picked}/${x.total} (${(x.pct*100).toFixed(0)}%)</td>
+   <td>${openShortages(u.id).length}</td>
+   <td><span class="status ${st.css}">${st.text}</span></td>
+   <td><button class="primary" onclick="openDetail('${u.id}')">Open Details</button></td>
+  </tr>`;
+ });
 
-        html += `
-        <tr>
+ html+="</tbody></table>";
 
-        <td>${escapeHTML(unit.priority)}</td>
+ document.getElementById("subunitTable").innerHTML=html;
 
-        <td>${escapeHTML(unit.mod)}</td>
-
-        <td><b>${escapeHTML(unit.subunit)}</b></td>
-
-        <td>${fmtDateTime(unit.productionStart)}</td>
-
-        <td>${fmtDateTime(t3(unit))}</td>
-
-        <td>${fmtDateTime(t2(unit))}</td>
-
-        <td>${fmtDateTime(t1(unit))}</td>
-
-        <td>
-        ${totals.kitted} / ${totals.total}
-        </td>
-
-        <td>
-        ${(totals.pct*100).toFixed(0)}%
-        </td>
-
-        <td>${shortages}</td>
-
-        <td>
-        <span class="status ${status.className}">
-        ${status.text}
-        </span>
-        </td>
-
-        <td>
-        <button class="primary"
-        onclick="openDetail('${unit.id}')">
-        Open Details
-        </button>
-        </td>
-
-        </tr>
-        `;
-    });
-
-    html += "</tbody></table>";
-
-    document.getElementById("subunitTable")
-        .innerHTML = html;
-
-    updateKPIs(units);
-}
-
-
-/* =========================================================
-   KPI
-========================================================= */
-
-function updateKPIs(units){
-
-    let ready = 0;
-    let shortages = 0;
-    let risks = 0;
-    let pctTotal = 0;
-
-    units.forEach(unit=>{
-
-        const status = unitStatus(unit);
-        const totals = unitTotals(unit);
-
-        if(unit.readyForProduction){
-            ready++;
-        }
-
-        shortages +=
-            openUnitShortages(unit.id).length;
-
-        if(status.text === "PRODUCTION RISK"){
-            risks++;
-        }
-
-        pctTotal += totals.pct;
-    });
-
-    document.getElementById("kpiUnits")
-        .textContent = units.length;
-
-    document.getElementById("kpiReady")
-        .textContent = ready;
-
-    document.getElementById("kpiShort")
-        .textContent = shortages;
-
-    document.getElementById("kpiRisk")
-        .textContent = risks;
-
-    document.getElementById("kpiPct")
-        .textContent =
-        units.length ?
-        ((pctTotal/units.length)*100).toFixed(0)+"%" :
-        "0%";
+ document.getElementById("kpiUnits").textContent=units.length;
+ document.getElementById("kpiDelivered").textContent=units.filter(u=>u.t3Delivered).length;
+ document.getElementById("kpiPC").textContent=units.filter(u=>u.t3Delivered&&!u.pcSubmitted).length;
+ document.getElementById("kpiShort").textContent=units.reduce((n,u)=>n+openShortages(u.id).length,0);
+ document.getElementById("kpiRisk").textContent=
+  units.filter(u=>openShortages(u.id).length&&t1(u)&&t1(u)<new Date()).length;
 }
 
 
@@ -1241,115 +618,64 @@ function updateKPIs(units){
 
 function openAddSubunit(){
 
-    const select =
-        document.getElementById("addMod");
+ addMod.innerHTML=MODS.map(m=>`<option>${m}</option>`).join("");
 
-    select.innerHTML =
-        MODS.map(m=>
-            `<option value="${m}">${m}</option>`
-        ).join("");
+ if(selectedMod!=="ALL")addMod.value=selectedMod;
 
-    if(selectedMod !== "ALL"){
-        select.value = selectedMod;
-    }
+ addPriority.value="1";
+ addSubunit.value="";
+ addProduction.value="";
+ addComments.value="";
 
-    document.getElementById("addPriority").value="1";
-    document.getElementById("addSubunit").value="";
-    document.getElementById("addProduction").value="";
-    document.getElementById("addComments").value="";
-
-    document.getElementById("addModal")
-        .classList.add("open");
+ addModal.classList.add("open");
 }
 
 function saveNewSubunit(){
 
-    const mod =
-        document.getElementById("addMod").value;
+ const sub=addSubunit.value.trim();
 
-    const subunit =
-        document.getElementById("addSubunit")
-        .value.trim();
+ if(!sub||!addProduction.value){
+  alert("Subunit and Production Start are required.");
+  return;
+ }
 
-    const productionStart =
-        document.getElementById("addProduction").value;
+ if(db.subunits.some(u=>u.mod===addMod.value&&u.subunit.toLowerCase()===sub.toLowerCase())){
+  alert("This MOD/Subunit already exists.");
+  return;
+ }
 
-    if(!subunit || !productionStart){
+ db.subunits.push({
+  id:uid(),
+  priority:addPriority.value,
+  mod:addMod.value,
+  subunit:sub,
+  productionStart:addProduction.value,
+  comments:addComments.value,
 
-        alert(
-            "Subunit and Production Start Date/Time are required."
-        );
+  sources:SOURCES.map(name=>({
+   id:uid(),
+   name,
+   totalParts:"",
+   pickedParts:"",
+   planningCT:"",
+   actualStart:"",
+   actualFinish:"",
+   pickerSubmitted:false,
+   pickerSubmittedTime:"",
+   qcVerifiedQty:"",
+   qcSubmitted:false,
+   qcSubmittedTime:""
+  })),
 
-        return;
-    }
+  t3Delivered:false,
+  t3DeliveredTime:"",
+  pcLines:[],
+  pcSubmitted:false,
+  pcSubmittedTime:""
+ });
 
-    const duplicate =
-        db.subunits.some(
-            u=>
-            u.mod === mod &&
-            u.subunit.toLowerCase() ===
-            subunit.toLowerCase()
-        );
-
-    if(duplicate){
-
-        alert(
-            "This subunit already exists under MOD " + mod + "."
-        );
-
-        return;
-    }
-
-    const sources =
-        SOURCES.map(name=>({
-            id:uid(),
-            name:name,
-            totalParts:"",
-            kittedParts:"",
-            planningCT:"",
-            actualKitStart:"",
-            actualKitFinish:"",
-            warehouseQC:false,
-            warehouseQCTime:""
-        }));
-
-    db.subunits.push({
-
-        id:uid(),
-
-        priority:
-            document.getElementById("addPriority").value,
-
-        mod:mod,
-
-        subunit:subunit,
-
-        productionStart:productionStart,
-
-        comments:
-            document.getElementById("addComments").value,
-
-        sources:sources,
-
-        t3Delivered:false,
-        t3DeliveredTime:"",
-
-        pcVerified:false,
-        pcVerifiedTime:"",
-
-        shortageIdentificationComplete:false,
-        shortageIdentificationTime:"",
-
-        recoveryComplete:false,
-        recoveryCompleteTime:"",
-
-        readyForProduction:false,
-        readyTime:""
-    });
-
-    closeModal("addModal");
-
-    saveDB();
+ closeModal("addModal");
+ saveDB();
 }
 
 
@@ -1358,1020 +684,995 @@ function saveNewSubunit(){
 ========================================================= */
 
 function openDetail(id){
-
-    currentDetailId = id;
-
-    renderDetail(id);
-
-    document.getElementById("detailModal")
-        .classList.add("open");
+ currentDetailId=id;
+ renderDetail(id);
+ detailModal.classList.add("open");
 }
 
 function renderDetail(id){
 
-    const unit =
-        db.subunits.find(u=>u.id===id);
+ const u=db.subunits.find(x=>x.id===id);
+ if(!u)return;
 
-    if(!unit) return;
+ const x=totals(u);
+ const st=statusFor(u);
 
-    const totals = unitTotals(unit);
-    const status = unitStatus(unit);
-    const shortages = unitShortages(unit.id);
+ let html=`
+ <div class="toolbar">
+  <div>
+   <h2 style="margin:0">MOD ${esc(u.mod)} — ${esc(u.subunit)}</h2>
+   <span class="small">Production Start: ${fmt(u.productionStart)}</span>
+  </div>
+  <div class="right">
+   <span class="status ${st.css}">${st.text}</span>
+   <button class="secondary" onclick="currentDetailId=null;closeModal('detailModal')">Close</button>
+  </div>
+ </div>
 
-    let html = `
+ <div class="detailHeader">
+  <b>Picked:</b> ${x.picked}/${x.total} (${(x.pct*100).toFixed(0)}%)
+  &nbsp;&nbsp; <b>Open Shortages:</b> ${openShortages(u.id).length}
+  <br><br>
+  <b>T-3 Delivery:</b> ${fmt(t3(u))}
+  &nbsp;&nbsp; <b>T-2 Production Control:</b> ${fmt(t2(u))}
+  &nbsp;&nbsp; <b>T-1 Recovery:</b> ${fmt(t1(u))}
+ </div>
 
-    <div class="toolbar">
+ <h3 class="sectionTitle">Workflow</h3>
+ ${workflowHTML(u)}
 
-        <div>
-        <h2 style="margin:0">
-        MOD ${escapeHTML(unit.mod)}
-        — ${escapeHTML(unit.subunit)}
-        </h2>
+ <h3 class="sectionTitle">1. Warehouse Picker — Source Kitting</h3>
+ <div class="note">
+ Picker works from the ERP pick ticket. If stock is unavailable, record the missing part under that source. When the source is finished, submit the source for Warehouse QC.
+ </div>`;
 
-        <div class="small">
-        Production Start:
-        ${fmtDateTime(unit.productionStart)}
-        </div>
-        </div>
+ u.sources.forEach(s=>{
+  html+=sourceHTML(u,s);
+ });
 
-        <div class="right">
+ html+=`
+ <h3 class="sectionTitle">2. Warehouse QC</h3>
+ <div class="note">
+ Warehouse QC independently verifies the material physically kitted by the picker. Any discrepancy is submitted as a QC shortage to the Warehouse Supervisor.
+ </div>
+ ${qcTableHTML(u)}
 
-        <span class="status ${status.className}">
-        ${status.text}
-        </span>
+ <h3 class="sectionTitle">3. T-3 Delivery</h3>
+ ${deliveryHTML(u)}
 
-        <button class="secondary"
-        onclick="closeDetail()">
-        Close
-        </button>
+ <h3 class="sectionTitle">4. T-2 Production Control Verification</h3>
+ ${pcSectionHTML(u)}
 
-        </div>
+ <h3 class="sectionTitle">5. T-1 Shortage Recovery</h3>
+ ${recoveryHTML(u)}
 
-    </div>
+ <h3 class="sectionTitle">Production Information</h3>
+ <div class="grid">
+  <label>Priority<input value="${esc(u.priority)}" onchange="updateUnit('${u.id}','priority',this.value)"></label>
+  <label>Production Start<input type="datetime-local" value="${u.productionStart}" onchange="updateUnit('${u.id}','productionStart',this.value)"></label>
+  <label>Comments<textarea onchange="updateUnit('${u.id}','comments',this.value)">${esc(u.comments||"")}</textarea></label>
+ </div>`;
 
-    <div class="detailHeader">
+ document.getElementById("detailContent").innerHTML=html;
+}
 
-        <b>Material Readiness:</b>
-        ${totals.kitted} / ${totals.total}
-        parts kitted
-        (${(totals.pct*100).toFixed(0)}%)
 
-        &nbsp;&nbsp;
+/* =========================================================
+   WORKFLOW VISUAL
+========================================================= */
 
-        <b>Open Shortages:</b>
-        ${openUnitShortages(unit.id).length}
+function workflowHTML(u){
 
-        <br><br>
+ const picker=u.sources.every(s=>s.pickerSubmitted);
+ const qc=u.sources.every(s=>s.qcSubmitted);
 
-        <b>T-3:</b>
-        ${fmtDateTime(t3(unit))}
+ const stages=[
+  ["Kitting",picker,picker?"Submitted":"In Progress"],
+  ["Warehouse QC",qc,qc?"Verified":"Pending"],
+  ["T-3 Delivered",u.t3Delivered,u.t3Delivered?fmt(u.t3DeliveredTime):"Due "+fmt(t3(u))],
+  ["T-2 PC Verified",u.pcSubmitted,u.pcSubmitted?fmt(u.pcSubmittedTime):"Due "+fmt(t2(u))],
+  ["T-1 Recovery",openShortages(u.id).length===0,u.pcSubmitted?(openShortages(u.id).length+" open"):"Pending"]
+ ];
 
-        &nbsp;&nbsp;
+ return `<div class="process">`+
+ stages.map((s,i)=>`
+  <div class="stage ${s[1]?"done":"pending"}">
+   <b>${s[0]}</b><p>${s[2]}</p>
+  </div>${i<stages.length-1?'<div class="arrow">→</div>':''}`
+ ).join("")+
+ `</div>`;
+}
 
-        <b>T-2:</b>
-        ${fmtDateTime(t2(unit))}
 
-        &nbsp;&nbsp;
+/* =========================================================
+   PICKER
+========================================================= */
 
-        <b>T-1:</b>
-        ${fmtDateTime(t1(unit))}
+function sourceHTML(u,s){
 
-    </div>
+ const shorts=sourceShortages(u.id,s.id,"PICKER")
+  .filter(x=>shortageCalc(x).status!=="CLOSED");
 
-    <h3 class="sectionTitle">
-    Process Status
-    </h3>
+ return `
+ <div class="sourceCard">
 
-    ${processStagesHTML(unit)}
+  <div class="sourceHead">
+   <div><b>${esc(s.name)}</b></div>
+   <span class="status ${s.pickerSubmitted?'green':'gray'}">
+    ${s.pickerSubmitted?'PICK SUBMITTED':'KITTING'}
+   </span>
+  </div>
 
-    <h3 class="sectionTitle">
-    Source-Level Kitting
-    </h3>
+  <div class="sourceBody">
 
-    <table>
+   <div class="grid">
+    <label>Total Parts on Pick Ticket
+     <input type="number" min="0" value="${s.totalParts}"
+      onchange="updateSource('${u.id}','${s.id}','totalParts',this.value)">
+    </label>
 
-    <thead>
-    <tr>
-        <th>Source</th>
-        <th>Total Parts</th>
-        <th>Kitted</th>
-        <th>Kit %</th>
-        <th>Planning CT (hr)</th>
-        <th>Calculated Plan Start</th>
-        <th>Actual Start</th>
-        <th>Actual Finish</th>
-        <th>Warehouse QC</th>
-        <th>Action</th>
-    </tr>
-    </thead>
+    <label>Parts Kitted
+     <input type="number" min="0" value="${s.pickedParts}"
+      onchange="updateSource('${u.id}','${s.id}','pickedParts',this.value)">
+    </label>
 
-    <tbody>
-    `;
+    <label>Planning CT (hr)
+     <input type="number" step=".1" value="${s.planningCT}"
+      onchange="updateSource('${u.id}','${s.id}','planningCT',this.value)">
+    </label>
 
-    unit.sources.forEach(source=>{
+    <label>Calculated Kit Start
+     <input value="${fmt(plannedStart(u,s))}" disabled>
+    </label>
 
-        html += `
+    <label>Actual Kit Start
+     <input type="datetime-local" value="${s.actualStart||""}"
+      onchange="updateSource('${u.id}','${s.id}','actualStart',this.value)">
+    </label>
 
-        <tr>
+    <label>Actual Kit Finish
+     <input type="datetime-local" value="${s.actualFinish||""}"
+      onchange="updateSource('${u.id}','${s.id}','actualFinish',this.value)">
+    </label>
+   </div>
 
-        <td><b>${escapeHTML(source.name)}</b></td>
+   <br>
 
-        <td>
-        <input type="number"
-        min="0"
-        style="width:75px"
-        value="${source.totalParts}"
-        onchange="updateSource(
-            '${unit.id}',
-            '${source.id}',
-            'totalParts',
-            this.value
-        )">
-        </td>
+   <button class="warning"
+    onclick="openShortage('${u.id}','${s.id}','PICKER')">
+    + Stock Shortage
+   </button>
 
-        <td>
-        <input type="number"
-        min="0"
-        style="width:75px"
-        value="${source.kittedParts}"
-        onchange="updateSource(
-            '${unit.id}',
-            '${source.id}',
-            'kittedParts',
-            this.value
-        )">
-        </td>
+   <button class="success"
+    onclick="submitPicker('${u.id}','${s.id}')"
+    ${s.pickerSubmitted?'disabled':''}>
+    ${s.pickerSubmitted?'Submitted to QC':'Submit Kitting'}
+   </button>
 
-        <td>
-        ${(sourcePercent(source)*100).toFixed(0)}%
-        </td>
+   <span class="small">
+    ${shorts.length} open picker shortage(s)
+   </span>
 
-        <td>
-        <input type="number"
-        step=".1"
-        min="0"
-        style="width:75px"
-        value="${source.planningCT}"
-        onchange="updateSource(
-            '${unit.id}',
-            '${source.id}',
-            'planningCT',
-            this.value
-        )">
-        </td>
+  </div>
+ </div>`;
+}
 
-        <td>
-        ${fmtDateTime(plannedKitStart(unit,source))}
-        </td>
+function submitPicker(unitId,sourceId){
 
-        <td>
-        <input type="datetime-local"
-        value="${source.actualKitStart || ""}"
-        onchange="updateSource(
-            '${unit.id}',
-            '${source.id}',
-            'actualKitStart',
-            this.value
-        )">
-        </td>
+ const u=db.subunits.find(x=>x.id===unitId);
+ const s=u.sources.find(x=>x.id===sourceId);
 
-        <td>
-        <input type="datetime-local"
-        value="${source.actualKitFinish || ""}"
-        onchange="updateSource(
-            '${unit.id}',
-            '${source.id}',
-            'actualKitFinish',
-            this.value
-        )">
-        </td>
+ if(!s.totalParts){
+  alert("Enter total parts from the ERP pick ticket first.");
+  return;
+ }
 
-        <td>
-        <input type="checkbox"
-        ${source.warehouseQC ? "checked" : ""}
-        onchange="toggleWarehouseQC(
-            '${unit.id}',
-            '${source.id}',
-            this.checked
-        )">
+ s.pickerSubmitted=true;
+ s.pickerSubmittedTime=new Date().toISOString();
 
-        ${
-            source.warehouseQCTime ?
-            "<br><span class='small'>" +
-            fmtDateTime(source.warehouseQCTime) +
-            "</span>" :
-            ""
-        }
-        </td>
+ const shorts=sourceShortages(unitId,sourceId,"PICKER")
+  .filter(x=>shortageCalc(x).status!=="CLOSED");
 
-        <td>
-        <button class="primary"
-        onclick="openShortageModal(
-            '${unit.id}',
-            '${source.id}'
-        )">
-        + Shortage
-        </button>
-        </td>
+ const subject=`Kitting Submitted - MOD ${u.mod} ${u.subunit} - ${s.name}`;
 
-        </tr>
-        `;
+ const body=
+ `MOD: ${u.mod}
+Subunit: ${u.subunit}
+Source: ${s.name}
+Pick Ticket Parts: ${s.totalParts}
+Kitted Parts: ${s.pickedParts}
+Open Stock Shortages: ${shorts.length}
+T-3 Delivery Due: ${fmt(t3(u))}`;
+
+ createNotification("PICKER",u,s,subject,body);
+
+ saveDB();
+}
+
+
+/* =========================================================
+   WAREHOUSE QC
+========================================================= */
+
+function qcTableHTML(u){
+
+ let html=`<table><thead><tr>
+ <th>Source</th><th>Picker Says Kitted</th>
+ <th>QC Physically Verified</th><th>Difference</th>
+ <th>QC Shortage</th><th>QC Status</th><th>Action</th>
+ </tr></thead><tbody>`;
+
+ u.sources.forEach(s=>{
+
+  const picked=Number(s.pickedParts||0);
+  const verified=Number(s.qcVerifiedQty||0);
+  const diff=s.qcVerifiedQty===""?"":Math.max(0,picked-verified);
+
+  html+=`
+  <tr>
+   <td><b>${esc(s.name)}</b></td>
+   <td>${picked}</td>
+   <td>
+    <input type="number" min="0" style="width:85px"
+     value="${s.qcVerifiedQty}"
+     ${!s.pickerSubmitted?'disabled':''}
+     onchange="updateSource('${u.id}','${s.id}','qcVerifiedQty',this.value)">
+   </td>
+   <td>${diff}</td>
+   <td>
+    <button class="warning"
+     ${!s.pickerSubmitted?'disabled':''}
+     onclick="openShortage('${u.id}','${s.id}','QC')">
+     + QC Discrepancy
+    </button>
+   </td>
+   <td>
+    <span class="status ${s.qcSubmitted?'green':'gray'}">
+     ${s.qcSubmitted?'QC COMPLETE':'PENDING'}
+    </span>
+   </td>
+   <td>
+    <button class="success"
+     ${!s.pickerSubmitted||s.qcSubmitted?'disabled':''}
+     onclick="submitQC('${u.id}','${s.id}')">
+     Submit QC
+    </button>
+   </td>
+  </tr>`;
+ });
+
+ return html+"</tbody></table>";
+}
+
+function submitQC(unitId,sourceId){
+
+ const u=db.subunits.find(x=>x.id===unitId);
+ const s=u.sources.find(x=>x.id===sourceId);
+
+ if(s.qcVerifiedQty===""){
+  alert("QC must enter the physically verified quantity.");
+  return;
+ }
+
+ s.qcSubmitted=true;
+ s.qcSubmittedTime=new Date().toISOString();
+
+ const discrepancies=sourceShortages(unitId,sourceId,"QC")
+  .filter(x=>shortageCalc(x).status!=="CLOSED");
+
+ if(discrepancies.length){
+
+  createNotification(
+   "QC",u,s,
+   `Warehouse QC Discrepancy - MOD ${u.mod} ${u.subunit} - ${s.name}`,
+   `Warehouse QC found discrepancy.
+
+MOD: ${u.mod}
+Subunit: ${u.subunit}
+Source: ${s.name}
+Picker Kitted Qty: ${s.pickedParts}
+QC Verified Qty: ${s.qcVerifiedQty}
+Open QC Discrepancies: ${discrepancies.length}`
+  );
+ }
+
+ saveDB();
+}
+
+
+/* =========================================================
+   T-3 DELIVERY
+========================================================= */
+
+function deliveryHTML(u){
+
+ const qcComplete=u.sources.every(s=>s.qcSubmitted);
+
+ return `
+ <div class="rolebox">
+
+  <b>Required T-3 Delivery:</b> ${fmt(t3(u))}
+
+  <br><br>
+
+  ${
+   u.t3Delivered
+   ? `<span class="status green">DELIVERED ${fmt(u.t3DeliveredTime)}</span>`
+   : `<span class="status ${qcComplete?'yellow':'gray'}">
+      ${qcComplete?'READY TO DELIVER':'WAITING FOR WAREHOUSE QC'}
+      </span>`
+  }
+
+  <br><br>
+
+  <button class="success"
+   ${!qcComplete||u.t3Delivered?'disabled':''}
+   onclick="confirmDelivery('${u.id}')">
+   Confirm Delivered to Production
+  </button>
+
+  ${
+   u.t3Delivered
+   ? `<div class="note"><b>Production Control:</b> Material is ready for T-2 verification.</div>`
+   : ""
+  }
+
+ </div>`;
+}
+
+function confirmDelivery(unitId){
+
+ const u=db.subunits.find(x=>x.id===unitId);
+
+ u.t3Delivered=true;
+ u.t3DeliveredTime=new Date().toISOString();
+
+ saveDB();
+}
+
+
+/* =========================================================
+   PRODUCTION CONTROL
+========================================================= */
+
+function pcSectionHTML(u){
+
+ if(!u.t3Delivered){
+  return `<div class="alert">
+  Production Control verification is locked until Warehouse confirms T-3 delivery.
+  </div>`;
+ }
+
+ const lines=buildPCLines(u);
+
+ return `
+ <div class="rolebox">
+
+  <b>Verification Due:</b> ${fmt(t2(u))}
+
+  <p>
+  Production Control verifies each part/quantity physically received.
+  If required quantity is not present, the system calculates the remaining quantity.
+  </p>
+
+  <button class="primary"
+   onclick="openPCVerification('${u.id}')">
+   ${u.pcSubmitted?'Review Verification':'Start Production Control Verification'}
+  </button>
+
+  <span class="small">
+   ${lines.length} part line(s) available for verification
+  </span>
+
+ </div>`;
+}
+
+
+/*
+The app does not have ERP part-level pick ticket lines yet.
+So PC verification lines are created from all shortage part records
+plus any manually added verification lines.
+*/
+
+function buildPCLines(u){
+
+ if(!u.pcLines)u.pcLines=[];
+
+ const map=new Map();
+
+ u.pcLines.forEach(l=>map.set(l.id,l));
+
+ shortagesForUnit(u.id).forEach(s=>{
+
+  const key="short-"+s.id;
+
+  if(!map.has(key)){
+   map.set(key,{
+    id:key,
+    sourceId:s.sourceId,
+    part:s.part,
+    description:s.description,
+    requiredQty:s.requiredQty,
+    receivedQty:"",
+    verified:false
+   });
+  }
+ });
+
+ return [...map.values()];
+}
+
+function openPCVerification(unitId){
+
+ currentPCUnit=unitId;
+
+ const u=db.subunits.find(x=>x.id===unitId);
+
+ let lines=buildPCLines(u);
+
+ u.pcLines=lines;
+
+ let html=`
+ <div class="note">
+ Check each material line physically received. Enter the actual quantity received.
+ Remaining quantity is calculated automatically.
+ </div>
+
+ <div class="toolbar">
+  <button class="secondary" onclick="addPCLine('${u.id}')">
+   + Add Part Line
+  </button>
+ </div>
+
+ <table>
+ <thead><tr>
+  <th>Received ✓</th><th>Source</th><th>Part</th>
+  <th>Description</th><th>Required Qty</th>
+  <th>Received Qty</th><th>Remaining</th>
+ </tr></thead><tbody>`;
+
+ lines.forEach(l=>{
+
+  const source=u.sources.find(s=>s.id===l.sourceId);
+  const remaining=
+   l.receivedQty===""?"":Math.max(0,Number(l.requiredQty||0)-Number(l.receivedQty||0));
+
+  html+=`
+  <tr>
+   <td>
+    <input class="check" type="checkbox"
+     ${l.verified?'checked':''}
+     onchange="updatePCLine('${u.id}','${l.id}','verified',this.checked)">
+   </td>
+
+   <td>${esc(source?.name||"")}</td>
+
+   <td>
+    <input value="${esc(l.part||"")}"
+     onchange="updatePCLine('${u.id}','${l.id}','part',this.value)">
+   </td>
+
+   <td>
+    <input value="${esc(l.description||"")}"
+     onchange="updatePCLine('${u.id}','${l.id}','description',this.value)">
+   </td>
+
+   <td>
+    <input type="number" min="0" style="width:85px"
+     value="${l.requiredQty||""}"
+     onchange="updatePCLine('${u.id}','${l.id}','requiredQty',this.value)">
+   </td>
+
+   <td>
+    <input type="number" min="0" style="width:85px"
+     value="${l.receivedQty||""}"
+     onchange="updatePCLine('${u.id}','${l.id}','receivedQty',this.value)">
+   </td>
+
+   <td><b>${remaining}</b></td>
+  </tr>`;
+ });
+
+ html+=`
+ </tbody></table>
+
+ <br>
+
+ <button class="success" onclick="submitPCVerification('${u.id}')">
+  Submit Production Control Verification
+ </button>
+
+ <button class="secondary" onclick="closeModal('pcModal')">
+  Cancel
+ </button>`;
+
+ document.getElementById("pcContent").innerHTML=html;
+ pcModal.classList.add("open");
+
+ saveDB();
+}
+
+function addPCLine(unitId){
+
+ const u=db.subunits.find(x=>x.id===unitId);
+
+ if(!u.pcLines)u.pcLines=[];
+
+ u.pcLines.push({
+  id:uid(),
+  sourceId:u.sources[0].id,
+  part:"",
+  description:"",
+  requiredQty:"",
+  receivedQty:"",
+  verified:false
+ });
+
+ localStorage.setItem(DBKEY,JSON.stringify(db));
+
+ openPCVerification(unitId);
+}
+
+function updatePCLine(unitId,lineId,field,value){
+
+ const u=db.subunits.find(x=>x.id===unitId);
+ const line=u.pcLines.find(x=>x.id===lineId);
+
+ if(!line)return;
+
+ line[field]=value;
+
+ localStorage.setItem(DBKEY,JSON.stringify(db));
+
+ openPCVerification(unitId);
+}
+
+function submitPCVerification(unitId){
+
+ const u=db.subunits.find(x=>x.id===unitId);
+
+ if(!u.pcLines||!u.pcLines.length){
+  alert("There are no part lines to verify.");
+  return;
+ }
+
+ const incomplete=u.pcLines.some(l=>
+  !l.verified ||
+  l.requiredQty==="" ||
+  l.receivedQty===""
+ );
+
+ if(incomplete){
+  alert("Production Control must verify every line and enter required/received quantities.");
+  return;
+ }
+
+ let generated=0;
+
+ u.pcLines.forEach(l=>{
+
+  const remaining=
+   Math.max(0,Number(l.requiredQty)-Number(l.receivedQty));
+
+  if(remaining>0){
+
+   const existing=db.shortages.find(s=>
+    s.type==="PC" &&
+    s.subunitId===u.id &&
+    s.pcLineId===l.id &&
+    shortageCalc(s).status!=="CLOSED"
+   );
+
+   if(!existing){
+
+    db.shortages.push({
+     id:uid(),
+     type:"PC",
+     subunitId:u.id,
+     sourceId:l.sourceId,
+     pcLineId:l.id,
+     part:l.part,
+     description:l.description,
+     requiredQty:l.requiredQty,
+     actualQty:l.receivedQty,
+     recoveredQty:0,
+     owner:"Warehouse / Material Planner",
+     comments:"Generated from T-2 Production Control verification.",
+     created:new Date().toISOString(),
+     pcRecoveryConfirmed:false,
+     pcRecoveryConfirmedTime:""
     });
 
-    html += `
-    </tbody>
-    </table>
+    generated++;
+   }
+  }
+ });
 
+ u.pcSubmitted=true;
+ u.pcSubmittedTime=new Date().toISOString();
 
-    <h3 class="sectionTitle">
-    Shortage Recovery
-    </h3>
-    `;
+ createNotification(
+  "PC",
+  u,
+  null,
+  `T-2 Production Control Verification - MOD ${u.mod} ${u.subunit}`,
+  `Production Control verification completed.
 
-    if(shortages.length === 0){
+MOD: ${u.mod}
+Subunit: ${u.subunit}
+Verification Time: ${fmt(u.pcSubmittedTime)}
+New Shortages Generated: ${generated}
+T-1 Recovery Deadline: ${fmt(t1(u))}
 
-        html += `
-        <div class="note">
-        No shortages recorded for this subunit.
-        </div>
-        `;
-    }
-    else{
+Please review and recover all open shortages before T-1 closure.`
+ );
 
-        html += shortageDetailTable(shortages,unit);
-    }
+ closeModal("pcModal");
 
-    html += `
-
-    <h3 class="sectionTitle">
-    Production Information
-    </h3>
-
-    <div class="grid">
-
-        <label>
-        Priority
-        <input
-        value="${escapeHTML(unit.priority)}"
-        onchange="updateUnit(
-            '${unit.id}',
-            'priority',
-            this.value
-        )">
-        </label>
-
-        <label>
-        Production Start
-        <input
-        type="datetime-local"
-        value="${unit.productionStart}"
-        onchange="updateUnit(
-            '${unit.id}',
-            'productionStart',
-            this.value
-        )">
-        </label>
-
-        <label>
-        Comments
-        <textarea
-        onchange="updateUnit(
-            '${unit.id}',
-            'comments',
-            this.value
-        )">${escapeHTML(unit.comments||"")}</textarea>
-        </label>
-
-    </div>
-
-    <div class="toolbar"
-    style="margin-top:20px">
-
-        <button class="danger"
-        onclick="deleteSubunit('${unit.id}')">
-        Delete Subunit
-        </button>
-
-    </div>
-    `;
-
-    document.getElementById("detailContent")
-        .innerHTML = html;
+ saveDB();
 }
 
 
 /* =========================================================
-   PROCESS STAGES
+   T-1 RECOVERY
 ========================================================= */
 
-function processStagesHTML(unit){
+function recoveryHTML(u){
 
-    const allKitted =
-        unit.sources.every(sourceComplete);
+ const shorts=openShortages(u.id);
 
-    const allQC =
-        unit.sources.every(s=>s.warehouseQC);
+ if(!shorts.length){
+  return `<div class="note">
+   No open shortages. All recorded shortages are closed or none have been identified.
+  </div>`;
+ }
 
-    const shortages =
-        openUnitShortages(unit.id);
+ let html=`
+ <div class="alert">
+  <b>T-1 Recovery Deadline:</b> ${fmt(t1(u))}<br>
+  Warehouse/material owner updates recovered quantity.
+  Production Control closes the shortage only after physically confirming receipt.
+ </div>
 
-    const stages = [
+ <table>
+ <thead><tr>
+  <th>Origin</th><th>Source</th><th>Part</th>
+  <th>Required</th><th>Initial Actual</th><th>Original Short</th>
+  <th>Recovered</th><th>Remaining</th><th>Owner</th>
+  <th>Status</th><th>PC Confirmation</th>
+ </tr></thead><tbody>`;
 
-        {
-            name:"Kitting",
-            complete:allKitted,
-            detail:
-                allKitted ?
-                "Complete" :
-                "In Progress"
-        },
+ shorts.forEach(s=>{
 
-        {
-            name:"Warehouse QC",
-            complete:allQC,
-            detail:
-                allQC ?
-                "Complete" :
-                "Pending"
-        },
+  const c=shortageCalc(s);
+  const source=u.sources.find(x=>x.id===s.sourceId);
 
-        {
-            name:"T-3 Delivered",
-            complete:unit.t3Delivered,
-            detail:
-                unit.t3DeliveredTime ?
-                fmtDateTime(unit.t3DeliveredTime) :
-                "Due " + fmtDateTime(t3(unit)),
-            toggle:"t3Delivered"
-        },
+  html+=`
+  <tr>
+   <td>${typeName(s.type)}</td>
+   <td>${esc(source?.name||"")}</td>
+   <td><b>${esc(s.part)}</b></td>
+   <td>${s.requiredQty}</td>
+   <td>${s.actualQty}</td>
+   <td>${c.short}</td>
 
-        {
-            name:"T-2 PC Verified",
-            complete:unit.pcVerified,
-            detail:
-                unit.pcVerifiedTime ?
-                fmtDateTime(unit.pcVerifiedTime) :
-                "Due " + fmtDateTime(t2(unit)),
-            toggle:"pcVerified"
-        },
+   <td>
+    <input type="number" min="0" style="width:85px"
+     value="${s.recoveredQty||0}"
+     onchange="updateRecovery('${s.id}',this.value)">
+   </td>
 
-        {
-            name:"T-2 Shortages",
-            complete:unit.shortageIdentificationComplete,
-            detail:
-                unit.shortageIdentificationComplete ?
-                (
-                    shortages.length +
-                    " currently open"
-                ) :
-                "Pending",
-            toggle:"shortageIdentificationComplete"
-        },
+   <td><b>${c.remaining}</b></td>
+   <td>${esc(s.owner||"")}</td>
 
-        {
-            name:"T-1 Recovery",
-            complete:unit.recoveryComplete,
-            detail:
-                unit.recoveryComplete ?
-                "Complete" :
-                (
-                    shortages.length ?
-                    shortages.length +
-                    " open" :
-                    "Pending"
-                ),
-            toggle:"recoveryComplete"
-        },
+   <td>
+    <span class="status ${c.status==="CLOSED"?"green":c.status==="RECOVERING"?"yellow":"red"}">
+     ${c.status}
+    </span>
+   </td>
 
-        {
-            name:"T0 Ready",
-            complete:unit.readyForProduction,
-            detail:
-                unit.readyForProduction ?
-                "READY" :
-                "Pending",
-            toggle:"readyForProduction"
-        }
+   <td>
+    <button class="success"
+     ${c.remaining>0||s.pcRecoveryConfirmed?'disabled':''}
+     onclick="confirmRecovery('${s.id}')">
+     ${s.pcRecoveryConfirmed?'Received / Closed':'Confirm Received'}
+    </button>
+   </td>
+  </tr>`;
+ });
 
-    ];
+ return html+"</tbody></table>";
+}
 
-    let html = `<div class="process">`;
+function updateRecovery(shortageId,value){
 
-    stages.forEach((stage,index)=>{
+ const s=db.shortages.find(x=>x.id===shortageId);
+ if(!s)return;
 
-        let css =
-            stage.complete ?
-            "done" :
-            "pending";
+ s.recoveredQty=value;
+ s.pcRecoveryConfirmed=false;
+ s.pcRecoveryConfirmedTime="";
 
-        if(
-            !stage.complete &&
-            stage.name === "T-1 Recovery" &&
-            shortages.length
-        ){
-            css = "progress";
-        }
+ saveDB();
+}
 
-        html += `
+function confirmRecovery(shortageId){
 
-        <div class="stage ${css}">
+ const s=db.shortages.find(x=>x.id===shortageId);
+ if(!s)return;
 
-        <b>${stage.name}</b>
+ const c=shortageCalc(s);
 
-        <p>${stage.detail}</p>
+ if(c.remaining>0){
+  alert("Remaining quantity must be zero before Production Control can close this shortage.");
+  return;
+ }
 
-        ${
-            stage.toggle ?
-            `
-            <button class="secondary"
-            onclick="toggleStage(
-                '${unit.id}',
-                '${stage.toggle}'
-            )">
+ s.pcRecoveryConfirmed=true;
+ s.pcRecoveryConfirmedTime=new Date().toISOString();
 
-            ${
-                stage.complete ?
-                "Undo" :
-                "Mark Complete"
-            }
-
-            </button>
-            `
-            :
-            ""
-        }
-
-        </div>
-        `;
-
-        if(index < stages.length-1){
-            html += `<div class="arrow">→</div>`;
-        }
-    });
-
-    html += `</div>`;
-
-    return html;
+ saveDB();
 }
 
 
 /* =========================================================
-   SOURCE UPDATE
+   SHORTAGE ENTRY
 ========================================================= */
 
-function updateSource(
-    unitId,
-    sourceId,
-    field,
-    value
-){
+function openShortage(unitId,sourceId,type){
 
-    const unit =
-        db.subunits.find(u=>u.id===unitId);
+ shortageContext={unitId,sourceId,type};
 
-    if(!unit) return;
+ const u=db.subunits.find(x=>x.id===unitId);
+ const s=u.sources.find(x=>x.id===sourceId);
 
-    const source =
-        unit.sources.find(s=>s.id===sourceId);
+ shortModalTitle.textContent=
+  type==="PICKER"?
+  "Warehouse Picker Stock Shortage":
+  "Warehouse QC Discrepancy";
 
-    if(!source) return;
+ shortContext.innerHTML=
+  `<b>MOD ${esc(u.mod)} / ${esc(u.subunit)}</b><br>
+   Source: ${esc(s.name)}<br>
+   Origin: ${typeName(type)}`;
 
-    source[field] = value;
+ shortPart.value="";
+ shortDesc.value="";
+ shortRequired.value="";
+ shortActual.value="";
+ shortComments.value="";
 
-    saveDB();
-}
+ shortOwner.value=
+  type==="PICKER"?
+  "Purchaser / Material Planner":
+  "Warehouse Supervisor";
 
-function toggleWarehouseQC(
-    unitId,
-    sourceId,
-    checked
-){
-
-    const unit =
-        db.subunits.find(u=>u.id===unitId);
-
-    if(!unit) return;
-
-    const source =
-        unit.sources.find(s=>s.id===sourceId);
-
-    source.warehouseQC = checked;
-
-    source.warehouseQCTime =
-        checked ?
-        new Date().toISOString() :
-        "";
-
-    saveDB();
-}
-
-
-/* =========================================================
-   PROCESS STAGE UPDATE
-========================================================= */
-
-function toggleStage(unitId,field){
-
-    const unit =
-        db.subunits.find(u=>u.id===unitId);
-
-    if(!unit) return;
-
-    unit[field] = !unit[field];
-
-    const timeFields = {
-        t3Delivered:"t3DeliveredTime",
-        pcVerified:"pcVerifiedTime",
-        shortageIdentificationComplete:
-            "shortageIdentificationTime",
-        recoveryComplete:
-            "recoveryCompleteTime",
-        readyForProduction:
-            "readyTime"
-    };
-
-    const timeField =
-        timeFields[field];
-
-    if(timeField){
-
-        unit[timeField] =
-            unit[field] ?
-            new Date().toISOString() :
-            "";
-    }
-
-    saveDB();
-}
-
-
-/* =========================================================
-   UPDATE UNIT
-========================================================= */
-
-function updateUnit(
-    unitId,
-    field,
-    value
-){
-
-    const unit =
-        db.subunits.find(u=>u.id===unitId);
-
-    if(!unit) return;
-
-    unit[field] = value;
-
-    saveDB();
-}
-
-
-/* =========================================================
-   SHORTAGE MODAL
-========================================================= */
-
-let shortageUnitId = null;
-let shortageSourceId = null;
-
-function openShortageModal(
-    unitId,
-    sourceId,
-    shortageId=null
-){
-
-    shortageUnitId = unitId;
-    shortageSourceId = sourceId;
-    editingShortageId = shortageId;
-
-    const unit =
-        db.subunits.find(u=>u.id===unitId);
-
-    const shortage =
-        shortageId ?
-        db.shortages.find(s=>s.id===shortageId) :
-        null;
-
-    document.getElementById("shortModalTitle")
-        .textContent =
-        shortage ?
-        "Edit Shortage" :
-        "Add Shortage";
-
-    const sourceSelect =
-        document.getElementById("shortSource");
-
-    sourceSelect.innerHTML =
-        unit.sources.map(s=>
-            `<option value="${s.id}">
-            ${escapeHTML(s.name)}
-            </option>`
-        ).join("");
-
-    sourceSelect.value =
-        shortage ?
-        shortage.sourceId :
-        sourceId;
-
-    document.getElementById("shortPart").value =
-        shortage?.part || "";
-
-    document.getElementById("shortDesc").value =
-        shortage?.description || "";
-
-    document.getElementById("shortRequired").value =
-        shortage?.requiredQty || "";
-
-    document.getElementById("shortDelivered").value =
-        shortage?.deliveredQty || 0;
-
-    document.getElementById("shortRecovered").value =
-        shortage?.recoveredQty || 0;
-
-    document.getElementById("shortOwner").value =
-        shortage?.owner || "Warehouse Team";
-
-    document.getElementById("shortComments").value =
-        shortage?.comments || "";
-
-    document.getElementById("shortModal")
-        .classList.add("open");
+ shortModal.classList.add("open");
 }
 
 function saveShortage(){
 
-    const part =
-        document.getElementById("shortPart")
-        .value.trim();
+ const ctx=shortageContext;
+ const u=db.subunits.find(x=>x.id===ctx.unitId);
+ const source=u.sources.find(x=>x.id===ctx.sourceId);
 
-    const required =
-        document.getElementById("shortRequired")
-        .value;
+ if(!shortPart.value.trim()||shortRequired.value===""||shortActual.value===""){
+  alert("Part Number, Required Qty and Actual/Available Qty are required.");
+  return;
+ }
 
-    if(!part || required === ""){
+ const shortage={
+  id:uid(),
+  type:ctx.type,
+  subunitId:u.id,
+  sourceId:source.id,
+  part:shortPart.value.trim(),
+  description:shortDesc.value,
+  requiredQty:shortRequired.value,
+  actualQty:shortActual.value,
+  recoveredQty:0,
+  owner:shortOwner.value,
+  comments:shortComments.value,
+  created:new Date().toISOString(),
+  pcRecoveryConfirmed:false,
+  pcRecoveryConfirmedTime:""
+ };
 
-        alert(
-            "Part Number and Required Qty are required."
-        );
+ const c=shortageCalc(shortage);
 
-        return;
-    }
+ if(c.short<=0){
+  alert("Actual quantity is not less than required quantity, so there is no shortage.");
+  return;
+ }
 
-    const record = {
+ db.shortages.push(shortage);
 
-        id:
-            editingShortageId ||
-            uid(),
+ const subject=
+  `${typeName(ctx.type)} - MOD ${u.mod} ${u.subunit} - ${shortage.part}`;
 
-        subunitId:
-            shortageUnitId,
+ const message=
+ `MOD: ${u.mod}
+Subunit: ${u.subunit}
+Source: ${source.name}
+Shortage Origin: ${typeName(ctx.type)}
+Part: ${shortage.part}
+Description: ${shortage.description}
+Required Qty: ${shortage.requiredQty}
+Available / Verified Qty: ${shortage.actualQty}
+Short Qty: ${c.short}
+Owner: ${shortage.owner}
+T-1 Recovery Deadline: ${fmt(t1(u))}
+Comments: ${shortage.comments}`;
 
-        sourceId:
-            document.getElementById("shortSource").value,
+ createNotification(ctx.type,u,source,subject,message);
 
-        part:part,
+ closeModal("shortModal");
 
-        description:
-            document.getElementById("shortDesc").value,
+ saveDB();
+}
 
-        requiredQty:
-            required,
-
-        deliveredQty:
-            document.getElementById("shortDelivered").value,
-
-        recoveredQty:
-            document.getElementById("shortRecovered").value,
-
-        owner:
-            document.getElementById("shortOwner").value,
-
-        comments:
-            document.getElementById("shortComments").value
-    };
-
-    if(editingShortageId){
-
-        const index =
-            db.shortages.findIndex(
-                s=>s.id===editingShortageId
-            );
-
-        db.shortages[index] = record;
-    }
-    else{
-        db.shortages.push(record);
-    }
-
-    closeModal("shortModal");
-
-    saveDB();
+function typeName(type){
+ if(type==="PICKER")return "Picker Stock Shortage";
+ if(type==="QC")return "Warehouse QC Shortage";
+ if(type==="PC")return "Production Control Shortage";
+ return type;
 }
 
 
 /* =========================================================
-   SHORTAGE DETAIL TABLE
+   SOURCE / UNIT UPDATE
 ========================================================= */
 
-function shortageDetailTable(shortages,unit){
+function updateSource(unitId,sourceId,field,value){
 
-    let html = `
+ const u=db.subunits.find(x=>x.id===unitId);
+ const s=u.sources.find(x=>x.id===sourceId);
 
-    <table>
-    <thead>
-    <tr>
-        <th>Source</th>
-        <th>Part</th>
-        <th>Description</th>
-        <th>Required</th>
-        <th>Delivered</th>
-        <th>Short</th>
-        <th>Recovered</th>
-        <th>Remaining</th>
-        <th>Owner</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    `;
+ if(!s)return;
 
-    shortages.forEach(s=>{
+ s[field]=value;
 
-        const calc =
-            shortageCalculation(s);
+ saveDB();
+}
 
-        const source =
-            unit.sources.find(
-                x=>x.id===s.sourceId
-            );
+function updateUnit(id,field,value){
 
-        html += `
+ const u=db.subunits.find(x=>x.id===id);
+ if(!u)return;
 
-        <tr>
-
-        <td>
-        ${escapeHTML(source?.name || "")}
-        </td>
-
-        <td>
-        ${escapeHTML(s.part)}
-        </td>
-
-        <td>
-        ${escapeHTML(s.description)}
-        </td>
-
-        <td>${s.requiredQty}</td>
-
-        <td>${s.deliveredQty}</td>
-
-        <td>${calc.shortage}</td>
-
-        <td>${s.recoveredQty}</td>
-
-        <td>${calc.remaining}</td>
-
-        <td>${escapeHTML(s.owner)}</td>
-
-        <td>
-        <span class="status ${
-            calc.status === "CLOSED" ?
-            "green" :
-            calc.status === "RECOVERING" ?
-            "yellow" :
-            "red"
-        }">
-        ${calc.status}
-        </span>
-        </td>
-
-        <td>
-
-        <button class="secondary"
-        onclick="openShortageModal(
-            '${unit.id}',
-            '${s.sourceId}',
-            '${s.id}'
-        )">
-        Edit
-        </button>
-
-        </td>
-
-        </tr>
-        `;
-    });
-
-    html += "</tbody></table>";
-
-    return html;
+ u[field]=value;
+ saveDB();
 }
 
 
 /* =========================================================
-   CENTRAL SHORTAGE REPORT
+   CENTRAL SHORTAGE CENTER
 ========================================================= */
 
 function renderShortages(){
 
-    const statusFilter =
-        document.getElementById("shortStatusFilter")
-        .value;
+ const typeFilter=shortTypeFilter.value;
+ const statusFilter=shortStatusFilter.value;
+ const q=shortSearch.value.toLowerCase();
 
-    const search =
-        document.getElementById("shortSearch")
-        .value.toLowerCase();
+ const list=db.shortages.filter(s=>{
 
-    let shortages =
-        db.shortages.filter(s=>{
+  const u=db.subunits.find(x=>x.id===s.subunitId);
+  if(!u)return false;
 
-            const calc =
-                shortageCalculation(s);
+  const source=u.sources.find(x=>x.id===s.sourceId);
+  const c=shortageCalc(s);
 
-            const unit =
-                db.subunits.find(
-                    u=>u.id===s.subunitId
-                );
+  const text=
+   `${u.mod} ${u.subunit} ${source?.name||""}
+    ${s.part} ${s.description} ${s.owner}`.toLowerCase();
 
-            if(!unit) return false;
+  return
+   (typeFilter==="ALL"||s.type===typeFilter) &&
+   (statusFilter==="ALL"||c.status===statusFilter) &&
+   text.includes(q);
+ });
 
-            const source =
-                unit.sources.find(
-                    x=>x.id===s.sourceId
-                );
+ let html=`<table><thead><tr>
+ <th>Origin</th><th>MOD</th><th>Subunit</th><th>Source</th>
+ <th>Part</th><th>Required</th><th>Actual</th><th>Short</th>
+ <th>Recovered</th><th>Remaining</th><th>Owner</th>
+ <th>T-1 Due</th><th>Status</th>
+ </tr></thead><tbody>`;
 
-            const text =
-                `${s.part}
-                 ${s.description}
-                 ${s.owner}
-                 ${unit.mod}
-                 ${unit.subunit}
-                 ${source?.name||""}`
-                .toLowerCase();
+ list.forEach(s=>{
 
-            return (
-                statusFilter === "ALL" ||
-                calc.status === statusFilter
-            ) &&
-            text.includes(search);
-        });
+  const u=db.subunits.find(x=>x.id===s.subunitId);
+  const source=u.sources.find(x=>x.id===s.sourceId);
+  const c=shortageCalc(s);
 
-    let html = `
+  html+=`
+  <tr>
+   <td>${typeName(s.type)}</td>
+   <td>${u.mod}</td>
+   <td><button class="secondary" onclick="openDetail('${u.id}')">${esc(u.subunit)}</button></td>
+   <td>${esc(source?.name||"")}</td>
+   <td><b>${esc(s.part)}</b></td>
+   <td>${s.requiredQty}</td>
+   <td>${s.actualQty}</td>
+   <td>${c.short}</td>
+   <td>${s.recoveredQty||0}</td>
+   <td>${c.remaining}</td>
+   <td>${esc(s.owner)}</td>
+   <td class="${t1(u)<new Date()&&c.status!=="CLOSED"?'overdue':''}">${fmt(t1(u))}</td>
+   <td><span class="status ${c.status==="CLOSED"?"green":c.status==="RECOVERING"?"yellow":"red"}">${c.status}</span></td>
+  </tr>`;
+ });
 
-    <table>
-    <thead>
-    <tr>
-        <th>MOD</th>
-        <th>Subunit</th>
-        <th>Source</th>
-        <th>Part</th>
-        <th>Description</th>
-        <th>Required</th>
-        <th>Delivered</th>
-        <th>Short</th>
-        <th>Recovered</th>
-        <th>Remaining</th>
-        <th>Owner</th>
-        <th>T-1 Due</th>
-        <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    `;
+ html+="</tbody></table>";
 
-    shortages.forEach(s=>{
-
-        const unit =
-            db.subunits.find(
-                u=>u.id===s.subunitId
-            );
-
-        if(!unit) return;
-
-        const source =
-            unit.sources.find(
-                x=>x.id===s.sourceId
-            );
-
-        const calc =
-            shortageCalculation(s);
-
-        const due = t1(unit);
-
-        const overdue =
-            due &&
-            due < new Date() &&
-            calc.status !== "CLOSED";
-
-        html += `
-
-        <tr>
-
-        <td>${unit.mod}</td>
-
-        <td>
-        <button class="secondary"
-        onclick="openDetail('${unit.id}')">
-        ${escapeHTML(unit.subunit)}
-        </button>
-        </td>
-
-        <td>${escapeHTML(source?.name||"")}</td>
-
-        <td>${escapeHTML(s.part)}</td>
-
-        <td>${escapeHTML(s.description)}</td>
-
-        <td>${s.requiredQty}</td>
-
-        <td>${s.deliveredQty}</td>
-
-        <td>${calc.shortage}</td>
-
-        <td>${s.recoveredQty}</td>
-
-        <td>${calc.remaining}</td>
-
-        <td>${escapeHTML(s.owner)}</td>
-
-        <td class="${overdue?'overdue':''}">
-        ${fmtDateTime(due)}
-        </td>
-
-        <td>
-        <span class="status ${
-            calc.status === "CLOSED" ?
-            "green" :
-            calc.status === "RECOVERING" ?
-            "yellow" :
-            "red"
-        }">
-        ${calc.status}
-        </span>
-        </td>
-
-        </tr>
-        `;
-    });
-
-    html += "</tbody></table>";
-
-    document.getElementById("shortageTable")
-        .innerHTML = html;
+ shortageTable.innerHTML=html;
 }
 
 
 /* =========================================================
-   DELETE SUBUNIT
+   NOTIFICATIONS
 ========================================================= */
 
-function deleteSubunit(id){
+function renderNotifications(){
 
-    const unit =
-        db.subunits.find(u=>u.id===id);
+ let html=`<table><thead><tr>
+ <th>Date</th><th>Type</th><th>MOD</th><th>Subunit</th>
+ <th>Source</th><th>Recipients</th><th>Subject</th><th>Action</th>
+ </tr></thead><tbody>`;
 
-    if(!unit) return;
+ db.notifications.forEach(n=>{
 
-    if(!confirm(
-        `Delete MOD ${unit.mod} / ${unit.subunit}
-and all shortages connected to it?`
-    )){
-        return;
+  const mailto=
+   `mailto:${encodeURIComponent(n.recipients.join(","))}`+
+   `?subject=${encodeURIComponent(n.subject)}`+
+   `&body=${encodeURIComponent(n.message)}`;
+
+  html+=`
+  <tr>
+   <td>${fmt(n.created)}</td>
+   <td>${typeName(n.type)}</td>
+   <td>${esc(n.mod)}</td>
+   <td>${esc(n.subunit)}</td>
+   <td>${esc(n.source)}</td>
+   <td class="wrap">${esc(n.recipients.join(", "))||"Not configured"}</td>
+   <td class="wrap">${esc(n.subject)}</td>
+   <td>
+    ${n.recipients.length?
+     `<a href="${mailto}"><button class="primary">Open Email</button></a>`:
+     `<span class="status yellow">EMAIL NOT SET</span>`
     }
+   </td>
+  </tr>`;
+ });
 
-    db.subunits =
-        db.subunits.filter(
-            u=>u.id!==id
-        );
+ html+="</tbody></table>";
 
-    db.shortages =
-        db.shortages.filter(
-            s=>s.subunitId!==id
-        );
-
-    currentDetailId = null;
-
-    closeModal("detailModal");
-
-    saveDB();
+ notificationTable.innerHTML=html;
 }
 
 
 /* =========================================================
-   MODALS
+   SETTINGS
 ========================================================= */
 
-function closeModal(id){
-
-    document.getElementById(id)
-        .classList.remove("open");
+function renderSettings(){
+ setBuyer.value=db.settings.buyer||"";
+ setPlanner.value=db.settings.planner||"";
+ setSupervisor.value=db.settings.supervisor||"";
 }
 
-function closeDetail(){
+function saveSettings(){
 
-    currentDetailId = null;
+ db.settings={
+  buyer:setBuyer.value.trim(),
+  planner:setPlanner.value.trim(),
+  supervisor:setSupervisor.value.trim()
+ };
 
-    closeModal("detailModal");
+ saveDB();
+
+ alert("Email routing saved.");
 }
 
 
@@ -2381,98 +1682,57 @@ function closeDetail(){
 
 function downloadBackup(){
 
-    const blob =
-        new Blob(
-            [JSON.stringify(db,null,2)],
-            {type:"application/json"}
-        );
+ const blob=new Blob(
+  [JSON.stringify(db,null,2)],
+  {type:"application/json"}
+ );
 
-    const a =
-        document.createElement("a");
-
-    a.href =
-        URL.createObjectURL(blob);
-
-    a.download =
-        "QPAC_Material_Readiness_Backup_" +
-        new Date().toISOString().slice(0,10) +
-        ".json";
-
-    a.click();
-
-    URL.revokeObjectURL(a.href);
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="QPAC_Material_Readiness_Backup.json";
+ a.click();
+ URL.revokeObjectURL(a.href);
 }
 
-function restoreBackup(event){
+function restoreBackup(e){
 
-    const file =
-        event.target.files[0];
+ const file=e.target.files[0];
+ if(!file)return;
 
-    if(!file) return;
+ const r=new FileReader();
 
-    const reader =
-        new FileReader();
+ r.onload=()=>{
+  try{
+   db=JSON.parse(r.result);
 
-    reader.onload = ()=>{
+   if(!db.subunits||!db.shortages)throw new Error();
 
-        try{
+   if(!db.notifications)db.notifications=[];
+   if(!db.settings)db.settings={buyer:"",planner:"",supervisor:""};
 
-            const data =
-                JSON.parse(reader.result);
+   saveDB();
+   alert("Backup restored.");
+  }
+  catch{
+   alert("Invalid backup.");
+  }
+ };
 
-            if(
-                !Array.isArray(data.subunits) ||
-                !Array.isArray(data.shortages)
-            ){
-                throw new Error();
-            }
-
-            db = data;
-
-            saveDB();
-
-            alert("Backup restored.");
-
-        }
-        catch{
-            alert("Invalid backup file.");
-        }
-    };
-
-    reader.readAsText(file);
+ r.readAsText(file);
 }
 
 function resetDatabase(){
 
-    if(!confirm(
-        "Delete all application data stored in this browser?"
-    )){
-        return;
-    }
+ if(!confirm("Delete all locally stored application data?"))return;
 
-    db = {
-        subunits:[],
-        shortages:[]
-    };
+ db={
+  subunits:[],
+  shortages:[],
+  notifications:[],
+  settings:{buyer:"",planner:"",supervisor:""}
+ };
 
-    saveDB();
-}
-
-
-/* =========================================================
-   SECURITY / DISPLAY
-========================================================= */
-
-function escapeHTML(value){
-
-    return String(value ?? "")
-        .replace(/[&<>"']/g,c=>({
-            "&":"&amp;",
-            "<":"&lt;",
-            ">":"&gt;",
-            '"':"&quot;",
-            "'":"&#39;"
-        }[c]));
+ saveDB();
 }
 
 
@@ -2481,22 +1741,15 @@ function escapeHTML(value){
 ========================================================= */
 
 function renderAll(){
-
-    buildModTabs();
-
-    renderKitting();
-
-    renderShortages();
+ buildModTabs();
+ renderKitting();
+ renderShortages();
+ renderNotifications();
+ renderSettings();
 }
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
 
 renderAll();
 
 </script>
-
 </body>
 </html>
