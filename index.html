@@ -2,39 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>QPAC Material Kitting Control</title>
+<title>QPAC Material Readiness Control</title>
 
 <style>
-
 :root{
     --nav:#17324d;
     --blue:#2f6fad;
-    --bg:#f4f7fa;
-    --card:#ffffff;
-    --line:#dce4eb;
+    --bg:#f3f6f9;
+    --line:#d7e0e8;
     --green:#63be7b;
     --yellow:#ffd966;
     --red:#f8696b;
-    --muted:#667788;
+    --lightblue:#eaf2f8;
+    --gray:#e8edf1;
 }
 
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
     margin:0;
     font-family:Segoe UI,Arial,sans-serif;
     background:var(--bg);
-    color:#17212b;
+    color:#18232d;
 }
 
 header{
     background:var(--nav);
     color:white;
-    padding:16px 22px;
+    padding:16px 24px;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -42,65 +39,43 @@ header{
 
 header h1{
     margin:0;
-    font-size:20px;
+    font-size:21px;
 }
 
-nav{
+header span{
+    font-size:13px;
+    opacity:.85;
+}
+
+.mainnav{
     background:white;
     border-bottom:1px solid var(--line);
-    padding:0 16px;
+    padding:0 20px;
     display:flex;
-    gap:4px;
-    flex-wrap:wrap;
 }
 
-nav button{
+.mainnav button{
     border:0;
-    background:transparent;
-    padding:13px 14px;
-    font-weight:600;
+    background:white;
+    padding:14px 16px;
     cursor:pointer;
+    font-weight:600;
     border-bottom:3px solid transparent;
 }
 
-nav button.active{
+.mainnav button.active{
     color:var(--blue);
     border-bottom-color:var(--blue);
 }
 
 main{
-    padding:18px;
-    max-width:1600px;
+    max-width:1650px;
     margin:auto;
+    padding:18px;
 }
 
-.view{
-    display:none;
-}
-
-.view.active{
-    display:block;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(5,minmax(150px,1fr));
-    gap:12px;
-    margin-bottom:16px;
-}
-
-.card{
-    background:white;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:16px;
-}
-
-.card b{
-    font-size:26px;
-    display:block;
-    margin-top:6px;
-}
+.page{display:none}
+.page.active{display:block}
 
 .panel{
     background:white;
@@ -111,6 +86,28 @@ main{
     overflow:auto;
 }
 
+.modtabs{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+}
+
+.modtabs button{
+    border:1px solid #b8c6d2;
+    background:white;
+    padding:9px 17px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:700;
+}
+
+.modtabs button.active{
+    background:var(--blue);
+    color:white;
+    border-color:var(--blue);
+}
+
 .toolbar{
     display:flex;
     gap:8px;
@@ -119,42 +116,44 @@ main{
     margin-bottom:12px;
 }
 
-button.primary{
+.right{margin-left:auto}
+
+button{
+    font-family:inherit;
+}
+
+.primary{
     background:var(--blue);
     color:white;
     border:0;
-    border-radius:5px;
     padding:8px 12px;
-    cursor:pointer;
+    border-radius:5px;
     font-weight:600;
-}
-
-button.secondary{
-    background:white;
-    color:#223;
-    border:1px solid #aebdca;
-    border-radius:5px;
-    padding:8px 12px;
     cursor:pointer;
 }
 
-button.danger{
-    background:#b83b3b;
+.secondary{
+    background:white;
+    border:1px solid #aebdca;
+    padding:7px 11px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.danger{
+    background:#b83c3c;
     color:white;
     border:0;
+    padding:7px 10px;
     border-radius:5px;
-    padding:6px 9px;
     cursor:pointer;
 }
 
-input,
-select,
-textarea{
+input,select,textarea{
     border:1px solid #b9c6d2;
     border-radius:4px;
     padding:7px;
-    background:white;
-    min-width:90px;
+    font-family:inherit;
 }
 
 table{
@@ -164,66 +163,53 @@ table{
     white-space:nowrap;
 }
 
-th,
-td{
-    border-bottom:1px solid #e3e9ee;
-    padding:8px;
+th{
+    background:#eaf1f6;
+    padding:9px;
     text-align:left;
+    border-bottom:1px solid #ccd8e2;
 }
 
-th{
-    background:#edf3f8;
-    position:sticky;
-    top:0;
+td{
+    padding:9px;
+    border-bottom:1px solid #e1e7ec;
+}
+
+tr:hover{
+    background:#f8fafc;
 }
 
 .status{
-    padding:4px 8px;
-    border-radius:12px;
-    font-weight:700;
     display:inline-block;
+    padding:4px 9px;
+    border-radius:13px;
+    font-weight:700;
+    font-size:12px;
 }
 
-.complete{
-    background:var(--green);
+.green{background:var(--green)}
+.yellow{background:var(--yellow)}
+.red{background:var(--red)}
+.gray{background:#dce5ec}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:16px;
 }
 
-.recovery{
-    background:var(--yellow);
-}
-
-.risk{
-    background:var(--red);
-}
-
-.notplanned{
-    background:#dbe6ef;
-}
-
-.redcell{
-    background:var(--red)!important;
-}
-
-.flow{
-    display:flex;
-    align-items:stretch;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.step{
-    flex:1;
-    min-width:210px;
-    border:2px solid #adc1d2;
-    border-radius:8px;
-    padding:14px;
+.card{
     background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:15px;
 }
 
-.arrow{
-    align-self:center;
-    font-size:25px;
-    color:#557;
+.card b{
+    display:block;
+    font-size:27px;
+    margin-top:6px;
 }
 
 .modal{
@@ -231,7 +217,7 @@ th{
     position:fixed;
     inset:0;
     background:#0008;
-    z-index:10;
+    z-index:20;
     align-items:center;
     justify-content:center;
 }
@@ -241,19 +227,19 @@ th{
 }
 
 .modalbox{
-    background:white;
-    border-radius:8px;
-    padding:18px;
-    max-width:900px;
-    width:94%;
-    max-height:90vh;
+    width:95%;
+    max-width:1100px;
+    max-height:92vh;
     overflow:auto;
+    background:white;
+    border-radius:9px;
+    padding:20px;
 }
 
 .grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:10px;
+    gap:12px;
 }
 
 .grid label{
@@ -268,6 +254,65 @@ th{
     margin-top:4px;
 }
 
+.detailHeader{
+    background:#eef5fa;
+    border-left:5px solid var(--blue);
+    padding:14px;
+    margin-bottom:15px;
+}
+
+.process{
+    display:flex;
+    gap:8px;
+    align-items:stretch;
+    margin:15px 0;
+    flex-wrap:wrap;
+}
+
+.stage{
+    flex:1;
+    min-width:150px;
+    border:2px solid #bdcad5;
+    padding:12px;
+    border-radius:7px;
+    text-align:center;
+}
+
+.stage.done{
+    background:#dff1e4;
+    border-color:#63be7b;
+}
+
+.stage.progress{
+    background:#fff3c7;
+    border-color:#e2b93b;
+}
+
+.stage.risk{
+    background:#fbdada;
+    border-color:#f8696b;
+}
+
+.stage.pending{
+    background:#eef2f5;
+}
+
+.arrow{
+    align-self:center;
+    font-size:22px;
+}
+
+.sectionTitle{
+    margin-top:24px;
+    border-bottom:2px solid #d8e3eb;
+    padding-bottom:7px;
+}
+
+.small{
+    font-size:12px;
+    color:#647585;
+}
+
 .note{
     background:#eef6ff;
     border-left:4px solid var(--blue);
@@ -275,3413 +320,2183 @@ th{
     margin:10px 0;
 }
 
-@media(max-width:900px){
-
-    .cards{
-        grid-template-columns:1fr 1fr;
-    }
-
-    .grid{
-        grid-template-columns:1fr;
-    }
-
-    .arrow{
-        display:none;
-    }
+.overdue{
+    background:#f8696b!important;
 }
 
+@media(max-width:900px){
+    .cards{grid-template-columns:1fr 1fr}
+    .grid{grid-template-columns:1fr}
+    .arrow{display:none}
+}
 </style>
 </head>
 
-
 <body>
 
-
 <header>
-
-<h1>QPAC Material Kitting Control</h1>
-
-<div>
-Material Readiness Management
-</div>
-
+    <h1>QPAC Material Readiness Control</h1>
+    <span>T-3 Delivery → T-2 Verification → T-1 Recovery → T0 Production</span>
 </header>
 
-
-<nav id="nav">
-
-<button data-view="dashboard" class="active">
-Dashboard
-</button>
-
-<button data-view="kits">
-Kitting Plan
-</button>
-
-<button data-view="shortages">
-Shortage Report
-</button>
-
-<button data-view="process">
-Process Map
-</button>
-
-<button data-view="data">
-Data / Backup
-</button>
-
-</nav>
-
+<div class="mainnav">
+    <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
+    <button onclick="showPage('shortages',this)">Central Shortage Report</button>
+    <button onclick="showPage('processPage',this)">Process Map</button>
+    <button onclick="showPage('backup',this)">Data / Backup</button>
+</div>
 
 <main>
 
+<!-- KITTING PLAN -->
+<section id="kitting" class="page active">
 
-<!-- DASHBOARD -->
-
-<section id="dashboard" class="view active">
+<div class="modtabs" id="modTabs"></div>
 
 <div class="cards">
-
-<div class="card">
-Active Source Rows
-<b id="kpiKits">0</b>
+    <div class="card">Displayed Subunits<b id="kpiUnits">0</b></div>
+    <div class="card">Ready<b id="kpiReady">0</b></div>
+    <div class="card">Open Shortages<b id="kpiShort">0</b></div>
+    <div class="card">Production Risk<b id="kpiRisk">0</b></div>
+    <div class="card">Average Kit %<b id="kpiPct">0%</b></div>
 </div>
-
-<div class="card">
-Complete
-<b id="kpiComplete">0</b>
-</div>
-
-<div class="card">
-Open Shortages
-<b id="kpiOpen">0</b>
-</div>
-
-<div class="card">
-Overdue Recovery
-<b id="kpiOverdue">0</b>
-</div>
-
-<div class="card">
-Production Risk
-<b id="kpiRisk">0</b>
-</div>
-
-</div>
-
-
-<div class="panel">
-
-<h3>Upcoming Production</h3>
-
-<div id="dashTable"></div>
-
-</div>
-
-</section>
-
-
-
-<!-- KITTING PLAN -->
-
-<section id="kits" class="view">
 
 <div class="panel">
 
 <div class="toolbar">
 
-<button
-class="primary"
-onclick="openKit()">
+    <button class="primary" onclick="openAddSubunit()">
+        + Add Subunit
+    </button>
 
-+ Add Subunit
+    <strong id="workspaceTitle">ALL MODs</strong>
 
-</button>
+    <span class="small" id="workspaceDescription"></span>
 
-
-<label>
-
-MOD
-
-<select
-id="kitModFilter"
-onchange="renderKits()">
-
-<option>ALL</option>
-<option>A</option>
-<option>B</option>
-<option>C</option>
-<option>D2</option>
-<option>D2B</option>
-<option>E</option>
-
-</select>
-
-</label>
-
-
-<label>
-
-Search
-
-<input
-id="kitSearch"
-oninput="renderKits()"
-placeholder="Subunit / source">
-
-</label>
+    <div class="right">
+        Search
+        <input id="unitSearch"
+               placeholder="Subunit"
+               oninput="renderKitting()">
+    </div>
 
 </div>
 
-
-<div id="kitsTable"></div>
+<div id="subunitTable"></div>
 
 </div>
 
 </section>
 
 
-
-<!-- SHORTAGE REPORT -->
-
-<section id="shortages" class="view">
+<!-- SHORTAGES -->
+<section id="shortages" class="page">
 
 <div class="panel">
 
 <div class="toolbar">
+    <h3 style="margin:0">Central Shortage Report</h3>
 
+    <div class="right">
+        <select id="shortStatusFilter" onchange="renderShortages()">
+            <option>ALL</option>
+            <option>OPEN</option>
+            <option>RECOVERING</option>
+            <option>CLOSED</option>
+        </select>
 
-<button
-class="primary"
-onclick="openShortage()">
-
-+ Add Shortage
-
-</button>
-
-
-<label>
-
-Status
-
-<select
-id="shortFilter"
-onchange="renderShortages()">
-
-<option>ALL</option>
-<option>OPEN</option>
-<option>RECOVERING</option>
-<option>CLOSED</option>
-
-</select>
-
-</label>
-
-
-<label>
-
-Search
-
-<input
-id="shortSearch"
-oninput="renderShortages()"
-placeholder="Part / owner / kit">
-
-</label>
-
-
+        <input id="shortSearch"
+               placeholder="Part / owner / subunit"
+               oninput="renderShortages()">
+    </div>
 </div>
 
-
-<div id="shortTable"></div>
+<div id="shortageTable"></div>
 
 </div>
 
 </section>
 
 
-
-<!-- PROCESS MAP -->
-
-<section id="process" class="view">
+<!-- PROCESS -->
+<section id="processPage" class="page">
 
 <div class="panel">
 
-<h2>
-T-3 → T-2 → T-1 → T0 Material Readiness Process
-</h2>
+<h2>Material Readiness Process</h2>
 
+<div class="process">
 
-<div class="flow">
-
-
-<div class="step">
-
-<h3>T-3 • Kit Delivery</h3>
-
-<p>
-<b>Warehouse</b> completes and delivers the kit by 6:00 PM.
-</p>
-
-<p>
-Kit becomes available for physical verification.
-</p>
-
+<div class="stage">
+    <b>KITTING</b>
+    <p>Warehouse picks required material by source.</p>
 </div>
-
 
 <div class="arrow">→</div>
 
-
-<div class="step">
-
-<h3>T-2 • Verification</h3>
-
-<p>
-<b>Production Control</b> physically verifies the delivered kit.
-</p>
-
-<p>
-Each missing part is entered into the Central Shortage Report.
-</p>
-
+<div class="stage">
+    <b>WAREHOUSE QC</b>
+    <p>Warehouse checks kit accuracy before delivery.</p>
 </div>
-
 
 <div class="arrow">→</div>
 
-
-<div class="step">
-
-<h3>T-1 • Recovery</h3>
-
-<p>
-<b>Warehouse / Material Owner</b> recovers missing material.
-</p>
-
-<p>
-Recovered quantities are updated until all shortages are closed.
-</p>
-
+<div class="stage">
+    <b>T-3 DELIVERY</b>
+    <p>Kit delivered to production staging/location by 6 PM.</p>
 </div>
-
 
 <div class="arrow">→</div>
 
-
-<div class="step">
-
-<h3>T0 • Production</h3>
-
-<p>
-Production begins with a
-<b>complete verified kit.</b>
-</p>
-
-<p>
-Goal: no operator leaves the floor searching for material.
-</p>
-
+<div class="stage">
+    <b>T-2 PC VERIFICATION</b>
+    <p>Production Control physically verifies the kit.</p>
 </div>
 
+<div class="arrow">→</div>
 
+<div class="stage">
+    <b>T-2 SHORTAGES</b>
+    <p>Missing parts entered into Central Shortage Report.</p>
 </div>
 
+<div class="arrow">→</div>
+
+<div class="stage">
+    <b>T-1 RECOVERY</b>
+    <p>Warehouse / owner recovers remaining material.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+    <b>T0 READY</b>
+    <p>Complete verified kit available for production.</p>
+</div>
+
+</div>
 
 <div class="note">
-
-<b>Example:</b>
-
-Production starts
-<strong>10/10/2026 at 6:00 AM</strong>
-
-<br><br>
-
-T-3 → 10/07/2026 6 PM – Kit Delivery
-
-<br>
-
-T-2 → 10/08/2026 6 PM – Verification
-
-<br>
-
-T-1 → 10/09/2026 6 PM – Shortage Recovery
-
-<br>
-
-T0 → 10/10/2026 6 AM – Production
-
+Example: Production starts <b>10/10/2026 at 6:00 AM</b> →
+T-3 Delivery <b>10/07 at 6 PM</b> →
+T-2 Verification <b>10/08 at 6 PM</b> →
+T-1 Recovery <b>10/09 at 6 PM</b>.
 </div>
-
 
 </div>
 
 </section>
 
 
-
-<!-- DATA -->
-
-<section id="data" class="view">
+<!-- BACKUP -->
+<section id="backup" class="page">
 
 <div class="panel">
 
-<h3>Backup / Transfer</h3>
+<h3>Application Data</h3>
 
 <p>
-Application data is stored in this browser.
-Use the backup function regularly.
+Data is currently stored in the browser used to access this GitHub Pages application.
 </p>
-
 
 <div class="toolbar">
 
-
-<button
-class="primary"
-onclick="exportBackup()">
-
+<button class="primary" onclick="downloadBackup()">
 Download Backup
-
 </button>
 
-
-<button
-class="secondary"
-onclick="document.getElementById('importFile').click()">
-
+<button class="secondary"
+        onclick="document.getElementById('restoreFile').click()">
 Restore Backup
-
 </button>
 
+<input hidden
+       id="restoreFile"
+       type="file"
+       accept=".json"
+       onchange="restoreBackup(event)">
 
-<input
-type="file"
-id="importFile"
-accept=".json"
-hidden
-onchange="importBackup(event)">
-
-
-<button
-class="secondary"
-onclick="exportCSV('kits')">
-
-Export Kits CSV
-
-</button>
-
-
-<button
-class="secondary"
-onclick="exportCSV('shortages')">
-
-Export Shortages CSV
-
-</button>
-
-
-<button
-class="danger"
-onclick="resetData()">
-
+<button class="danger" onclick="resetDatabase()">
 Reset All Data
-
 </button>
-
 
 </div>
 
 </div>
 
 </section>
-
 
 </main>
 
 
-
-<!-- KIT MODAL -->
-
-<div id="kitModal" class="modal">
+<!-- ADD SUBUNIT MODAL -->
+<div class="modal" id="addModal">
 
 <div class="modalbox">
 
-<h2 id="kitModalTitle">
-Add Subunit
-</h2>
+<h2>Add Production Subunit</h2>
 
+<div class="note">
+One subunit will automatically contain:
+<b>Main Warehouse, Machine Shop Warehouse, PLD and Jenbacher.</b>
+</div>
 
-<div id="newSubunitNote" class="note">
+<div class="grid">
 
-<b>Automatic Source Creation</b>
+<label>
+Priority
+<input id="addPriority" value="1">
+</label>
 
-<br><br>
+<label>
+MOD
+<select id="addMod"></select>
+</label>
 
-When a new MOD/Subunit is created, the application will
-automatically generate all standard material source rows.
+<label>
+Subunit
+<input id="addSubunit" placeholder="Example: P41">
+</label>
+
+<label>
+Production Start Date & Time
+<input id="addProduction" type="datetime-local">
+</label>
+
+<label>
+Comments
+<textarea id="addComments"></textarea>
+</label>
 
 </div>
 
-
-<div class="grid" id="kitForm"></div>
-
-
-<div
-class="toolbar"
-style="margin-top:15px">
-
-
-<button
-class="primary"
-onclick="saveKit()">
-
-Save
-
-</button>
-
-
-<button
-class="secondary"
-onclick="closeModal('kitModal')">
-
-Cancel
-
-</button>
-
-
+<div class="toolbar" style="margin-top:18px">
+<button class="primary" onclick="saveNewSubunit()">Create Subunit</button>
+<button class="secondary" onclick="closeModal('addModal')">Cancel</button>
 </div>
 
 </div>
-
 </div>
 
+
+<!-- DETAIL MODAL -->
+<div class="modal" id="detailModal">
+
+<div class="modalbox">
+
+<div id="detailContent"></div>
+
+</div>
+</div>
 
 
 <!-- SHORTAGE MODAL -->
-
-<div id="shortModal" class="modal">
+<div class="modal" id="shortModal">
 
 <div class="modalbox">
 
+<h2 id="shortModalTitle">Add Shortage</h2>
 
-<h2 id="shortModalTitle">
-Add Shortage
-</h2>
+<div class="grid">
 
+<label>
+Source
+<select id="shortSource"></select>
+</label>
 
-<div
-class="grid"
-id="shortForm">
+<label>
+Part Number
+<input id="shortPart">
+</label>
+
+<label>
+Description
+<input id="shortDesc">
+</label>
+
+<label>
+Required Qty
+<input id="shortRequired" type="number" min="0">
+</label>
+
+<label>
+Delivered Qty
+<input id="shortDelivered" type="number" min="0">
+</label>
+
+<label>
+Recovered Qty
+<input id="shortRecovered" type="number" min="0">
+</label>
+
+<label>
+Owner
+<input id="shortOwner" value="Warehouse Team">
+</label>
+
+<label>
+Comments
+<textarea id="shortComments"></textarea>
+</label>
+
 </div>
 
+<div class="toolbar" style="margin-top:18px">
 
-<div
-class="toolbar"
-style="margin-top:15px">
-
-
-<button
-class="primary"
-onclick="saveShortage()">
-
+<button class="primary" onclick="saveShortage()">
 Save Shortage
-
 </button>
 
-
-<button
-class="secondary"
-onclick="closeModal('shortModal')">
-
+<button class="secondary" onclick="closeModal('shortModal')">
 Cancel
-
 </button>
 
-
 </div>
 
 </div>
-
 </div>
-
 
 
 <script>
 
+/* =========================================================
+   MASTER DATA
+========================================================= */
 
-/* ==========================================================
-   MASTER SETTINGS
-========================================================== */
-
-
-const MODS = [
-
-    "A",
-    "B",
-    "C",
-    "D2",
-    "D2B",
-    "E"
-
-];
-
-
-/*
-These are the standard material sources.
-
-When you create ONE new subunit,
-the system automatically creates one row
-for EACH source below.
-*/
+const MODS = ["A","B","C","D2","D2B","E"];
 
 const SOURCES = [
-
     "Main Warehouse",
     "Machine Shop Warehouse",
     "PLD",
-    "Jenbacher",
-    "Other"
-
+    "Jenbacher"
 ];
 
-
-
-/* ==========================================================
-   DATABASE
-========================================================== */
-
+const DBKEY = "qpacMaterialReadinessV3";
 
 let db = JSON.parse(
-
-    localStorage.getItem("qpacKittingDB")
-
-    ||
-
-    '{"kits":[],"shortages":[]}'
-
+    localStorage.getItem(DBKEY) ||
+    '{"subunits":[],"shortages":[]}'
 );
 
-
-let editKitId = null;
-
-let editShortId = null;
-
+let selectedMod = "ALL";
+let currentDetailId = null;
+let editingShortageId = null;
 
 
-function save(){
+/* =========================================================
+   DATABASE
+========================================================= */
 
-    localStorage.setItem(
-        "qpacKittingDB",
-        JSON.stringify(db)
-    );
-
+function saveDB(){
+    localStorage.setItem(DBKEY,JSON.stringify(db));
     renderAll();
 
+    if(currentDetailId &&
+       document.getElementById("detailModal").classList.contains("open")){
+        renderDetail(currentDetailId);
+    }
 }
-
-
 
 function uid(){
-
-    return Date.now().toString(36)
-
-        +
-
-        Math.random()
-        .toString(36)
-        .slice(2,7);
-
+    return Date.now().toString(36) +
+           Math.random().toString(36).slice(2,8);
 }
 
 
+/* =========================================================
+   DATE FUNCTIONS
+========================================================= */
 
-/* ==========================================================
-   GENERAL FUNCTIONS
-========================================================== */
+function dateFromInput(value){
+    if(!value) return null;
+    const d = new Date(value);
+    return isNaN(d) ? null : d;
+}
+
+function fmtDateTime(value){
+
+    if(!value) return "";
+
+    const d = value instanceof Date ?
+        value :
+        new Date(value);
+
+    if(isNaN(d)) return "";
+
+    return d.toLocaleString([],{
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"numeric",
+        minute:"2-digit"
+    });
+}
+
+/*
+T-3 / T-2 / T-1 deadlines are always 6 PM
+relative to the production calendar date.
+*/
+
+function milestone(productionStart,daysBefore){
+
+    const prod = dateFromInput(productionStart);
+
+    if(!prod) return null;
+
+    const d = new Date(prod);
+
+    d.setDate(d.getDate()-daysBefore);
+
+    d.setHours(18,0,0,0);
+
+    return d;
+}
+
+function t3(unit){
+    return milestone(unit.productionStart,3);
+}
+
+function t2(unit){
+    return milestone(unit.productionStart,2);
+}
+
+function t1(unit){
+    return milestone(unit.productionStart,1);
+}
+
+/*
+Planned Kit Start:
+T-3 deadline minus Planning CT hours.
+*/
+
+function plannedKitStart(unit,source){
+
+    const deadline = t3(unit);
+
+    const ct = Number(source.planningCT || 0);
+
+    if(!deadline || !ct) return null;
+
+    return new Date(
+        deadline.getTime() -
+        ct * 60 * 60 * 1000
+    );
+}
 
 
-function esc(s){
+/* =========================================================
+   SHORTAGE LOGIC
+========================================================= */
 
-    return String(s ?? "")
+function shortageCalculation(s){
 
-    .replace(
+    const required = Number(s.requiredQty || 0);
+    const delivered = Number(s.deliveredQty || 0);
+    const recovered = Number(s.recoveredQty || 0);
 
-        /[&<>"']/g,
+    const shortage =
+        Math.max(0,required-delivered);
 
-        m => ({
+    const remaining =
+        Math.max(0,shortage-recovered);
 
+    let status = "OPEN";
+
+    if(remaining === 0){
+        status = "CLOSED";
+    }
+    else if(recovered > 0){
+        status = "RECOVERING";
+    }
+
+    return {
+        shortage,
+        remaining,
+        status
+    };
+}
+
+function unitShortages(unitId){
+
+    return db.shortages.filter(
+        s => s.subunitId === unitId
+    );
+}
+
+function openUnitShortages(unitId){
+
+    return unitShortages(unitId).filter(
+        s => shortageCalculation(s).status !== "CLOSED"
+    );
+}
+
+
+/* =========================================================
+   SOURCE LOGIC
+========================================================= */
+
+function sourcePercent(source){
+
+    const total = Number(source.totalParts || 0);
+    const kitted = Number(source.kittedParts || 0);
+
+    if(!total) return 0;
+
+    return Math.min(1,kitted/total);
+}
+
+function sourceComplete(source){
+
+    return Number(source.totalParts || 0) > 0 &&
+           Number(source.kittedParts || 0) >=
+           Number(source.totalParts || 0);
+}
+
+function unitTotals(unit){
+
+    let total = 0;
+    let kitted = 0;
+
+    unit.sources.forEach(s=>{
+        total += Number(s.totalParts || 0);
+        kitted += Number(s.kittedParts || 0);
+    });
+
+    return {
+        total,
+        kitted,
+        pct: total ? kitted/total : 0
+    };
+}
+
+
+/* =========================================================
+   OVERALL WORKFLOW STATUS
+========================================================= */
+
+function unitStatus(unit){
+
+    const totals = unitTotals(unit);
+    const openShortages = openUnitShortages(unit.id);
+
+    const allSourceKitting =
+        unit.sources.every(sourceComplete);
+
+    const allWarehouseQC =
+        unit.sources.every(s=>s.warehouseQC);
+
+    if(unit.readyForProduction){
+        return {
+            text:"READY FOR PRODUCTION",
+            className:"green"
+        };
+    }
+
+    if(openShortages.length > 0){
+
+        const recoveryDue = t1(unit);
+
+        if(recoveryDue && recoveryDue < new Date()){
+            return {
+                text:"PRODUCTION RISK",
+                className:"red"
+            };
+        }
+
+        return {
+            text:"SHORTAGE RECOVERY",
+            className:"yellow"
+        };
+    }
+
+    if(unit.pcVerified){
+        return {
+            text:"T-2 VERIFIED",
+            className:"yellow"
+        };
+    }
+
+    if(unit.t3Delivered){
+        return {
+            text:"T-3 DELIVERED",
+            className:"yellow"
+        };
+    }
+
+    if(allWarehouseQC){
+        return {
+            text:"WAREHOUSE QC COMPLETE",
+            className:"yellow"
+        };
+    }
+
+    if(allSourceKitting){
+        return {
+            text:"KITTING COMPLETE",
+            className:"yellow"
+        };
+    }
+
+    if(totals.kitted > 0){
+        return {
+            text:"KITTING IN PROGRESS",
+            className:"yellow"
+        };
+    }
+
+    return {
+        text:"NOT STARTED",
+        className:"gray"
+    };
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showPage(id,button){
+
+    document.querySelectorAll(".page")
+        .forEach(x=>x.classList.remove("active"));
+
+    document.getElementById(id)
+        .classList.add("active");
+
+    document.querySelectorAll(".mainnav button")
+        .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    renderAll();
+}
+
+
+/* =========================================================
+   MOD WORKSPACES
+========================================================= */
+
+function buildModTabs(){
+
+    const holder =
+        document.getElementById("modTabs");
+
+    holder.innerHTML = "";
+
+    ["ALL",...MODS].forEach(mod=>{
+
+        const button =
+            document.createElement("button");
+
+        button.textContent =
+            mod === "ALL" ?
+            "ALL" :
+            "MOD " + mod;
+
+        if(selectedMod === mod){
+            button.classList.add("active");
+        }
+
+        button.onclick = ()=>{
+
+            selectedMod = mod;
+
+            buildModTabs();
+            renderKitting();
+        };
+
+        holder.appendChild(button);
+    });
+}
+
+
+/* =========================================================
+   FILTER RULE
+
+   ALL:
+   Next 10 upcoming across all MODs.
+
+   Individual MOD:
+   ALL previous units +
+   NEXT 10 upcoming units.
+========================================================= */
+
+function visibleUnits(){
+
+    const now = new Date();
+
+    let units = [...db.subunits];
+
+    if(selectedMod === "ALL"){
+
+        return units
+            .filter(u=>{
+                const d = dateFromInput(u.productionStart);
+                return d && d >= now;
+            })
+            .sort((a,b)=>
+                new Date(a.productionStart) -
+                new Date(b.productionStart)
+            )
+            .slice(0,10);
+    }
+
+    units = units.filter(
+        u=>u.mod === selectedMod
+    );
+
+    const previous =
+        units
+        .filter(u=>{
+            const d = dateFromInput(u.productionStart);
+            return d && d < now;
+        })
+        .sort((a,b)=>
+            new Date(b.productionStart) -
+            new Date(a.productionStart)
+        );
+
+    const upcoming =
+        units
+        .filter(u=>{
+            const d = dateFromInput(u.productionStart);
+            return d && d >= now;
+        })
+        .sort((a,b)=>
+            new Date(a.productionStart) -
+            new Date(b.productionStart)
+        )
+        .slice(0,10);
+
+    return [...previous,...upcoming];
+}
+
+
+/* =========================================================
+   KITTING TABLE
+========================================================= */
+
+function renderKitting(){
+
+    let units = visibleUnits();
+
+    const search =
+        document.getElementById("unitSearch")
+        .value.toLowerCase();
+
+    units = units.filter(
+        u=>
+        u.subunit.toLowerCase().includes(search)
+    );
+
+    document.getElementById("workspaceTitle")
+        .textContent =
+        selectedMod === "ALL" ?
+        "ALL MODs" :
+        "MOD " + selectedMod;
+
+    document.getElementById("workspaceDescription")
+        .textContent =
+        selectedMod === "ALL" ?
+        "Next 10 upcoming production subunits" :
+        "Previous units + next 10 upcoming units";
+
+    let html = `
+    <table>
+    <thead>
+    <tr>
+        <th>Priority</th>
+        <th>MOD</th>
+        <th>Subunit</th>
+        <th>Production Start</th>
+        <th>T-3 Delivery</th>
+        <th>T-2 Verification</th>
+        <th>T-1 Recovery</th>
+        <th>Parts Kitted</th>
+        <th>Kit %</th>
+        <th>Open Shortages</th>
+        <th>Current Stage</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+
+    units.forEach(unit=>{
+
+        const totals = unitTotals(unit);
+        const shortages =
+            openUnitShortages(unit.id).length;
+
+        const status =
+            unitStatus(unit);
+
+        html += `
+        <tr>
+
+        <td>${escapeHTML(unit.priority)}</td>
+
+        <td>${escapeHTML(unit.mod)}</td>
+
+        <td><b>${escapeHTML(unit.subunit)}</b></td>
+
+        <td>${fmtDateTime(unit.productionStart)}</td>
+
+        <td>${fmtDateTime(t3(unit))}</td>
+
+        <td>${fmtDateTime(t2(unit))}</td>
+
+        <td>${fmtDateTime(t1(unit))}</td>
+
+        <td>
+        ${totals.kitted} / ${totals.total}
+        </td>
+
+        <td>
+        ${(totals.pct*100).toFixed(0)}%
+        </td>
+
+        <td>${shortages}</td>
+
+        <td>
+        <span class="status ${status.className}">
+        ${status.text}
+        </span>
+        </td>
+
+        <td>
+        <button class="primary"
+        onclick="openDetail('${unit.id}')">
+        Open Details
+        </button>
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+
+    document.getElementById("subunitTable")
+        .innerHTML = html;
+
+    updateKPIs(units);
+}
+
+
+/* =========================================================
+   KPI
+========================================================= */
+
+function updateKPIs(units){
+
+    let ready = 0;
+    let shortages = 0;
+    let risks = 0;
+    let pctTotal = 0;
+
+    units.forEach(unit=>{
+
+        const status = unitStatus(unit);
+        const totals = unitTotals(unit);
+
+        if(unit.readyForProduction){
+            ready++;
+        }
+
+        shortages +=
+            openUnitShortages(unit.id).length;
+
+        if(status.text === "PRODUCTION RISK"){
+            risks++;
+        }
+
+        pctTotal += totals.pct;
+    });
+
+    document.getElementById("kpiUnits")
+        .textContent = units.length;
+
+    document.getElementById("kpiReady")
+        .textContent = ready;
+
+    document.getElementById("kpiShort")
+        .textContent = shortages;
+
+    document.getElementById("kpiRisk")
+        .textContent = risks;
+
+    document.getElementById("kpiPct")
+        .textContent =
+        units.length ?
+        ((pctTotal/units.length)*100).toFixed(0)+"%" :
+        "0%";
+}
+
+
+/* =========================================================
+   ADD SUBUNIT
+========================================================= */
+
+function openAddSubunit(){
+
+    const select =
+        document.getElementById("addMod");
+
+    select.innerHTML =
+        MODS.map(m=>
+            `<option value="${m}">${m}</option>`
+        ).join("");
+
+    if(selectedMod !== "ALL"){
+        select.value = selectedMod;
+    }
+
+    document.getElementById("addPriority").value="1";
+    document.getElementById("addSubunit").value="";
+    document.getElementById("addProduction").value="";
+    document.getElementById("addComments").value="";
+
+    document.getElementById("addModal")
+        .classList.add("open");
+}
+
+function saveNewSubunit(){
+
+    const mod =
+        document.getElementById("addMod").value;
+
+    const subunit =
+        document.getElementById("addSubunit")
+        .value.trim();
+
+    const productionStart =
+        document.getElementById("addProduction").value;
+
+    if(!subunit || !productionStart){
+
+        alert(
+            "Subunit and Production Start Date/Time are required."
+        );
+
+        return;
+    }
+
+    const duplicate =
+        db.subunits.some(
+            u=>
+            u.mod === mod &&
+            u.subunit.toLowerCase() ===
+            subunit.toLowerCase()
+        );
+
+    if(duplicate){
+
+        alert(
+            "This subunit already exists under MOD " + mod + "."
+        );
+
+        return;
+    }
+
+    const sources =
+        SOURCES.map(name=>({
+            id:uid(),
+            name:name,
+            totalParts:"",
+            kittedParts:"",
+            planningCT:"",
+            actualKitStart:"",
+            actualKitFinish:"",
+            warehouseQC:false,
+            warehouseQCTime:""
+        }));
+
+    db.subunits.push({
+
+        id:uid(),
+
+        priority:
+            document.getElementById("addPriority").value,
+
+        mod:mod,
+
+        subunit:subunit,
+
+        productionStart:productionStart,
+
+        comments:
+            document.getElementById("addComments").value,
+
+        sources:sources,
+
+        t3Delivered:false,
+        t3DeliveredTime:"",
+
+        pcVerified:false,
+        pcVerifiedTime:"",
+
+        shortageIdentificationComplete:false,
+        shortageIdentificationTime:"",
+
+        recoveryComplete:false,
+        recoveryCompleteTime:"",
+
+        readyForProduction:false,
+        readyTime:""
+    });
+
+    closeModal("addModal");
+
+    saveDB();
+}
+
+
+/* =========================================================
+   DETAIL VIEW
+========================================================= */
+
+function openDetail(id){
+
+    currentDetailId = id;
+
+    renderDetail(id);
+
+    document.getElementById("detailModal")
+        .classList.add("open");
+}
+
+function renderDetail(id){
+
+    const unit =
+        db.subunits.find(u=>u.id===id);
+
+    if(!unit) return;
+
+    const totals = unitTotals(unit);
+    const status = unitStatus(unit);
+    const shortages = unitShortages(unit.id);
+
+    let html = `
+
+    <div class="toolbar">
+
+        <div>
+        <h2 style="margin:0">
+        MOD ${escapeHTML(unit.mod)}
+        — ${escapeHTML(unit.subunit)}
+        </h2>
+
+        <div class="small">
+        Production Start:
+        ${fmtDateTime(unit.productionStart)}
+        </div>
+        </div>
+
+        <div class="right">
+
+        <span class="status ${status.className}">
+        ${status.text}
+        </span>
+
+        <button class="secondary"
+        onclick="closeDetail()">
+        Close
+        </button>
+
+        </div>
+
+    </div>
+
+    <div class="detailHeader">
+
+        <b>Material Readiness:</b>
+        ${totals.kitted} / ${totals.total}
+        parts kitted
+        (${(totals.pct*100).toFixed(0)}%)
+
+        &nbsp;&nbsp;
+
+        <b>Open Shortages:</b>
+        ${openUnitShortages(unit.id).length}
+
+        <br><br>
+
+        <b>T-3:</b>
+        ${fmtDateTime(t3(unit))}
+
+        &nbsp;&nbsp;
+
+        <b>T-2:</b>
+        ${fmtDateTime(t2(unit))}
+
+        &nbsp;&nbsp;
+
+        <b>T-1:</b>
+        ${fmtDateTime(t1(unit))}
+
+    </div>
+
+    <h3 class="sectionTitle">
+    Process Status
+    </h3>
+
+    ${processStagesHTML(unit)}
+
+    <h3 class="sectionTitle">
+    Source-Level Kitting
+    </h3>
+
+    <table>
+
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Total Parts</th>
+        <th>Kitted</th>
+        <th>Kit %</th>
+        <th>Planning CT (hr)</th>
+        <th>Calculated Plan Start</th>
+        <th>Actual Start</th>
+        <th>Actual Finish</th>
+        <th>Warehouse QC</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    `;
+
+    unit.sources.forEach(source=>{
+
+        html += `
+
+        <tr>
+
+        <td><b>${escapeHTML(source.name)}</b></td>
+
+        <td>
+        <input type="number"
+        min="0"
+        style="width:75px"
+        value="${source.totalParts}"
+        onchange="updateSource(
+            '${unit.id}',
+            '${source.id}',
+            'totalParts',
+            this.value
+        )">
+        </td>
+
+        <td>
+        <input type="number"
+        min="0"
+        style="width:75px"
+        value="${source.kittedParts}"
+        onchange="updateSource(
+            '${unit.id}',
+            '${source.id}',
+            'kittedParts',
+            this.value
+        )">
+        </td>
+
+        <td>
+        ${(sourcePercent(source)*100).toFixed(0)}%
+        </td>
+
+        <td>
+        <input type="number"
+        step=".1"
+        min="0"
+        style="width:75px"
+        value="${source.planningCT}"
+        onchange="updateSource(
+            '${unit.id}',
+            '${source.id}',
+            'planningCT',
+            this.value
+        )">
+        </td>
+
+        <td>
+        ${fmtDateTime(plannedKitStart(unit,source))}
+        </td>
+
+        <td>
+        <input type="datetime-local"
+        value="${source.actualKitStart || ""}"
+        onchange="updateSource(
+            '${unit.id}',
+            '${source.id}',
+            'actualKitStart',
+            this.value
+        )">
+        </td>
+
+        <td>
+        <input type="datetime-local"
+        value="${source.actualKitFinish || ""}"
+        onchange="updateSource(
+            '${unit.id}',
+            '${source.id}',
+            'actualKitFinish',
+            this.value
+        )">
+        </td>
+
+        <td>
+        <input type="checkbox"
+        ${source.warehouseQC ? "checked" : ""}
+        onchange="toggleWarehouseQC(
+            '${unit.id}',
+            '${source.id}',
+            this.checked
+        )">
+
+        ${
+            source.warehouseQCTime ?
+            "<br><span class='small'>" +
+            fmtDateTime(source.warehouseQCTime) +
+            "</span>" :
+            ""
+        }
+        </td>
+
+        <td>
+        <button class="primary"
+        onclick="openShortageModal(
+            '${unit.id}',
+            '${source.id}'
+        )">
+        + Shortage
+        </button>
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html += `
+    </tbody>
+    </table>
+
+
+    <h3 class="sectionTitle">
+    Shortage Recovery
+    </h3>
+    `;
+
+    if(shortages.length === 0){
+
+        html += `
+        <div class="note">
+        No shortages recorded for this subunit.
+        </div>
+        `;
+    }
+    else{
+
+        html += shortageDetailTable(shortages,unit);
+    }
+
+    html += `
+
+    <h3 class="sectionTitle">
+    Production Information
+    </h3>
+
+    <div class="grid">
+
+        <label>
+        Priority
+        <input
+        value="${escapeHTML(unit.priority)}"
+        onchange="updateUnit(
+            '${unit.id}',
+            'priority',
+            this.value
+        )">
+        </label>
+
+        <label>
+        Production Start
+        <input
+        type="datetime-local"
+        value="${unit.productionStart}"
+        onchange="updateUnit(
+            '${unit.id}',
+            'productionStart',
+            this.value
+        )">
+        </label>
+
+        <label>
+        Comments
+        <textarea
+        onchange="updateUnit(
+            '${unit.id}',
+            'comments',
+            this.value
+        )">${escapeHTML(unit.comments||"")}</textarea>
+        </label>
+
+    </div>
+
+    <div class="toolbar"
+    style="margin-top:20px">
+
+        <button class="danger"
+        onclick="deleteSubunit('${unit.id}')">
+        Delete Subunit
+        </button>
+
+    </div>
+    `;
+
+    document.getElementById("detailContent")
+        .innerHTML = html;
+}
+
+
+/* =========================================================
+   PROCESS STAGES
+========================================================= */
+
+function processStagesHTML(unit){
+
+    const allKitted =
+        unit.sources.every(sourceComplete);
+
+    const allQC =
+        unit.sources.every(s=>s.warehouseQC);
+
+    const shortages =
+        openUnitShortages(unit.id);
+
+    const stages = [
+
+        {
+            name:"Kitting",
+            complete:allKitted,
+            detail:
+                allKitted ?
+                "Complete" :
+                "In Progress"
+        },
+
+        {
+            name:"Warehouse QC",
+            complete:allQC,
+            detail:
+                allQC ?
+                "Complete" :
+                "Pending"
+        },
+
+        {
+            name:"T-3 Delivered",
+            complete:unit.t3Delivered,
+            detail:
+                unit.t3DeliveredTime ?
+                fmtDateTime(unit.t3DeliveredTime) :
+                "Due " + fmtDateTime(t3(unit)),
+            toggle:"t3Delivered"
+        },
+
+        {
+            name:"T-2 PC Verified",
+            complete:unit.pcVerified,
+            detail:
+                unit.pcVerifiedTime ?
+                fmtDateTime(unit.pcVerifiedTime) :
+                "Due " + fmtDateTime(t2(unit)),
+            toggle:"pcVerified"
+        },
+
+        {
+            name:"T-2 Shortages",
+            complete:unit.shortageIdentificationComplete,
+            detail:
+                unit.shortageIdentificationComplete ?
+                (
+                    shortages.length +
+                    " currently open"
+                ) :
+                "Pending",
+            toggle:"shortageIdentificationComplete"
+        },
+
+        {
+            name:"T-1 Recovery",
+            complete:unit.recoveryComplete,
+            detail:
+                unit.recoveryComplete ?
+                "Complete" :
+                (
+                    shortages.length ?
+                    shortages.length +
+                    " open" :
+                    "Pending"
+                ),
+            toggle:"recoveryComplete"
+        },
+
+        {
+            name:"T0 Ready",
+            complete:unit.readyForProduction,
+            detail:
+                unit.readyForProduction ?
+                "READY" :
+                "Pending",
+            toggle:"readyForProduction"
+        }
+
+    ];
+
+    let html = `<div class="process">`;
+
+    stages.forEach((stage,index)=>{
+
+        let css =
+            stage.complete ?
+            "done" :
+            "pending";
+
+        if(
+            !stage.complete &&
+            stage.name === "T-1 Recovery" &&
+            shortages.length
+        ){
+            css = "progress";
+        }
+
+        html += `
+
+        <div class="stage ${css}">
+
+        <b>${stage.name}</b>
+
+        <p>${stage.detail}</p>
+
+        ${
+            stage.toggle ?
+            `
+            <button class="secondary"
+            onclick="toggleStage(
+                '${unit.id}',
+                '${stage.toggle}'
+            )">
+
+            ${
+                stage.complete ?
+                "Undo" :
+                "Mark Complete"
+            }
+
+            </button>
+            `
+            :
+            ""
+        }
+
+        </div>
+        `;
+
+        if(index < stages.length-1){
+            html += `<div class="arrow">→</div>`;
+        }
+    });
+
+    html += `</div>`;
+
+    return html;
+}
+
+
+/* =========================================================
+   SOURCE UPDATE
+========================================================= */
+
+function updateSource(
+    unitId,
+    sourceId,
+    field,
+    value
+){
+
+    const unit =
+        db.subunits.find(u=>u.id===unitId);
+
+    if(!unit) return;
+
+    const source =
+        unit.sources.find(s=>s.id===sourceId);
+
+    if(!source) return;
+
+    source[field] = value;
+
+    saveDB();
+}
+
+function toggleWarehouseQC(
+    unitId,
+    sourceId,
+    checked
+){
+
+    const unit =
+        db.subunits.find(u=>u.id===unitId);
+
+    if(!unit) return;
+
+    const source =
+        unit.sources.find(s=>s.id===sourceId);
+
+    source.warehouseQC = checked;
+
+    source.warehouseQCTime =
+        checked ?
+        new Date().toISOString() :
+        "";
+
+    saveDB();
+}
+
+
+/* =========================================================
+   PROCESS STAGE UPDATE
+========================================================= */
+
+function toggleStage(unitId,field){
+
+    const unit =
+        db.subunits.find(u=>u.id===unitId);
+
+    if(!unit) return;
+
+    unit[field] = !unit[field];
+
+    const timeFields = {
+        t3Delivered:"t3DeliveredTime",
+        pcVerified:"pcVerifiedTime",
+        shortageIdentificationComplete:
+            "shortageIdentificationTime",
+        recoveryComplete:
+            "recoveryCompleteTime",
+        readyForProduction:
+            "readyTime"
+    };
+
+    const timeField =
+        timeFields[field];
+
+    if(timeField){
+
+        unit[timeField] =
+            unit[field] ?
+            new Date().toISOString() :
+            "";
+    }
+
+    saveDB();
+}
+
+
+/* =========================================================
+   UPDATE UNIT
+========================================================= */
+
+function updateUnit(
+    unitId,
+    field,
+    value
+){
+
+    const unit =
+        db.subunits.find(u=>u.id===unitId);
+
+    if(!unit) return;
+
+    unit[field] = value;
+
+    saveDB();
+}
+
+
+/* =========================================================
+   SHORTAGE MODAL
+========================================================= */
+
+let shortageUnitId = null;
+let shortageSourceId = null;
+
+function openShortageModal(
+    unitId,
+    sourceId,
+    shortageId=null
+){
+
+    shortageUnitId = unitId;
+    shortageSourceId = sourceId;
+    editingShortageId = shortageId;
+
+    const unit =
+        db.subunits.find(u=>u.id===unitId);
+
+    const shortage =
+        shortageId ?
+        db.shortages.find(s=>s.id===shortageId) :
+        null;
+
+    document.getElementById("shortModalTitle")
+        .textContent =
+        shortage ?
+        "Edit Shortage" :
+        "Add Shortage";
+
+    const sourceSelect =
+        document.getElementById("shortSource");
+
+    sourceSelect.innerHTML =
+        unit.sources.map(s=>
+            `<option value="${s.id}">
+            ${escapeHTML(s.name)}
+            </option>`
+        ).join("");
+
+    sourceSelect.value =
+        shortage ?
+        shortage.sourceId :
+        sourceId;
+
+    document.getElementById("shortPart").value =
+        shortage?.part || "";
+
+    document.getElementById("shortDesc").value =
+        shortage?.description || "";
+
+    document.getElementById("shortRequired").value =
+        shortage?.requiredQty || "";
+
+    document.getElementById("shortDelivered").value =
+        shortage?.deliveredQty || 0;
+
+    document.getElementById("shortRecovered").value =
+        shortage?.recoveredQty || 0;
+
+    document.getElementById("shortOwner").value =
+        shortage?.owner || "Warehouse Team";
+
+    document.getElementById("shortComments").value =
+        shortage?.comments || "";
+
+    document.getElementById("shortModal")
+        .classList.add("open");
+}
+
+function saveShortage(){
+
+    const part =
+        document.getElementById("shortPart")
+        .value.trim();
+
+    const required =
+        document.getElementById("shortRequired")
+        .value;
+
+    if(!part || required === ""){
+
+        alert(
+            "Part Number and Required Qty are required."
+        );
+
+        return;
+    }
+
+    const record = {
+
+        id:
+            editingShortageId ||
+            uid(),
+
+        subunitId:
+            shortageUnitId,
+
+        sourceId:
+            document.getElementById("shortSource").value,
+
+        part:part,
+
+        description:
+            document.getElementById("shortDesc").value,
+
+        requiredQty:
+            required,
+
+        deliveredQty:
+            document.getElementById("shortDelivered").value,
+
+        recoveredQty:
+            document.getElementById("shortRecovered").value,
+
+        owner:
+            document.getElementById("shortOwner").value,
+
+        comments:
+            document.getElementById("shortComments").value
+    };
+
+    if(editingShortageId){
+
+        const index =
+            db.shortages.findIndex(
+                s=>s.id===editingShortageId
+            );
+
+        db.shortages[index] = record;
+    }
+    else{
+        db.shortages.push(record);
+    }
+
+    closeModal("shortModal");
+
+    saveDB();
+}
+
+
+/* =========================================================
+   SHORTAGE DETAIL TABLE
+========================================================= */
+
+function shortageDetailTable(shortages,unit){
+
+    let html = `
+
+    <table>
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Part</th>
+        <th>Description</th>
+        <th>Required</th>
+        <th>Delivered</th>
+        <th>Short</th>
+        <th>Recovered</th>
+        <th>Remaining</th>
+        <th>Owner</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+
+    shortages.forEach(s=>{
+
+        const calc =
+            shortageCalculation(s);
+
+        const source =
+            unit.sources.find(
+                x=>x.id===s.sourceId
+            );
+
+        html += `
+
+        <tr>
+
+        <td>
+        ${escapeHTML(source?.name || "")}
+        </td>
+
+        <td>
+        ${escapeHTML(s.part)}
+        </td>
+
+        <td>
+        ${escapeHTML(s.description)}
+        </td>
+
+        <td>${s.requiredQty}</td>
+
+        <td>${s.deliveredQty}</td>
+
+        <td>${calc.shortage}</td>
+
+        <td>${s.recoveredQty}</td>
+
+        <td>${calc.remaining}</td>
+
+        <td>${escapeHTML(s.owner)}</td>
+
+        <td>
+        <span class="status ${
+            calc.status === "CLOSED" ?
+            "green" :
+            calc.status === "RECOVERING" ?
+            "yellow" :
+            "red"
+        }">
+        ${calc.status}
+        </span>
+        </td>
+
+        <td>
+
+        <button class="secondary"
+        onclick="openShortageModal(
+            '${unit.id}',
+            '${s.sourceId}',
+            '${s.id}'
+        )">
+        Edit
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+
+    return html;
+}
+
+
+/* =========================================================
+   CENTRAL SHORTAGE REPORT
+========================================================= */
+
+function renderShortages(){
+
+    const statusFilter =
+        document.getElementById("shortStatusFilter")
+        .value;
+
+    const search =
+        document.getElementById("shortSearch")
+        .value.toLowerCase();
+
+    let shortages =
+        db.shortages.filter(s=>{
+
+            const calc =
+                shortageCalculation(s);
+
+            const unit =
+                db.subunits.find(
+                    u=>u.id===s.subunitId
+                );
+
+            if(!unit) return false;
+
+            const source =
+                unit.sources.find(
+                    x=>x.id===s.sourceId
+                );
+
+            const text =
+                `${s.part}
+                 ${s.description}
+                 ${s.owner}
+                 ${unit.mod}
+                 ${unit.subunit}
+                 ${source?.name||""}`
+                .toLowerCase();
+
+            return (
+                statusFilter === "ALL" ||
+                calc.status === statusFilter
+            ) &&
+            text.includes(search);
+        });
+
+    let html = `
+
+    <table>
+    <thead>
+    <tr>
+        <th>MOD</th>
+        <th>Subunit</th>
+        <th>Source</th>
+        <th>Part</th>
+        <th>Description</th>
+        <th>Required</th>
+        <th>Delivered</th>
+        <th>Short</th>
+        <th>Recovered</th>
+        <th>Remaining</th>
+        <th>Owner</th>
+        <th>T-1 Due</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+
+    shortages.forEach(s=>{
+
+        const unit =
+            db.subunits.find(
+                u=>u.id===s.subunitId
+            );
+
+        if(!unit) return;
+
+        const source =
+            unit.sources.find(
+                x=>x.id===s.sourceId
+            );
+
+        const calc =
+            shortageCalculation(s);
+
+        const due = t1(unit);
+
+        const overdue =
+            due &&
+            due < new Date() &&
+            calc.status !== "CLOSED";
+
+        html += `
+
+        <tr>
+
+        <td>${unit.mod}</td>
+
+        <td>
+        <button class="secondary"
+        onclick="openDetail('${unit.id}')">
+        ${escapeHTML(unit.subunit)}
+        </button>
+        </td>
+
+        <td>${escapeHTML(source?.name||"")}</td>
+
+        <td>${escapeHTML(s.part)}</td>
+
+        <td>${escapeHTML(s.description)}</td>
+
+        <td>${s.requiredQty}</td>
+
+        <td>${s.deliveredQty}</td>
+
+        <td>${calc.shortage}</td>
+
+        <td>${s.recoveredQty}</td>
+
+        <td>${calc.remaining}</td>
+
+        <td>${escapeHTML(s.owner)}</td>
+
+        <td class="${overdue?'overdue':''}">
+        ${fmtDateTime(due)}
+        </td>
+
+        <td>
+        <span class="status ${
+            calc.status === "CLOSED" ?
+            "green" :
+            calc.status === "RECOVERING" ?
+            "yellow" :
+            "red"
+        }">
+        ${calc.status}
+        </span>
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+
+    document.getElementById("shortageTable")
+        .innerHTML = html;
+}
+
+
+/* =========================================================
+   DELETE SUBUNIT
+========================================================= */
+
+function deleteSubunit(id){
+
+    const unit =
+        db.subunits.find(u=>u.id===id);
+
+    if(!unit) return;
+
+    if(!confirm(
+        `Delete MOD ${unit.mod} / ${unit.subunit}
+and all shortages connected to it?`
+    )){
+        return;
+    }
+
+    db.subunits =
+        db.subunits.filter(
+            u=>u.id!==id
+        );
+
+    db.shortages =
+        db.shortages.filter(
+            s=>s.subunitId!==id
+        );
+
+    currentDetailId = null;
+
+    closeModal("detailModal");
+
+    saveDB();
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function closeModal(id){
+
+    document.getElementById(id)
+        .classList.remove("open");
+}
+
+function closeDetail(){
+
+    currentDetailId = null;
+
+    closeModal("detailModal");
+}
+
+
+/* =========================================================
+   BACKUP
+========================================================= */
+
+function downloadBackup(){
+
+    const blob =
+        new Blob(
+            [JSON.stringify(db,null,2)],
+            {type:"application/json"}
+        );
+
+    const a =
+        document.createElement("a");
+
+    a.href =
+        URL.createObjectURL(blob);
+
+    a.download =
+        "QPAC_Material_Readiness_Backup_" +
+        new Date().toISOString().slice(0,10) +
+        ".json";
+
+    a.click();
+
+    URL.revokeObjectURL(a.href);
+}
+
+function restoreBackup(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+    const reader =
+        new FileReader();
+
+    reader.onload = ()=>{
+
+        try{
+
+            const data =
+                JSON.parse(reader.result);
+
+            if(
+                !Array.isArray(data.subunits) ||
+                !Array.isArray(data.shortages)
+            ){
+                throw new Error();
+            }
+
+            db = data;
+
+            saveDB();
+
+            alert("Backup restored.");
+
+        }
+        catch{
+            alert("Invalid backup file.");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+function resetDatabase(){
+
+    if(!confirm(
+        "Delete all application data stored in this browser?"
+    )){
+        return;
+    }
+
+    db = {
+        subunits:[],
+        shortages:[]
+    };
+
+    saveDB();
+}
+
+
+/* =========================================================
+   SECURITY / DISPLAY
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/[&<>"']/g,c=>({
             "&":"&amp;",
             "<":"&lt;",
             ">":"&gt;",
             '"':"&quot;",
             "'":"&#39;"
-
-        }[m])
-
-    );
-
+        }[c]));
 }
 
 
-
-function localDate(s){
-
-    if(!s){
-        return null;
-    }
-
-    let d = new Date(
-        s + "T00:00:00"
-    );
-
-    return isNaN(d)
-        ? null
-        : d;
-
-}
-
-
-
-function deadline(
-    date,
-    days
-){
-
-    let d = localDate(date);
-
-    if(!d){
-        return "";
-    }
-
-    d.setDate(
-        d.getDate() - days
-    );
-
-    d.setHours(
-        18,
-        0,
-        0,
-        0
-    );
-
-    return d;
-
-}
-
-
-
-function fmt(d){
-
-    if(!d){
-        return "";
-    }
-
-    if(!(d instanceof Date)){
-
-        d = new Date(d);
-
-    }
-
-    return d.toLocaleString(
-
-        [],
-
-        {
-
-            year:"numeric",
-            month:"2-digit",
-            day:"2-digit",
-            hour:"numeric",
-            minute:"2-digit"
-
-        }
-
-    );
-
-}
-
-
-
-/* ==========================================================
-   SHORTAGE CALCULATION
-========================================================== */
-
-
-function shortageCalc(s){
-
-    let required =
-        +s.requiredQty || 0;
-
-    let delivered =
-        +s.deliveredQty || 0;
-
-    let recovered =
-        +s.recoveredQty || 0;
-
-
-    let short =
-        Math.max(
-            0,
-            required - delivered
-        );
-
-
-    let remaining =
-        Math.max(
-            0,
-            short - recovered
-        );
-
-
-    let status;
-
-
-    if(remaining === 0){
-
-        status = "CLOSED";
-
-    }
-
-    else if(recovered > 0){
-
-        status = "RECOVERING";
-
-    }
-
-    else{
-
-        status = "OPEN";
-
-    }
-
-
-    return {
-
-        short:short,
-
-        rem:remaining,
-
-        status:status
-
-    };
-
-}
-
-
-
-/* ==========================================================
-   KIT CALCULATIONS
-========================================================== */
-
-
-function kitShortages(k){
-
-    return db.shortages.filter(
-
-        s =>
-
-        s.kitId === k.id
-
-        &&
-
-        shortageCalc(s).status !== "CLOSED"
-
-    );
-
-}
-
-
-
-function kitCalc(k){
-
-    let total =
-        +k.totalLines || 0;
-
-
-    let delivered =
-        +k.linesDelivered || 0;
-
-
-    let shortLines =
-        total
-
-        ?
-
-        Math.max(
-            0,
-            total - delivered
-        )
-
-        :
-
-        0;
-
-
-    let pct =
-        total
-
-        ?
-
-        delivered / total
-
-        :
-
-        0;
-
-
-    let openShortages =
-        kitShortages(k).length;
-
-
-    let status;
-
-
-    if(!total){
-
-        status =
-            "NOT PLANNED";
-
-    }
-
-    else if(
-        pct >= 1
-        &&
-        openShortages === 0
-    ){
-
-        status =
-            "COMPLETE";
-
-    }
-
-    else if(
-        openShortages > 0
-    ){
-
-        status =
-            "SHORTAGE RECOVERY";
-
-    }
-
-    else if(
-        shortLines > 0
-    ){
-
-        status =
-            "SHORTAGE DETAIL NEEDED";
-
-    }
-
-    else{
-
-        status =
-            "ACTION REQUIRED";
-
-    }
-
-
-    return {
-
-        shortLines:shortLines,
-
-        pct:pct,
-
-        opens:openShortages,
-
-        status:status
-
-    };
-
-}
-
-
-
-/* ==========================================================
-   STATUS COLOR
-========================================================== */
-
-
-function cls(status){
-
-    if(
-        status === "COMPLETE"
-        ||
-        status === "CLOSED"
-    ){
-
-        return "complete";
-
-    }
-
-
-    if(
-        status === "SHORTAGE RECOVERY"
-        ||
-        status === "RECOVERING"
-    ){
-
-        return "recovery";
-
-    }
-
-
-    if(
-        status === "NOT PLANNED"
-    ){
-
-        return "notplanned";
-
-    }
-
-
-    return "risk";
-
-}
-
-
-
-/* ==========================================================
-   NAVIGATION
-========================================================== */
-
-
-document
-.querySelectorAll("#nav button")
-.forEach(
-
-    button => {
-
-        button.onclick = () => {
-
-            document
-            .querySelectorAll(
-                "#nav button,.view"
-            )
-            .forEach(
-
-                x =>
-                x.classList.remove(
-                    "active"
-                )
-
-            );
-
-
-            button
-            .classList
-            .add(
-                "active"
-            );
-
-
-            document
-            .getElementById(
-                button.dataset.view
-            )
-            .classList
-            .add(
-                "active"
-            );
-
-
-            renderAll();
-
-        };
-
-    }
-
-);
-
-
-
-/* ==========================================================
-   KITTING PLAN TABLE
-========================================================== */
-
-
-function renderKits(){
-
-
-    let filter =
-        document
-        .getElementById(
-            "kitModFilter"
-        )
-        .value;
-
-
-    let search =
-        document
-        .getElementById(
-            "kitSearch"
-        )
-        .value
-        .toLowerCase();
-
-
-    let rows =
-        db.kits
-
-        .filter(
-
-            k =>
-
-            (
-                filter === "ALL"
-
-                ||
-
-                k.mod === filter
-            )
-
-            &&
-
-            (
-                `${k.subunit} ${k.source}`
-
-                .toLowerCase()
-
-                .includes(search)
-            )
-
-        )
-
-        .sort(
-
-            (a,b) =>
-
-            (
-                a.productionNeed || ""
-            )
-
-            .localeCompare(
-
-                b.productionNeed || ""
-
-            )
-
-        );
-
-
-    let html = `
-
-    <table>
-
-    <thead>
-
-    <tr>
-
-    <th>Priority</th>
-
-    <th>MOD</th>
-
-    <th>Subunit</th>
-
-    <th>Source</th>
-
-    <th>Production Need</th>
-
-    <th>T-3 Delivery</th>
-
-    <th>T-2 Verification</th>
-
-    <th>T-1 Recovery</th>
-
-    <th>Planned Start</th>
-
-    <th>Kit %</th>
-
-    <th>Open Parts</th>
-
-    <th>Status</th>
-
-    <th>Actions</th>
-
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    `;
-
-
-    for(const k of rows){
-
-
-        let calc =
-            kitCalc(k);
-
-
-        let productionDate =
-            localDate(
-                k.productionNeed
-            );
-
-
-        let tomorrow =
-            new Date(
-                Date.now()
-                +
-                86400000
-            );
-
-
-        let productionRisk =
-
-            calc.opens > 0
-
-            &&
-
-            productionDate
-
-            &&
-
-            productionDate
-            <= tomorrow;
-
-
-        let plannedOverdue =
-
-            k.plannedStart
-
-            &&
-
-            new Date(
-                k.plannedStart
-            )
-            <
-            new Date()
-
-            &&
-
-            !k.actualStart;
-
-
-        html += `
-
-        <tr>
-
-        <td>
-        ${esc(k.priority)}
-        </td>
-
-        <td>
-        ${esc(k.mod)}
-        </td>
-
-        <td>
-        ${esc(k.subunit)}
-        </td>
-
-        <td>
-        ${esc(k.source)}
-        </td>
-
-
-        <td
-        class="${
-            productionRisk
-            ?
-            "redcell"
-            :
-            ""
-        }">
-
-        ${esc(
-            k.productionNeed
-        )}
-
-        </td>
-
-
-        <td>
-
-        ${
-            fmt(
-                deadline(
-                    k.productionNeed,
-                    3
-                )
-            )
-        }
-
-        </td>
-
-
-        <td>
-
-        ${
-            fmt(
-                deadline(
-                    k.productionNeed,
-                    2
-                )
-            )
-        }
-
-        </td>
-
-
-        <td>
-
-        ${
-            fmt(
-                deadline(
-                    k.productionNeed,
-                    1
-                )
-            )
-        }
-
-        </td>
-
-
-        <td
-        class="${
-            plannedOverdue
-            ?
-            "redcell"
-            :
-            ""
-        }">
-
-        ${
-            k.plannedStart
-            ?
-            fmt(k.plannedStart)
-            :
-            ""
-        }
-
-        </td>
-
-
-        <td>
-
-        ${
-            (
-                calc.pct
-                *
-                100
-            )
-            .toFixed(0)
-        }%
-
-        </td>
-
-
-        <td>
-
-        ${calc.opens}
-
-        </td>
-
-
-        <td>
-
-        <span
-        class="status ${cls(calc.status)}">
-
-        ${calc.status}
-
-        </span>
-
-        </td>
-
-
-        <td>
-
-
-        <button
-        class="secondary"
-        onclick="openKit('${k.id}')">
-
-        Edit
-
-        </button>
-
-
-        <button
-        class="primary"
-        onclick="openShortage(null,'${k.id}')">
-
-        + Shortage
-
-        </button>
-
-
-        <button
-        class="danger"
-        onclick="delKit('${k.id}')">
-
-        Delete
-
-        </button>
-
-
-        </td>
-
-
-        </tr>
-
-        `;
-
-    }
-
-
-    html += `
-
-    </tbody>
-
-    </table>
-
-    `;
-
-
-    document
-    .getElementById(
-        "kitsTable"
-    )
-    .innerHTML = html;
-
-}
-
-
-
-/* ==========================================================
-   SHORTAGE TABLE
-========================================================== */
-
-
-function renderShortages(){
-
-
-    let filter =
-        document
-        .getElementById(
-            "shortFilter"
-        )
-        .value;
-
-
-    let search =
-        document
-        .getElementById(
-            "shortSearch"
-        )
-        .value
-        .toLowerCase();
-
-
-    let rows =
-        db.shortages.filter(
-
-            s => {
-
-
-                let calc =
-                    shortageCalc(s);
-
-
-                let kit =
-                    db.kits.find(
-
-                        x =>
-                        x.id === s.kitId
-
-                    )
-
-                    ||
-
-                    {};
-
-
-                let searchable =
-
-                    `${s.part}
-                     ${s.description}
-                     ${s.owner}
-                     ${kit.mod}
-                     ${kit.subunit}
-                     ${kit.source}`
-
-                    .toLowerCase();
-
-
-                return
-
-                    (
-                        filter === "ALL"
-
-                        ||
-
-                        calc.status === filter
-                    )
-
-                    &&
-
-                    searchable.includes(
-                        search
-                    );
-
-            }
-
-        );
-
-
-    let html = `
-
-    <table>
-
-    <thead>
-
-    <tr>
-
-    <th>MOD</th>
-
-    <th>Subunit</th>
-
-    <th>Source</th>
-
-    <th>Part #</th>
-
-    <th>Description</th>
-
-    <th>Required</th>
-
-    <th>Delivered</th>
-
-    <th>Short</th>
-
-    <th>Recovered</th>
-
-    <th>Remaining</th>
-
-    <th>Owner</th>
-
-    <th>T-1 Due</th>
-
-    <th>Status</th>
-
-    <th>Actions</th>
-
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    `;
-
-
-    for(const s of rows){
-
-
-        let calc =
-            shortageCalc(s);
-
-
-        let kit =
-            db.kits.find(
-
-                x =>
-                x.id === s.kitId
-
-            )
-
-            ||
-
-            {};
-
-
-        let due =
-            deadline(
-                kit.productionNeed,
-                1
-            );
-
-
-        let overdue =
-
-            due
-
-            &&
-
-            due < new Date()
-
-            &&
-
-            calc.status !== "CLOSED";
-
-
-        html += `
-
-        <tr>
-
-
-        <td>
-        ${esc(kit.mod)}
-        </td>
-
-
-        <td>
-        ${esc(kit.subunit)}
-        </td>
-
-
-        <td>
-        ${esc(kit.source)}
-        </td>
-
-
-        <td>
-        ${esc(s.part)}
-        </td>
-
-
-        <td>
-        ${esc(s.description)}
-        </td>
-
-
-        <td>
-        ${esc(s.requiredQty)}
-        </td>
-
-
-        <td>
-        ${esc(s.deliveredQty)}
-        </td>
-
-
-        <td>
-        ${calc.short}
-        </td>
-
-
-        <td>
-        ${esc(s.recoveredQty)}
-        </td>
-
-
-        <td>
-        ${calc.rem}
-        </td>
-
-
-        <td>
-        ${esc(s.owner)}
-        </td>
-
-
-        <td
-        class="${
-            overdue
-            ?
-            "redcell"
-            :
-            ""
-        }">
-
-        ${fmt(due)}
-
-        </td>
-
-
-        <td>
-
-        <span
-        class="status ${cls(calc.status)}">
-
-        ${calc.status}
-
-        </span>
-
-        </td>
-
-
-        <td>
-
-
-        <button
-        class="secondary"
-        onclick="openShortage('${s.id}')">
-
-        Edit
-
-        </button>
-
-
-        <button
-        class="danger"
-        onclick="delShort('${s.id}')">
-
-        Delete
-
-        </button>
-
-
-        </td>
-
-
-        </tr>
-
-        `;
-
-    }
-
-
-    html += `
-
-    </tbody>
-
-    </table>
-
-    `;
-
-
-    document
-    .getElementById(
-        "shortTable"
-    )
-    .innerHTML = html;
-
-}
-
-
-
-/* ==========================================================
-   DASHBOARD
-========================================================== */
-
-
-function renderDashboard(){
-
-
-    let complete =
-        db.kits.filter(
-
-            k =>
-            kitCalc(k).status
-            ===
-            "COMPLETE"
-
-        ).length;
-
-
-    let open =
-        db.shortages.filter(
-
-            s =>
-            shortageCalc(s).status
-            !==
-            "CLOSED"
-
-        ).length;
-
-
-    let overdue =
-        db.shortages.filter(
-
-            s => {
-
-
-                let kit =
-                    db.kits.find(
-
-                        x =>
-                        x.id === s.kitId
-
-                    );
-
-
-                let due =
-
-                    kit
-
-                    &&
-
-                    deadline(
-                        kit.productionNeed,
-                        1
-                    );
-
-
-                return
-
-                    due
-
-                    &&
-
-                    due < new Date()
-
-                    &&
-
-                    shortageCalc(s).status
-                    !==
-                    "CLOSED";
-
-            }
-
-        ).length;
-
-
-    let risk =
-        db.kits.filter(
-
-            k => {
-
-
-                let calc =
-                    kitCalc(k);
-
-
-                let production =
-                    localDate(
-                        k.productionNeed
-                    );
-
-
-                return
-
-                    calc.opens > 0
-
-                    &&
-
-                    production
-
-                    &&
-
-                    production
-                    <=
-                    new Date(
-                        Date.now()
-                        +
-                        86400000
-                    );
-
-            }
-
-        ).length;
-
-
-    document
-    .getElementById(
-        "kpiKits"
-    )
-    .textContent =
-        db.kits.length;
-
-
-    document
-    .getElementById(
-        "kpiComplete"
-    )
-    .textContent =
-        complete;
-
-
-    document
-    .getElementById(
-        "kpiOpen"
-    )
-    .textContent =
-        open;
-
-
-    document
-    .getElementById(
-        "kpiOverdue"
-    )
-    .textContent =
-        overdue;
-
-
-    document
-    .getElementById(
-        "kpiRisk"
-    )
-    .textContent =
-        risk;
-
-
-    let rows =
-        [...db.kits]
-
-        .sort(
-
-            (a,b) =>
-
-            (
-                a.productionNeed || ""
-            )
-
-            .localeCompare(
-
-                b.productionNeed || ""
-
-            )
-
-        )
-
-        .slice(
-            0,
-            15
-        );
-
-
-    let html = `
-
-    <table>
-
-    <thead>
-
-    <tr>
-
-    <th>MOD</th>
-
-    <th>Subunit</th>
-
-    <th>Source</th>
-
-    <th>Production Need</th>
-
-    <th>Kit %</th>
-
-    <th>Open Shortages</th>
-
-    <th>Status</th>
-
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    `;
-
-
-    for(const k of rows){
-
-
-        let calc =
-            kitCalc(k);
-
-
-        html += `
-
-        <tr>
-
-        <td>
-        ${esc(k.mod)}
-        </td>
-
-        <td>
-        ${esc(k.subunit)}
-        </td>
-
-        <td>
-        ${esc(k.source)}
-        </td>
-
-        <td>
-        ${esc(k.productionNeed)}
-        </td>
-
-        <td>
-
-        ${
-            (
-                calc.pct
-                *
-                100
-            )
-            .toFixed(0)
-        }%
-
-        </td>
-
-        <td>
-        ${calc.opens}
-        </td>
-
-        <td>
-
-        <span
-        class="status ${cls(calc.status)}">
-
-        ${calc.status}
-
-        </span>
-
-        </td>
-
-        </tr>
-
-        `;
-
-    }
-
-
-    html += `
-
-    </tbody>
-
-    </table>
-
-    `;
-
-
-    document
-    .getElementById(
-        "dashTable"
-    )
-    .innerHTML = html;
-
-}
-
-
-
-/* ==========================================================
-   ADD / EDIT SUBUNIT
-========================================================== */
-
-
-function openKit(id = null){
-
-
-    editKitId = id;
-
-
-    let kit =
-        db.kits.find(
-
-            x =>
-            x.id === id
-
-        )
-
-        ||
-
-        {};
-
-
-    document
-    .getElementById(
-        "kitModalTitle"
-    )
-    .textContent =
-
-        id
-
-        ?
-
-        "Edit Source Row"
-
-        :
-
-        "Add New Subunit";
-
-
-    document
-    .getElementById(
-        "newSubunitNote"
-    )
-    .style.display =
-
-        id
-
-        ?
-
-        "none"
-
-        :
-
-        "block";
-
-
-    function options(
-        array,
-        selected
-    ){
-
-        return array.map(
-
-            x =>
-
-            `
-
-            <option
-
-            ${
-                x === selected
-                ?
-                "selected"
-                :
-                ""
-            }>
-
-            ${x}
-
-            </option>
-
-            `
-
-        ).join("");
-
-    }
-
-
-
-    document
-    .getElementById(
-        "kitForm"
-    )
-    .innerHTML = `
-
-
-    <label>
-
-    Priority
-
-    <input
-    id="fPriority"
-    value="${esc(kit.priority || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    MOD
-
-    <select id="fMod">
-
-    ${options(
-        MODS,
-        kit.mod
-    )}
-
-    </select>
-
-    </label>
-
-
-
-    <label>
-
-    Subunit
-
-    <input
-    id="fSubunit"
-    value="${esc(kit.subunit || "")}">
-
-    </label>
-
-
-
-    <label
-    style="${
-        id
-        ?
-        ""
-        :
-        "display:none"
-    }">
-
-    Source
-
-    <select id="fSource">
-
-    ${options(
-        SOURCES,
-        kit.source
-    )}
-
-    </select>
-
-    </label>
-
-
-
-    <label>
-
-    Production Need Date
-
-    <input
-    id="fNeed"
-    type="date"
-    value="${esc(kit.productionNeed || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Planning CT (hr)
-
-    <input
-    id="fCT"
-    type="number"
-    step=".01"
-    value="${esc(kit.planningCT || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Planned Kit Start
-
-    <input
-    id="fPlan"
-    type="datetime-local"
-    value="${esc(kit.plannedStart || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Actual Kit Start
-
-    <input
-    id="fActualStart"
-    type="datetime-local"
-    value="${esc(kit.actualStart || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Actual Kit Finish
-
-    <input
-    id="fActualFinish"
-    type="datetime-local"
-    value="${esc(kit.actualFinish || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Total Part Lines
-
-    <input
-    id="fTotal"
-    type="number"
-    value="${esc(kit.totalLines || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Lines Delivered T-3
-
-    <input
-    id="fDelivered"
-    type="number"
-    value="${esc(kit.linesDelivered || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Comments
-
-    <textarea
-    id="fComments">
-
-${esc(kit.comments || "")}
-
-    </textarea>
-
-    </label>
-
-    `;
-
-
-    document
-    .getElementById(
-        "kitModal"
-    )
-    .classList
-    .add(
-        "open"
-    );
-
-}
-
-
-
-/* ==========================================================
-   SAVE SUBUNIT
-
-   IMPORTANT UPDATE:
-
-   ONE NEW SUBUNIT CREATES ALL SOURCES AUTOMATICALLY
-========================================================== */
-
-
-function saveKit(){
-
-
-    let base = {
-
-
-        id:
-
-            editKitId
-
-            ||
-
-            uid(),
-
-
-        priority:
-
-            document
-            .getElementById(
-                "fPriority"
-            )
-            .value,
-
-
-        mod:
-
-            document
-            .getElementById(
-                "fMod"
-            )
-            .value,
-
-
-        subunit:
-
-            document
-            .getElementById(
-                "fSubunit"
-            )
-            .value
-            .trim(),
-
-
-        productionNeed:
-
-            document
-            .getElementById(
-                "fNeed"
-            )
-            .value,
-
-
-        planningCT:
-
-            document
-            .getElementById(
-                "fCT"
-            )
-            .value,
-
-
-        plannedStart:
-
-            document
-            .getElementById(
-                "fPlan"
-            )
-            .value,
-
-
-        actualStart:
-
-            document
-            .getElementById(
-                "fActualStart"
-            )
-            .value,
-
-
-        actualFinish:
-
-            document
-            .getElementById(
-                "fActualFinish"
-            )
-            .value,
-
-
-        totalLines:
-
-            document
-            .getElementById(
-                "fTotal"
-            )
-            .value,
-
-
-        linesDelivered:
-
-            document
-            .getElementById(
-                "fDelivered"
-            )
-            .value,
-
-
-        comments:
-
-            document
-            .getElementById(
-                "fComments"
-            )
-            .value
-
-    };
-
-
-
-    if(
-        !base.subunit
-        ||
-        !base.productionNeed
-    ){
-
-        alert(
-            "Subunit and Production Need Date are required."
-        );
-
-        return;
-
-    }
-
-
-
-    /* EDIT EXISTING SOURCE ROW */
-
-
-    if(editKitId){
-
-
-        let old =
-            db.kits.find(
-
-                x =>
-                x.id === editKitId
-
-            );
-
-
-        if(!old){
-            return;
-        }
-
-
-        let updated = {
-
-            ...old,
-
-            ...base,
-
-            source:
-                document
-                .getElementById(
-                    "fSource"
-                )
-                .value
-
-        };
-
-
-        let index =
-            db.kits.findIndex(
-
-                x =>
-                x.id === editKitId
-
-            );
-
-
-        db.kits[index] =
-            updated;
-
-    }
-
-
-
-    /* CREATE NEW SUBUNIT */
-
-
-    else{
-
-
-        let duplicate =
-            db.kits.some(
-
-                k =>
-
-                k.mod === base.mod
-
-                &&
-
-                (
-                    k.subunit || ""
-                )
-                .toLowerCase()
-
-                ===
-
-                base.subunit
-                .toLowerCase()
-
-                &&
-
-                k.productionNeed
-                ===
-                base.productionNeed
-
-            );
-
-
-        if(duplicate){
-
-
-            let continueCreate =
-                confirm(
-
-                    "This MOD / Subunit / Production Need Date already exists.\n\nCreate another set anyway?"
-
-                );
-
-
-            if(!continueCreate){
-
-                return;
-
-            }
-
-        }
-
-
-
-        /*
-        Automatically create one row
-        for every standard source.
-        */
-
-
-        SOURCES.forEach(
-
-            source => {
-
-
-                db.kits.push({
-
-
-                    id:
-                        uid(),
-
-
-                    priority:
-                        base.priority,
-
-
-                    mod:
-                        base.mod,
-
-
-                    subunit:
-                        base.subunit,
-
-
-                    source:
-                        source,
-
-
-                    productionNeed:
-                        base.productionNeed,
-
-
-                    /*
-                    Source-specific fields
-                    begin blank.
-                    */
-
-
-                    planningCT:
-                        "",
-
-
-                    plannedStart:
-                        "",
-
-
-                    actualStart:
-                        "",
-
-
-                    actualFinish:
-                        "",
-
-
-                    totalLines:
-                        "",
-
-
-                    linesDelivered:
-                        "",
-
-
-                    comments:
-                        ""
-
-                });
-
-            }
-
-        );
-
-    }
-
-
-
-    closeModal(
-        "kitModal"
-    );
-
-
-    save();
-
-}
-
-
-
-/* ==========================================================
-   ADD / EDIT SHORTAGE
-========================================================== */
-
-
-function openShortage(
-    id = null,
-    kitId = null
-){
-
-
-    editShortId = id;
-
-
-    if(
-        db.kits.length === 0
-    ){
-
-        alert(
-            "Create a Kitting Plan subunit first."
-        );
-
-        return;
-
-    }
-
-
-    let shortage =
-        db.shortages.find(
-
-            x =>
-            x.id === id
-
-        )
-
-        ||
-
-        {
-            kitId:kitId
-        };
-
-
-    document
-    .getElementById(
-        "shortModalTitle"
-    )
-    .textContent =
-
-        id
-
-        ?
-
-        "Edit Shortage"
-
-        :
-
-        "Add Shortage";
-
-
-
-    let kitOptions =
-        db.kits.map(
-
-            k => `
-
-            <option
-            value="${k.id}"
-
-            ${
-                k.id === shortage.kitId
-                ?
-                "selected"
-                :
-                ""
-            }>
-
-            ${esc(k.mod)}
-            |
-            ${esc(k.subunit)}
-            |
-            ${esc(k.source)}
-            |
-            Need ${esc(k.productionNeed)}
-
-            </option>
-
-            `
-
-        ).join("");
-
-
-
-    document
-    .getElementById(
-        "shortForm"
-    )
-    .innerHTML = `
-
-
-    <label>
-
-    Linked Kit
-
-    <select id="sKit">
-
-    ${kitOptions}
-
-    </select>
-
-    </label>
-
-
-
-    <label>
-
-    Part #
-
-    <input
-    id="sPart"
-    value="${esc(shortage.part || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Description
-
-    <input
-    id="sDesc"
-    value="${esc(shortage.description || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Required Qty
-
-    <input
-    id="sReq"
-    type="number"
-    value="${esc(shortage.requiredQty || "")}">
-
-    </label>
-
-
-
-    <label>
-
-    Delivered Qty
-
-    <input
-    id="sDel"
-    type="number"
-    value="${esc(shortage.deliveredQty || 0)}">
-
-    </label>
-
-
-
-    <label>
-
-    Recovered Qty
-
-    <input
-    id="sRec"
-    type="number"
-    value="${esc(shortage.recoveredQty || 0)}">
-
-    </label>
-
-
-
-    <label>
-
-    Owner
-
-    <input
-    id="sOwner"
-    value="${esc(shortage.owner || "Warehouse Team")}">
-
-    </label>
-
-
-
-    <label>
-
-    Comments
-
-    <textarea
-    id="sComments">
-
-${esc(shortage.comments || "")}
-
-    </textarea>
-
-    </label>
-
-    `;
-
-
-
-    document
-    .getElementById(
-        "shortModal"
-    )
-    .classList
-    .add(
-        "open"
-    );
-
-}
-
-
-
-/* ==========================================================
-   SAVE SHORTAGE
-========================================================== */
-
-
-function saveShortage(){
-
-
-    let shortage = {
-
-
-        id:
-
-            editShortId
-
-            ||
-
-            uid(),
-
-
-        kitId:
-
-            document
-            .getElementById(
-                "sKit"
-            )
-            .value,
-
-
-        part:
-
-            document
-            .getElementById(
-                "sPart"
-            )
-            .value
-            .trim(),
-
-
-        description:
-
-            document
-            .getElementById(
-                "sDesc"
-            )
-            .value,
-
-
-        requiredQty:
-
-            document
-            .getElementById(
-                "sReq"
-            )
-            .value,
-
-
-        deliveredQty:
-
-            document
-            .getElementById(
-                "sDel"
-            )
-            .value,
-
-
-        recoveredQty:
-
-            document
-            .getElementById(
-                "sRec"
-            )
-            .value,
-
-
-        owner:
-
-            document
-            .getElementById(
-                "sOwner"
-            )
-            .value,
-
-
-        comments:
-
-            document
-            .getElementById(
-                "sComments"
-            )
-            .value
-
-    };
-
-
-
-    if(
-        !shortage.kitId
-        ||
-        !shortage.part
-        ||
-        shortage.requiredQty === ""
-    ){
-
-        alert(
-            "Linked Kit, Part # and Required Qty are required."
-        );
-
-        return;
-
-    }
-
-
-
-    let index =
-        db.shortages.findIndex(
-
-            x =>
-            x.id === shortage.id
-
-        );
-
-
-    if(index >= 0){
-
-        db.shortages[index] =
-            shortage;
-
-    }
-
-    else{
-
-        db.shortages.push(
-            shortage
-        );
-
-    }
-
-
-
-    closeModal(
-        "shortModal"
-    );
-
-
-    save();
-
-}
-
-
-
-/* ==========================================================
-   DELETE
-========================================================== */
-
-
-function delKit(id){
-
-
-    let confirmDelete =
-        confirm(
-
-            "Delete this source row and all shortages linked to it?"
-
-        );
-
-
-    if(!confirmDelete){
-
-        return;
-
-    }
-
-
-    db.kits =
-        db.kits.filter(
-
-            k =>
-            k.id !== id
-
-        );
-
-
-    db.shortages =
-        db.shortages.filter(
-
-            s =>
-            s.kitId !== id
-
-        );
-
-
-    save();
-
-}
-
-
-
-function delShort(id){
-
-
-    if(
-
-        confirm(
-            "Delete this shortage?"
-        )
-
-    ){
-
-
-        db.shortages =
-            db.shortages.filter(
-
-                s =>
-                s.id !== id
-
-            );
-
-
-        save();
-
-    }
-
-}
-
-
-
-/* ==========================================================
-   MODAL
-========================================================== */
-
-
-function closeModal(id){
-
-    document
-    .getElementById(id)
-    .classList
-    .remove(
-        "open"
-    );
-
-}
-
-
-
-/* ==========================================================
-   BACKUP
-========================================================== */
-
-
-function exportBackup(){
-
-
-    download(
-
-        "QPAC_Kitting_Backup_"
-
-        +
-
-        new Date()
-        .toISOString()
-        .slice(0,10)
-
-        +
-
-        ".json",
-
-
-        JSON.stringify(
-            db,
-            null,
-            2
-        ),
-
-
-        "application/json"
-
-    );
-
-}
-
-
-
-/* ==========================================================
-   RESTORE
-========================================================== */
-
-
-function importBackup(event){
-
-
-    let file =
-        event.target.files[0];
-
-
-    if(!file){
-
-        return;
-
-    }
-
-
-    let reader =
-        new FileReader();
-
-
-    reader.onload = () => {
-
-
-        try{
-
-
-            let imported =
-                JSON.parse(
-                    reader.result
-                );
-
-
-            if(
-
-                !Array.isArray(
-                    imported.kits
-                )
-
-                ||
-
-                !Array.isArray(
-                    imported.shortages
-                )
-
-            ){
-
-                throw new Error();
-
-            }
-
-
-            db =
-                imported;
-
-
-            save();
-
-
-            alert(
-                "Backup restored successfully."
-            );
-
-        }
-
-
-        catch{
-
-
-            alert(
-                "Invalid backup file."
-            );
-
-        }
-
-    };
-
-
-    reader.readAsText(
-        file
-    );
-
-}
-
-
-
-/* ==========================================================
-   CSV EXPORT
-========================================================== */
-
-
-function exportCSV(type){
-
-
-    let data =
-
-        type === "kits"
-
-        ?
-
-        db.kits
-
-        :
-
-        db.shortages;
-
-
-    if(
-        data.length === 0
-    ){
-
-        alert(
-            "No data to export."
-        );
-
-        return;
-
-    }
-
-
-    let keys =
-        [
-
-            ...new Set(
-
-                data.flatMap(
-                    Object.keys
-                )
-
-            )
-
-        ];
-
-
-    let csv = [
-
-
-        keys.join(","),
-
-
-        ...data.map(
-
-            row =>
-
-            keys.map(
-
-                key =>
-
-                `"${
-
-                    String(
-                        row[key] ?? ""
-                    )
-
-                    .replace(
-                        /"/g,
-                        '""'
-                    )
-
-                }"`
-
-            )
-
-            .join(",")
-
-        )
-
-
-    ].join("\n");
-
-
-    download(
-
-        "QPAC_"
-
-        +
-
-        type
-
-        +
-
-        ".csv",
-
-
-        csv,
-
-
-        "text/csv"
-
-    );
-
-}
-
-
-
-/* ==========================================================
-   DOWNLOAD FILE
-========================================================== */
-
-
-function download(
-    name,
-    text,
-    type
-){
-
-
-    let link =
-        document.createElement(
-            "a"
-        );
-
-
-    link.href =
-        URL.createObjectURL(
-
-            new Blob(
-
-                [text],
-
-                {
-                    type:type
-                }
-
-            )
-
-        );
-
-
-    link.download =
-        name;
-
-
-    link.click();
-
-
-    URL.revokeObjectURL(
-        link.href
-    );
-
-}
-
-
-
-/* ==========================================================
-   RESET DATABASE
-========================================================== */
-
-
-function resetData(){
-
-
-    let confirmReset =
-        confirm(
-
-            "This will permanently clear all local application data.\n\nContinue?"
-
-        );
-
-
-    if(!confirmReset){
-
-        return;
-
-    }
-
-
-    db = {
-
-        kits:[],
-
-        shortages:[]
-
-    };
-
-
-    save();
-
-}
-
-
-
-/* ==========================================================
-   RENDER EVERYTHING
-========================================================== */
-
+/* =========================================================
+   RENDER
+========================================================= */
 
 function renderAll(){
 
-    renderDashboard();
+    buildModTabs();
 
-    renderKits();
+    renderKitting();
 
     renderShortages();
-
 }
 
 
-
-/* ==========================================================
-   START APPLICATION
-========================================================== */
-
+/* =========================================================
+   INITIALIZE
+========================================================= */
 
 renderAll();
 
-
 </script>
-
 
 </body>
 </html>
