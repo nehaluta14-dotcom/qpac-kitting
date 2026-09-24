@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QPAC Material Kitting Control</title>
+<style>
+:root{--nav:#17324d;--blue:#2f6fad;--bg:#f4f7fa;--card:#fff;--line:#dce4eb;--green:#63be7b;--yellow:#ffd966;--red:#f8696b;--muted:#667788}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:#17212b}
+header{background:var(--nav);color:white;padding:16px 22px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:20px}.small{font-size:12px;color:var(--muted)}
+nav{background:white;border-bottom:1px solid var(--line);padding:0 16px;display:flex;gap:4px;flex-wrap:wrap}
+nav button{border:0;background:transparent;padding:13px 14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:18px;max-width:1600px;margin:auto}.view{display:none}.view.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.card{background:white;border:1px solid var(--line);border-radius:8px;padding:16px}.card b{font-size:26px;display:block;margin-top:6px}
+.panel{background:white;border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px;overflow:auto}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+button.primary,.btn{background:var(--blue);color:white;border:0;border-radius:5px;padding:8px 12px;cursor:pointer;font-weight:600}
+button.secondary{background:white;color:#223;border:1px solid #aebdca;border-radius:5px;padding:8px 12px;cursor:pointer}
+button.danger{background:#b83b3b;color:white;border:0;border-radius:5px;padding:6px 9px;cursor:pointer}
+input,select,textarea{border:1px solid #b9c6d2;border-radius:4px;padding:7px;background:white;min-width:90px}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}th,td{border-bottom:1px solid #e3e9ee;padding:8px;text-align:left}th{background:#edf3f8;position:sticky;top:0}
+.status{padding:4px 8px;border-radius:12px;font-weight:700;display:inline-block}.complete{background:var(--green)}.recovery{background:var(--yellow)}.risk{background:var(--red)}.notplanned{background:#dbe6ef}
+.redcell{background:var(--red)!important}.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}.step{flex:1;min-width:210px;border:2px solid #adc1d2;border-radius:8px;padding:14px;background:#fff}.arrow{align-self:center;font-size:25px;color:#557}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center}.modal.open{display:flex}.modalbox{background:white;border-radius:8px;padding:18px;max-width:900px;width:94%;max-height:90vh;overflow:auto}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.grid label{font-size:12px;font-weight:600}.grid input,.grid select,.grid textarea{width:100%;margin-top:4px}
+.right{margin-left:auto}.note{background:#eef6ff;border-left:4px solid var(--blue);padding:10px;margin:10px 0}.overdue{color:#a40000;font-weight:700}
+@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header><h1>QPAC Material Kitting Control</h1><div>Local Application • Data saved on this computer</div></header>
+<nav id="nav">
+<button data-view="dashboard" class="active">Dashboard</button>
+<button data-view="kits">Kitting Plan</button>
+<button data-view="shortages">Shortage Report</button>
+<button data-view="process">Process Map</button>
+<button data-view="data">Data / Backup</button>
+</nav>
+<main>
+<section id="dashboard" class="view active">
+<div class="cards">
+<div class="card">Active Kits<b id="kpiKits">0</b></div>
+<div class="card">Complete<b id="kpiComplete">0</b></div>
+<div class="card">Open Shortages<b id="kpiOpen">0</b></div>
+<div class="card">Overdue Recovery<b id="kpiOverdue">0</b></div>
+<div class="card">Production Risk<b id="kpiRisk">0</b></div>
+</div>
+<div class="panel"><h3>Upcoming Production</h3><div id="dashTable"></div></div>
+</section>
+
+<section id="kits" class="view">
+<div class="panel">
+<div class="toolbar">
+<button class="primary" onclick="openKit()">+ Add Kit</button>
+<label>MOD <select id="kitModFilter" onchange="renderKits()"><option>ALL</option><option>A</option><option>B</option><option>C</option><option>D2</option><option>D2B</option><option>E</option></select></label>
+<label>Search <input id="kitSearch" oninput="renderKits()" placeholder="Subunit / source"></label>
+</div><div id="kitsTable"></div>
+</div>
+</section>
+
+<section id="shortages" class="view">
+<div class="panel">
+<div class="toolbar">
+<button class="primary" onclick="openShortage()">+ Add Shortage</button>
+<label>Status <select id="shortFilter" onchange="renderShortages()"><option>ALL</option><option>OPEN</option><option>RECOVERING</option><option>CLOSED</option></select></label>
+<label>Search <input id="shortSearch" oninput="renderShortages()" placeholder="Part / owner / kit"></label>
+</div><div id="shortTable"></div>
+</div>
+</section>
+
+<section id="process" class="view">
+<div class="panel">
+<h2>T-3 → T-2 → T-1 → T0 Material Readiness Process</h2>
+<div class="flow">
+<div class="step"><h3>T-3 • Kit Delivery</h3><p><b>Warehouse</b> completes and delivers the kit by 6:00 PM.</p><p>Kit becomes available for physical verification.</p></div><div class="arrow">→</div>
+<div class="step"><h3>T-2 • Verification</h3><p><b>Production Control</b> verifies required material.</p><p>Each missing part is entered into the Central Shortage Report.</p></div><div class="arrow">→</div>
+<div class="step"><h3>T-1 • Recovery</h3><p><b>Warehouse / Owner</b> recovers missing parts and updates recovered quantity.</p><p>Target: all shortages closed by 6:00 PM.</p></div><div class="arrow">→</div>
+<div class="step"><h3>T0 • Production</h3><p>Production begins with a <b>complete verified kit</b>.</p><p>Goal: no operator leaves the floor to search for material.</p></div>
+</div>
+<div class="note"><b>Example:</b> Production 10/10/2026 6:00 AM → T-3 delivery 10/07 6 PM → T-2 verification 10/08 6 PM → T-1 recovery 10/09 6 PM → T0 production.</div>
+</div>
+</section>
+
+<section id="data" class="view">
+<div class="panel"><h3>Backup / Transfer</h3>
+<p>This direct-open version stores data in your browser using local storage. Use backup regularly.</p>
+<div class="toolbar"><button class="primary" onclick="exportBackup()">Download Backup</button><button class="secondary" onclick="document.getElementById('importFile').click()">Restore Backup</button><input type="file" id="importFile" accept=".json" hidden onchange="importBackup(event)"><button class="secondary" onclick="exportCSV('kits')">Export Kits CSV</button><button class="secondary" onclick="exportCSV('shortages')">Export Shortages CSV</button><button class="danger" onclick="resetData()">Reset All Data</button></div>
+</div>
+</section>
+</main>
+
+<div id="kitModal" class="modal"><div class="modalbox"><h2 id="kitModalTitle">Add Kit</h2><div class="grid" id="kitForm"></div><div class="toolbar" style="margin-top:15px"><button class="primary" onclick="saveKit()">Save Kit</button><button class="secondary" onclick="closeModal('kitModal')">Cancel</button></div></div></div>
+<div id="shortModal" class="modal"><div class="modalbox"><h2 id="shortModalTitle">Add Shortage</h2><div class="grid" id="shortForm"></div><div class="toolbar" style="margin-top:15px"><button class="primary" onclick="saveShortage()">Save Shortage</button><button class="secondary" onclick="closeModal('shortModal')">Cancel</button></div></div></div>
+
+<script>
+const MODS=["A","B","C","D2","D2B","E"], SOURCES=["Main Warehouse","Machine Shop Warehouse","PLD","Jenbacher","Other"];
+let db=JSON.parse(localStorage.getItem("qpacKittingDB")||'{"kits":[],"shortages":[]}'), editKitId=null, editShortId=null;
+const save=()=>{localStorage.setItem("qpacKittingDB",JSON.stringify(db));renderAll()};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function localDate(s){if(!s)return null; let d=new Date(s+"T00:00:00"); return isNaN(d)?null:d}
+function deadline(date,days){let d=localDate(date); if(!d)return ""; d.setDate(d.getDate()-days); d.setHours(18,0,0,0); return d}
+function fmt(d){if(!d)return ""; if(!(d instanceof Date))d=new Date(d); return d.toLocaleString([], {year:"numeric",month:"2-digit",day:"2-digit",hour:"numeric",minute:"2-digit"})}
+function shortageCalc(s){let req=+s.requiredQty||0,del=+s.deliveredQty||0,rec=+s.recoveredQty||0; let short=Math.max(0,req-del), rem=Math.max(0,short-rec); return {short,rem,status:rem===0?"CLOSED":rec>0?"RECOVERING":"OPEN"}}
+function kitShortages(k){return db.shortages.filter(s=>s.kitId===k.id && shortageCalc(s).status!=="CLOSED")}
+function kitCalc(k){let total=+k.totalLines||0,del=+k.linesDelivered||0; let shortLines=total?Math.max(0,total-del):0; let pct=total?del/total:0; let opens=kitShortages(k).length; let status=!total?"NOT PLANNED":(pct>=1&&opens===0)?"COMPLETE":opens>0?"SHORTAGE RECOVERY":shortLines>0?"SHORTAGE DETAIL NEEDED":"ACTION REQUIRED";return {shortLines,pct,opens,status}}
+function cls(st){return st==="COMPLETE"||st==="CLOSED"?"complete":st==="SHORTAGE RECOVERY"||st==="RECOVERING"?"recovery":st==="NOT PLANNED"?"notplanned":"risk"}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#nav button,.view").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(b.dataset.view).classList.add("active");renderAll()});
+function renderKits(){
+let f=document.getElementById("kitModFilter").value,q=document.getElementById("kitSearch").value.toLowerCase();
+let rows=db.kits.filter(k=>(f==="ALL"||k.mod===f)&&(`${k.subunit} ${k.source}`.toLowerCase().includes(q))).sort((a,b)=>(a.productionNeed||"").localeCompare(b.productionNeed||""));
+let h=`<table><thead><tr><th>Priority</th><th>MOD</th><th>Subunit</th><th>Source</th><th>Production Need</th><th>T-3 Delivery</th><th>T-2 Verify</th><th>T-1 Recovery</th><th>Plan Start</th><th>Kit %</th><th>Open Parts</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+for(const k of rows){let c=kitCalc(k), risk=c.opens>0&&localDate(k.productionNeed)<=new Date(Date.now()+86400000); let overdue=k.plannedStart&&new Date(k.plannedStart)<new Date()&&!k.actualStart;
+h+=`<tr><td>${esc(k.priority)}</td><td>${esc(k.mod)}</td><td>${esc(k.subunit)}</td><td>${esc(k.source)}</td><td class="${risk?'redcell':''}">${esc(k.productionNeed)}</td><td>${fmt(deadline(k.productionNeed,3))}</td><td>${fmt(deadline(k.productionNeed,2))}</td><td>${fmt(deadline(k.productionNeed,1))}</td><td class="${overdue?'redcell':''}">${k.plannedStart?fmt(k.plannedStart):""}</td><td>${(c.pct*100).toFixed(0)}%</td><td>${c.opens}</td><td><span class="status ${cls(c.status)}">${c.status}</span></td><td><button class="secondary" onclick="openKit('${k.id}')">Edit</button> <button class="primary" onclick="openShortage(null,'${k.id}')">+ Shortage</button> <button class="danger" onclick="delKit('${k.id}')">Delete</button></td></tr>`}
+document.getElementById("kitsTable").innerHTML=h+"</tbody></table>"}
+function renderShortages(){
+let f=document.getElementById("shortFilter").value,q=document.getElementById("shortSearch").value.toLowerCase();
+let rows=db.shortages.filter(s=>{let c=shortageCalc(s),k=db.kits.find(x=>x.id===s.kitId)||{};return (f==="ALL"||c.status===f)&&(`${s.part} ${s.description} ${s.owner} ${k.mod} ${k.subunit} ${k.source}`.toLowerCase().includes(q))});
+let h=`<table><thead><tr><th>MOD</th><th>Subunit</th><th>Source</th><th>Part #</th><th>Description</th><th>Required</th><th>Delivered</th><th>Short</th><th>Recovered</th><th>Remaining</th><th>Owner</th><th>T-1 Due</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+for(const s of rows){let c=shortageCalc(s),k=db.kits.find(x=>x.id===s.kitId)||{}, due=deadline(k.productionNeed,1),od=due&&due<new Date()&&c.status!=="CLOSED";h+=`<tr><td>${esc(k.mod)}</td><td>${esc(k.subunit)}</td><td>${esc(k.source)}</td><td>${esc(s.part)}</td><td>${esc(s.description)}</td><td>${esc(s.requiredQty)}</td><td>${esc(s.deliveredQty)}</td><td>${c.short}</td><td>${esc(s.recoveredQty)}</td><td>${c.rem}</td><td>${esc(s.owner)}</td><td class="${od?'redcell':''}">${fmt(due)}</td><td><span class="status ${cls(c.status)}">${c.status}</span></td><td><button class="secondary" onclick="openShortage('${s.id}')">Edit</button> <button class="danger" onclick="delShort('${s.id}')">Delete</button></td></tr>`}
+document.getElementById("shortTable").innerHTML=h+"</tbody></table>"}
+function renderDashboard(){
+let complete=db.kits.filter(k=>kitCalc(k).status==="COMPLETE").length, open=db.shortages.filter(s=>shortageCalc(s).status!=="CLOSED").length, overdue=db.shortages.filter(s=>{let k=db.kits.find(x=>x.id===s.kitId);let d=k&&deadline(k.productionNeed,1);return d&&d<new Date()&&shortageCalc(s).status!=="CLOSED"}).length,risk=db.kits.filter(k=>kitCalc(k).opens>0&&localDate(k.productionNeed)<=new Date(Date.now()+86400000)).length;
+kpiKits.textContent=db.kits.length;kpiComplete.textContent=complete;kpiOpen.textContent=open;kpiOverdue.textContent=overdue;kpiRisk.textContent=risk;
+let rows=[...db.kits].sort((a,b)=>(a.productionNeed||"").localeCompare(b.productionNeed||"")).slice(0,15),h="<table><thead><tr><th>MOD</th><th>Subunit</th><th>Source</th><th>Production Need</th><th>Kit %</th><th>Open Shortages</th><th>Status</th></tr></thead><tbody>";
+for(const k of rows){let c=kitCalc(k);h+=`<tr><td>${esc(k.mod)}</td><td>${esc(k.subunit)}</td><td>${esc(k.source)}</td><td>${esc(k.productionNeed)}</td><td>${(c.pct*100).toFixed(0)}%</td><td>${c.opens}</td><td><span class="status ${cls(c.status)}">${c.status}</span></td></tr>`}dashTable.innerHTML=h+"</tbody></table>"}
+function openKit(id=null){editKitId=id;let k=db.kits.find(x=>x.id===id)||{};kitModalTitle.textContent=id?"Edit Kit":"Add Kit";let opts=(a,v)=>a.map(x=>`<option ${x===v?"selected":""}>${x}</option>`).join("");
+kitForm.innerHTML=`<label>Priority<input id="fPriority" value="${esc(k.priority||"")}"></label><label>MOD<select id="fMod">${opts(MODS,k.mod)}</select></label><label>Subunit<input id="fSubunit" value="${esc(k.subunit||"")}"></label><label>Source<select id="fSource">${opts(SOURCES,k.source)}</select></label><label>Production Need Date<input id="fNeed" type="date" value="${esc(k.productionNeed||"")}"></label><label>Planning CT (hr)<input id="fCT" type="number" step=".01" value="${esc(k.planningCT||"")}"></label><label>Planned Kit Start<input id="fPlan" type="datetime-local" value="${esc(k.plannedStart||"")}"></label><label>Actual Kit Start<input id="fActualStart" type="datetime-local" value="${esc(k.actualStart||"")}"></label><label>Actual Kit Finish<input id="fActualFinish" type="datetime-local" value="${esc(k.actualFinish||"")}"></label><label>Total Part Lines<input id="fTotal" type="number" value="${esc(k.totalLines||"")}"></label><label>Lines Delivered T-3<input id="fDelivered" type="number" value="${esc(k.linesDelivered||"")}"></label><label>Comments<textarea id="fComments">${esc(k.comments||"")}</textarea></label>`;kitModal.classList.add("open")}
+function saveKit(){let k={id:editKitId||uid(),priority:fPriority.value,mod:fMod.value,subunit:fSubunit.value.trim(),source:fSource.value,productionNeed:fNeed.value,planningCT:fCT.value,plannedStart:fPlan.value,actualStart:fActualStart.value,actualFinish:fActualFinish.value,totalLines:fTotal.value,linesDelivered:fDelivered.value,comments:fComments.value};if(!k.subunit||!k.productionNeed)return alert("Subunit and Production Need Date are required.");let i=db.kits.findIndex(x=>x.id===k.id);if(i>=0)db.kits[i]=k;else db.kits.push(k);closeModal("kitModal");save()}
+function openShortage(id=null,kitId=null){editShortId=id;let s=db.shortages.find(x=>x.id===id)||{kitId};shortModalTitle.textContent=id?"Edit Shortage":"Add Shortage";let options=db.kits.map(k=>`<option value="${k.id}" ${k.id===s.kitId?"selected":""}>${esc(k.mod)} | ${esc(k.subunit)} | ${esc(k.source)} | Need ${esc(k.productionNeed)}</option>`).join("");
+shortForm.innerHTML=`<label>Linked Kit<select id="sKit">${options}</select></label><label>Part #<input id="sPart" value="${esc(s.part||"")}"></label><label>Description<input id="sDesc" value="${esc(s.description||"")}"></label><label>Required Qty<input id="sReq" type="number" value="${esc(s.requiredQty||"")}"></label><label>Delivered Qty<input id="sDel" type="number" value="${esc(s.deliveredQty||0)}"></label><label>Recovered Qty<input id="sRec" type="number" value="${esc(s.recoveredQty||0)}"></label><label>Owner<input id="sOwner" value="${esc(s.owner||"Warehouse Team")}"></label><label>Comments<textarea id="sComments">${esc(s.comments||"")}</textarea></label>`;if(!db.kits.length){alert("Create a Kitting Plan row first.");return}shortModal.classList.add("open")}
+function saveShortage(){let s={id:editShortId||uid(),kitId:sKit.value,part:sPart.value.trim(),description:sDesc.value,requiredQty:sReq.value,deliveredQty:sDel.value,recoveredQty:sRec.value,owner:sOwner.value,comments:sComments.value};if(!s.kitId||!s.part||s.requiredQty==="")return alert("Linked Kit, Part # and Required Qty are required.");let i=db.shortages.findIndex(x=>x.id===s.id);if(i>=0)db.shortages[i]=s;else db.shortages.push(s);closeModal("shortModal");save()}
+function delKit(id){if(!confirm("Delete this kit and all linked shortages?"))return;db.kits=db.kits.filter(k=>k.id!==id);db.shortages=db.shortages.filter(s=>s.kitId!==id);save()}
+function delShort(id){if(confirm("Delete this shortage?")){db.shortages=db.shortages.filter(s=>s.id!==id);save()}}
+function closeModal(id){document.getElementById(id).classList.remove("open")}
+function exportBackup(){download("QPAC_Kitting_Backup_"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(db,null,2),"application/json")}
+function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.kits)||!Array.isArray(x.shortages))throw 0;db=x;save();alert("Backup restored.");}catch{alert("Invalid backup file.")}};r.readAsText(f)}
+function exportCSV(type){let data=type==="kits"?db.kits:db.shortages;if(!data.length)return alert("No data to export.");let keys=[...new Set(data.flatMap(Object.keys))],csv=[keys.join(","),...data.map(r=>keys.map(k=>`"${String(r[k]??"").replace(/"/g,'""')}"`).join(","))].join("\n");download("QPAC_"+type+".csv",csv,"text/csv")}
+function download(name,text,type){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function resetData(){if(confirm("This permanently clears all local app data. Continue?")){db={kits:[],shortages:[]};save()}}
+function renderAll(){renderDashboard();renderKits();renderShortages()}
+renderAll();
+</script>
+</body></html>
