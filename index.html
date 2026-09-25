@@ -1474,7 +1474,7 @@ function allPickerSubmitted(unit){
 
     return unit.sources
         .filter(s=>s.lines.length)
-        .every(s=>s.pickerSubmitted);
+        .every(s=>s.qcDelivered===true);
 }
 
 function allQCSubmitted(unit){
@@ -3201,9 +3201,9 @@ function submitSourcePicking(
         }
     }
 
-    source.pickerSubmitted=true;
+    source.qcDelivered=true;
 
-    source.pickerSubmittedTime=
+    source.qcDeliveredTime=
         new Date().toISOString();
 
     saveDB();
@@ -4503,9 +4503,9 @@ function submitSourcePicking(
         }
     }
 
-    source.pickerSubmitted=true;
+    source.qcDelivered=true;
 
-    source.pickerSubmittedTime=
+    source.qcDeliveredTime=
         new Date().toISOString();
 
     saveDB();
@@ -5246,14 +5246,14 @@ function submitSourcePicking(unitId,sourceId){
         alert("Upload a kitting / handoff photo before delivering this source to Warehouse QC.");
         return;
     }
-    source.pickerSubmitted=true;
-    source.pickerSubmittedTime=new Date().toISOString();
+    source.qcDelivered=true;
+    source.qcDeliveredTime=new Date().toISOString();
     saveDB();
 }
 
 function warehouseQCHTML(unit){
-    const available=unit.sources.filter(s=>s.lines.length && s.pickerSubmitted);
-    const waiting=unit.sources.filter(s=>s.lines.length && !s.pickerSubmitted);
+    const available=unit.sources.filter(s=>s.lines.length && s.qcDelivered===true);
+    const waiting=unit.sources.filter(s=>s.lines.length && s.qcDelivered!==true);
     if(!available.length){
         return `<div class="alert">No source has been delivered to Warehouse QC yet.<br><br>QC does <b>not</b> need to wait for the complete subunit. Each source appears here as soon as its picker delivers it.</div>`;
     }
@@ -5267,7 +5267,7 @@ function warehouseQCHTML(unit){
         html+=`<tr>
           <td><b>${esc(source.name)}</b></td><td>${totals.totalParts}</td><td>${totals.kitted}/${totals.required}</td>
           <td>${totals.shortageParts>0?`<span class="status red">${totals.shortageParts}</span>`:`<span class="status green">0</span>`}</td>
-          <td>${fmt(source.pickerSubmittedTime)}</td><td>${verified}/${source.lines.length}</td>
+          <td>${fmt(source.qcDeliveredTime||source.pickerSubmittedTime)}</td><td>${verified}/${source.lines.length}</td>
           <td><span class="status ${source.qcSubmitted?'green':'yellow'}">${source.qcSubmitted?'QC COMPLETE':'READY FOR QC'}</span></td>
           <td><button class="primary" onclick="openQC('${unit.id}','${source.id}')">${source.qcSubmitted?'Review QC':'Start QC'}</button></td>
         </tr>`;
@@ -5370,6 +5370,8 @@ function loadSysproTicket(unit){
         planningCT:"",
         pickerSubmitted:false,
         pickerSubmittedTime:"",
+        qcDelivered:false,
+        qcDeliveredTime:"",
         kittingPhoto:"",
         kittingPhotoName:"",
         lastSysproRefresh:"",
@@ -5411,8 +5413,8 @@ function sourcePickHTML(unit,source){
     <div class="sourceCard">
       <div class="sourceHead">
         <div><b>${esc(source.name)}</b> &nbsp; <span class="small">${totals.totalParts} SYSPRO line(s)</span></div>
-        <span class="status ${source.pickerSubmitted?'green':totals.readyForQC?'yellow':'gray'}">
-          ${source.pickerSubmitted?'DELIVERED TO QC':totals.readyForQC?'READY FOR QC':'KITTING / SYSPRO SYNC'}
+        <span class="status ${source.qcDelivered?'green':totals.readyForQC?'yellow':'gray'}">
+          ${source.qcDelivered?'DELIVERED TO QC':totals.readyForQC?'READY FOR QC':'KITTING / SYSPRO SYNC'}
         </span>
       </div>
       <div class="sourceBody">
@@ -5470,7 +5472,7 @@ function sourcePickHTML(unit,source){
           <td>${line.lastSysproUpdate?fmt(line.lastSysproUpdate):'<span class="small">No transaction yet</span>'}${line.lastSysproTransaction?`<div class="small">${esc(line.lastSysproTransaction)}</div>`:''}</td>
           <td><div class="small">${esc(unit.pickTicket)}<br>Line ${esc(line.pickLineNo||'')}<br>${esc(line.stockCode)}</div></td>
           <td><button class="secondary" ${kitted<=0?'disabled':''} onclick="openLabel('${unit.id}','${source.id}','${line.id}')">Print Label</button></td>
-          <td>${shortageQty>0?`<span class="status red">SHORTAGE OPEN</span>`:`<button class="warning" ${source.pickerSubmitted?'disabled':''} onclick="openLineShortage('${unit.id}','${source.id}','${line.id}','PICKER')">Stock Shortage</button>`}</td>
+          <td>${shortageQty>0?`<span class="status red">SHORTAGE OPEN</span>`:`<button class="warning" ${source.qcDelivered?'disabled':''} onclick="openLineShortage('${unit.id}','${source.id}','${line.id}','PICKER')">Stock Shortage</button>`}</td>
         </tr>`;
     });
 
@@ -5479,21 +5481,33 @@ function sourcePickHTML(unit,source){
         <h4 style="margin:0 0 8px">Source Handoff to Warehouse QC</h4>
         <div class="note">The portal does not post inventory. Kitted Qty comes from SYSPRO. A line can also be accounted for with a documented stock shortage. Example: <b>40 kitted in SYSPRO + 10 documented shortage = 50 accounted</b>. The shortage stays open for recovery and does not block the 40 physically kitted pieces from moving to QC.</div>
         <label><b>Upload Kitting / Handoff Photo</b><br><br>
-          <input type="file" accept="image/*" ${source.pickerSubmitted?'disabled':''} onchange="uploadKittingPhoto('${unit.id}','${source.id}',this)">
+          <input type="file" accept="image/*" ${source.qcDelivered?'disabled':''} onchange="uploadKittingPhoto('${unit.id}','${source.id}',this)">
         </label>
         ${source.kittingPhoto?`<div style="margin-top:10px"><img src="${source.kittingPhoto}" style="max-width:260px;max-height:180px;border:1px solid #b9c6d2;border-radius:6px"><div class="small">${esc(source.kittingPhotoName||'Uploaded photo')}</div></div>`:`<div class="small" style="margin-top:8px">No photo uploaded.</div>`}
         <br>
-        <button class="success" ${(!totals.readyForQC||!source.kittingPhoto||source.pickerSubmitted)?'disabled':''} onclick="submitSourcePicking('${unit.id}','${source.id}')">
-          ${source.pickerSubmitted?'Delivered to Warehouse QC':'Deliver to Warehouse QC'}
+        <button class="success" ${(!totals.readyForQC||!source.kittingPhoto||source.qcDelivered)?'disabled':''} onclick="submitSourcePicking('${unit.id}','${source.id}')">
+          ${source.qcDelivered?'Delivered to Warehouse QC':'Deliver to Warehouse QC'}
         </button>
         ${!totals.readyForQC?` <span class="small">Every line must be fully kitted in SYSPRO or have its missing quantity documented as a stock shortage.</span>`:!source.kittingPhoto?` <span class="small">Upload a photo before handoff.</span>`:''}
-        ${source.pickerSubmitted?`<div class="note"><b>Available to Warehouse QC:</b> ${fmt(source.pickerSubmittedTime)}. QC can start this source immediately while other sources continue kitting.</div>`:''}
+        ${source.qcDelivered?`<div class="note"><b>Available to Warehouse QC:</b> ${fmt(source.qcDeliveredTime)}. QC can start this source immediately while other sources continue kitting.</div>`:''}
       </div>
       </div>
     </div>`;
     return html;
 }
 
+function ensureQCHandoffFields(){
+    db.subunits.forEach(unit=>{
+        (unit.sources||[]).forEach(source=>{
+            if(typeof source.qcDelivered!=="boolean") source.qcDelivered=false;
+            if(source.qcDeliveredTime===undefined) source.qcDeliveredTime="";
+            if(source.kittingPhoto===undefined) source.kittingPhoto="";
+            if(source.kittingPhotoName===undefined) source.kittingPhotoName="";
+        });
+    });
+}
+
+ensureQCHandoffFields();
 ensureSysproLineKeys();
 
 /* =========================================================
