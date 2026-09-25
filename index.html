@@ -5077,6 +5077,208 @@ function resetDatabase(){
 }
 
 
+
+
+/* =========================================================
+   UPDATE 02 — SOURCE-LEVEL PICKING / QC HANDOFF
+   Added: part + qty progress, line-level shortage accounting,
+   photo upload, independent source delivery to Warehouse QC.
+========================================================= */
+
+function pickerShortageForLine(unitId,sourceId,lineId){
+    return db.shortages
+        .filter(s=>
+            s.type==="PICKER" &&
+            s.subunitId===unitId &&
+            s.sourceId===sourceId &&
+            s.lineId===lineId &&
+            shortageCalc(s).status!=="CLOSED"
+        )
+        .reduce((sum,s)=>sum+shortageCalc(s).remaining,0);
+}
+
+function sourceTotals(source,unitId){
+    let required=0,kitted=0;
+    const totalParts=source.lines.length;
+    let fullyKittedParts=0,shortageParts=0,accountedParts=0;
+
+    source.lines.forEach(line=>{
+        const req=Number(line.requiredQty||0);
+        const kit=Number(line.kittedQty||0);
+        const sh=unitId ? pickerShortageForLine(unitId,source.id,line.id) : 0;
+        required+=req;
+        kitted+=kit;
+        if(kit>=req) fullyKittedParts++;
+        if(sh>0) shortageParts++;
+        if(kit+sh>=req) accountedParts++;
+    });
+
+    return {
+        required,kitted,totalParts,fullyKittedParts,shortageParts,accountedParts,
+        pct:required?kitted/required:0,
+        qtyPct:required?kitted/required:0,
+        partPct:totalParts?fullyKittedParts/totalParts:0,
+        readyForQC:totalParts>0 && accountedParts===totalParts
+    };
+}
+
+function unitTotals(unit){
+    let required=0,kitted=0,totalParts=0,fullyKittedParts=0;
+    unit.sources.forEach(source=>{
+        const x=sourceTotals(source,unit.id);
+        required+=x.required;
+        kitted+=x.kitted;
+        totalParts+=x.totalParts;
+        fullyKittedParts+=x.fullyKittedParts;
+    });
+    return {
+        required,kitted,totalParts,fullyKittedParts,
+        pct:required?kitted/required:0
+    };
+}
+
+function sourcePickHTML(unit,source){
+    const totals=sourceTotals(source,unit.id);
+    let html=`
+    <div class="sourceCard">
+      <div class="sourceHead">
+        <div><b>${esc(source.name)}</b> &nbsp; <span class="small">${totals.totalParts} SYSPRO line(s)</span></div>
+        <span class="status ${source.pickerSubmitted?'green':totals.readyForQC?'yellow':'gray'}">
+          ${source.pickerSubmitted?'DELIVERED TO QC':totals.readyForQC?'READY FOR QC':'KITTING'}
+        </span>
+      </div>
+      <div class="sourceBody">
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:10px;margin-bottom:12px">
+          <div class="card">Part Lines Fully Kitted<b>${totals.fullyKittedParts}/${totals.totalParts}</b></div>
+          <div class="card">Quantity Kitted<b>${totals.kitted}/${totals.required}</b></div>
+          <div class="card">Stock Shortage Lines<b>${totals.shortageParts}</b></div>
+          <div class="card">Lines Accounted For<b>${totals.accountedParts}/${totals.totalParts}</b></div>
+        </div>
+        <div class="toolbar">
+          <b>Parts: ${totals.fullyKittedParts}/${totals.totalParts} (${(totals.partPct*100).toFixed(0)}%)</b>
+          <span>&nbsp; | &nbsp;</span>
+          <b>Qty: ${totals.kitted}/${totals.required} (${(totals.qtyPct*100).toFixed(0)}%)</b>
+          <span>&nbsp; | &nbsp;</span>
+          <b>Accounted: ${totals.accountedParts}/${totals.totalParts}</b>
+        </div>
+        <div class="progressOuter"><div class="progressInner" style="width:${Math.min(100,(totals.accountedParts/Math.max(1,totals.totalParts))*100)}%"></div></div>
+        <br>
+        <table>
+          <thead><tr>
+            <th>Status</th><th>Stock Code</th><th>Description</th><th>Required Qty</th><th>Location</th>
+            <th>Kitted Qty</th><th>Stock Shortage</th><th>Unaccounted</th><th>SYSPRO Barcode</th>
+            <th>Picker Action</th><th>Label</th><th>Shortage</th>
+          </tr></thead><tbody>`;
+
+    source.lines.forEach(line=>{
+        const required=Number(line.requiredQty||0);
+        const kitted=Number(line.kittedQty||0);
+        const shortageQty=pickerShortageForLine(unit.id,source.id,line.id);
+        const unaccounted=Math.max(0,required-kitted-shortageQty);
+        let rowClass='',statusText='NOT PICKED',statusClass='gray';
+        if(kitted>=required){rowClass='lineComplete';statusText='COMPLETE';statusClass='green';}
+        else if(shortageQty>0 && unaccounted===0){rowClass='lineShort';statusText='STOCK SHORTAGE';statusClass='red';}
+        else if(kitted>0){rowClass='linePartial';statusText='PARTIAL';statusClass='yellow';}
+
+        html+=`<tr class="${rowClass}">
+          <td><span class="status ${statusClass}">${statusText}</span></td>
+          <td><b>${esc(line.stockCode)}</b></td><td>${esc(line.description)}</td><td>${required}</td>
+          <td><b>${esc(line.location)}</b></td><td><b>${kitted}</b></td>
+          <td>${shortageQty>0?`<span class="status red">${shortageQty}</span>`:'0'}</td>
+          <td>${unaccounted>0?`<span class="status yellow">${unaccounted}</span>`:`<span class="status green">0</span>`}</td>
+          <td><div class="barcode">${fakeBarcode(line.barcode)}</div><div class="small">${esc(line.barcode)}</div></td>
+          <td><button class="primary" ${source.pickerSubmitted?'disabled':''} onclick="openPickTransaction('${unit.id}','${source.id}','${line.id}')">Scan / Pick</button></td>
+          <td><button class="secondary" ${kitted<=0?'disabled':''} onclick="openLabel('${unit.id}','${source.id}','${line.id}')">Print Label</button></td>
+          <td>${shortageQty>0?`<span class="status red">SHORTAGE OPEN</span>`:`<button class="warning" ${source.pickerSubmitted?'disabled':''} onclick="openLineShortage('${unit.id}','${source.id}','${line.id}','PICKER')">Stock Shortage</button>`}</td>
+        </tr>`;
+    });
+
+    html+=`</tbody></table><br>
+      <div style="border-top:1px solid #d7e0e8;padding-top:14px">
+        <h4 style="margin:0 0 8px">Source Handoff to Warehouse QC</h4>
+        <div class="note">A line is ready when the required quantity is fully accounted for. Example: <b>40 kitted + 10 documented stock shortage = 50 accounted</b>. The shortage stays open for recovery and does not block the other kitted material from moving to QC.</div>
+        <label><b>Upload Kitting / Handoff Photo</b><br><br>
+          <input type="file" accept="image/*" ${source.pickerSubmitted?'disabled':''} onchange="uploadKittingPhoto('${unit.id}','${source.id}',this)">
+        </label>
+        ${source.kittingPhoto?`<div style="margin-top:10px"><img src="${source.kittingPhoto}" style="max-width:260px;max-height:180px;border:1px solid #b9c6d2;border-radius:6px"><div class="small">${esc(source.kittingPhotoName||'Uploaded photo')}</div></div>`:`<div class="small" style="margin-top:8px">No photo uploaded.</div>`}
+        <br>
+        <button class="success" ${(!totals.readyForQC||!source.kittingPhoto||source.pickerSubmitted)?'disabled':''} onclick="submitSourcePicking('${unit.id}','${source.id}')">
+          ${source.pickerSubmitted?'Delivered to Warehouse QC':'Deliver to Warehouse QC'}
+        </button>
+        ${!totals.readyForQC?` <span class="small">Every line must be fully kitted or have the missing quantity documented as a stock shortage.</span>`:!source.kittingPhoto?` <span class="small">Upload a photo before handoff.</span>`:''}
+        ${source.pickerSubmitted?`<div class="note"><b>Available to Warehouse QC:</b> ${fmt(source.pickerSubmittedTime)}. QC can start this source immediately while other sources continue kitting.</div>`:''}
+      </div>
+      </div>
+    </div>`;
+    return html;
+}
+
+function uploadKittingPhoto(unitId,sourceId,input){
+    const file=input.files && input.files[0];
+    if(!file)return;
+    if(file.size>1500000){
+        alert("For this browser demonstration, please use a photo smaller than 1.5 MB. The production version should store photos in company-approved shared storage.");
+        input.value="";
+        return;
+    }
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+        source.kittingPhoto=reader.result;
+        source.kittingPhotoName=file.name;
+        saveDB();
+    };
+    reader.readAsDataURL(file);
+}
+
+function submitSourcePicking(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    const totals=sourceTotals(source,unit.id);
+    if(!totals.readyForQC){
+        alert("Every part line must be fully kitted or have its missing quantity documented as a stock shortage before this source can be delivered to Warehouse QC.");
+        return;
+    }
+    if(!source.kittingPhoto){
+        alert("Upload a kitting / handoff photo before delivering this source to Warehouse QC.");
+        return;
+    }
+    source.pickerSubmitted=true;
+    source.pickerSubmittedTime=new Date().toISOString();
+    saveDB();
+}
+
+function warehouseQCHTML(unit){
+    const available=unit.sources.filter(s=>s.lines.length && s.pickerSubmitted);
+    const waiting=unit.sources.filter(s=>s.lines.length && !s.pickerSubmitted);
+    if(!available.length){
+        return `<div class="alert">No source has been delivered to Warehouse QC yet.<br><br>QC does <b>not</b> need to wait for the complete subunit. Each source appears here as soon as its picker delivers it.</div>`;
+    }
+
+    let html=`<div class="note"><b>Parallel QC:</b> QC can start any delivered source immediately while Main Warehouse, Machine Shop Warehouse, PLD, or Jenbacher continue kitting their remaining sources.</div>
+    <table><thead><tr><th>Source</th><th>Part Lines</th><th>Picker Qty</th><th>Picker Shortage Lines</th><th>Available Since</th><th>QC Verified Lines</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+
+    available.forEach(source=>{
+        const totals=sourceTotals(source,unit.id);
+        const verified=source.lines.filter(l=>l.qcVerified).length;
+        html+=`<tr>
+          <td><b>${esc(source.name)}</b></td><td>${totals.totalParts}</td><td>${totals.kitted}/${totals.required}</td>
+          <td>${totals.shortageParts>0?`<span class="status red">${totals.shortageParts}</span>`:`<span class="status green">0</span>`}</td>
+          <td>${fmt(source.pickerSubmittedTime)}</td><td>${verified}/${source.lines.length}</td>
+          <td><span class="status ${source.qcSubmitted?'green':'yellow'}">${source.qcSubmitted?'QC COMPLETE':'READY FOR QC'}</span></td>
+          <td><button class="primary" onclick="openQC('${unit.id}','${source.id}')">${source.qcSubmitted?'Review QC':'Start QC'}</button></td>
+        </tr>`;
+    });
+    html+='</tbody></table>';
+    if(waiting.length){
+        html+=`<div class="small" style="margin-top:12px"><b>Still being kitted:</b> ${waiting.map(s=>esc(s.name)).join(', ')}</div>`;
+    }
+    return html;
+}
+
 /* =========================================================
    RENDER
 ========================================================= */
