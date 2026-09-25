@@ -5758,6 +5758,180 @@ refreshSourceFromSyspro=function(unitId,sourceId){
 ensureMixedSourceFields();
 saveDB();
 
+
+/* =========================================================
+   DETAIL STAGE NAVIGATION UPDATE
+   - The five workflow cards are clickable tabs.
+   - Only the selected operational section is displayed.
+   - Kitting displays ALL configured sources, including empty
+     portal-managed Jenbacher and Behlen sources so their Excel
+     lists can be imported.
+========================================================= */
+
+let detailStage="KITTING";
+
+function setDetailStage(stage){
+    detailStage=stage;
+    if(currentDetailId){
+        renderDetail(currentDetailId);
+    }
+}
+
+/* Reset to Kitting whenever a subunit is opened. */
+openDetail=function(id){
+    currentDetailId=id;
+    detailStage="KITTING";
+    renderDetail(id);
+    document.getElementById("detailModal").classList.add("open");
+};
+
+function detailStageClass(unit,stage){
+    let done=false;
+    if(stage==="KITTING") done=allPickerSubmitted(unit);
+    if(stage==="QC") done=allQCSubmitted(unit);
+    if(stage==="T3") done=!!unit.t3Delivered;
+    if(stage==="PC") done=!!unit.pcSubmitted;
+    if(stage==="T1") done=!!unit.pcSubmitted && openShortages(unit.id).length===0;
+    if(detailStage===stage) return "progress selectedStage";
+    return done ? "done" : "pending";
+}
+
+function detailWorkflowHTML(unit){
+    const activeSources=unit.sources.filter(s=>s.lines.length);
+    const deliveredSources=activeSources.filter(s=>s.qcDelivered||s.pickerSubmitted).length;
+    const qcSources=activeSources.filter(s=>s.qcSubmitted).length;
+    const stages=[
+        {
+            key:"KITTING",
+            name:"Kitting",
+            detail:allPickerSubmitted(unit)?"All active sources handed to QC":"Open kitting workspace"
+        },
+        {
+            key:"QC",
+            name:"Warehouse QC",
+            detail:allQCSubmitted(unit)?"QC Complete":`${qcSources}/${activeSources.length} source(s) QC complete`
+        },
+        {
+            key:"T3",
+            name:"T-3 Delivery",
+            detail:unit.t3Delivered?fmt(unit.t3DeliveredTime):"Due "+fmt(t3(unit))
+        },
+        {
+            key:"PC",
+            name:"T-2 PC Verification",
+            detail:unit.pcSubmitted?fmt(unit.pcSubmittedTime):"Due "+fmt(t2(unit))
+        },
+        {
+            key:"T1",
+            name:"T-1 Recovery",
+            detail:unit.pcSubmitted?openShortages(unit.id).length+" open shortage(s)":"Pending"
+        }
+    ];
+    return `<div class="process">${stages.map((stage,index)=>`
+        <div class="stage ${detailStageClass(unit,stage.key)}" onclick="setDetailStage('${stage.key}')" style="cursor:pointer;${detailStage===stage.key?'box-shadow:0 0 0 3px rgba(47,111,173,.20);':''}" title="Open ${stage.name}">
+            <b>${stage.name}</b>
+            <p>${stage.detail}</p>
+            ${detailStage===stage.key?'<div class="small"><b>OPEN</b></div>':'<div class="small">Click to open</div>'}
+        </div>${index<stages.length-1?'<div class="arrow">→</div>':''}`).join('')}</div>`;
+}
+
+function kittingStageHTML(unit){
+    let html=`
+        <h3 class="sectionTitle">1. Kitting</h3>
+        <div class="note">
+            <b>Two material flows:</b> Main Warehouse, Machine Shop Warehouse and PLD are <b>SYSPRO Managed</b> and receive kitted quantity from the exact SYSPRO Pick Ticket + Pick Line transaction. Jenbacher and Behlen are <b>Portal Managed</b>; import their Excel material lists and use the portal barcode/scanner workflow.
+        </div>`;
+
+    /* IMPORTANT: Do not filter by source.lines.length here. Empty portal
+       sources must remain visible so the user can import their Excel list. */
+    unit.sources.forEach(source=>{
+        html+=sourcePickHTML(unit,source);
+    });
+    return html;
+}
+
+function selectedStageHTML(unit){
+    if(detailStage==="QC"){
+        return `<h3 class="sectionTitle">2. Warehouse QC</h3>${warehouseQCHTML(unit)}`;
+    }
+    if(detailStage==="T3"){
+        return `<h3 class="sectionTitle">3. T-3 Delivery</h3>${deliveryHTML(unit)}`;
+    }
+    if(detailStage==="PC"){
+        return `<h3 class="sectionTitle">4. T-2 Production Control Verification</h3>${pcHTML(unit)}`;
+    }
+    if(detailStage==="T1"){
+        return `<h3 class="sectionTitle">5. T-1 Shortage Recovery</h3>${recoveryHTML(unit)}`;
+    }
+    return kittingStageHTML(unit);
+}
+
+renderDetail=function(id){
+    const unit=db.subunits.find(u=>u.id===id);
+    if(!unit)return;
+
+    ensureMixedSourceFields();
+
+    const total=unitTotals(unit);
+    const status=statusFor(unit);
+
+    const html=`
+    <div class="toolbar">
+        <div>
+            <h2 style="margin:0">MOD ${esc(unit.mod)} — ${esc(unit.subunit)}</h2>
+            <span class="small">Production Start: ${fmt(unit.productionStart)}</span>
+        </div>
+        <div class="right">
+            <span class="status ${status.css}">${status.text}</span>
+            <button class="secondary" onclick="currentDetailId=null;closeModal('detailModal')">Close</button>
+        </div>
+    </div>
+
+    <div class="erpBanner">
+        <b>SYSPRO Pick Ticket:</b> ${esc(unit.pickTicket||'')}
+        &nbsp;&nbsp;
+        <b>Integration:</b> <span class="status yellow">SYSPRO + PORTAL MANAGED SOURCES</span>
+        <br><br>
+        <b>Required Qty:</b> ${total.required}
+        &nbsp;&nbsp;
+        <b>Kitted Qty:</b> ${total.kitted}
+        &nbsp;&nbsp;
+        <b>Overall:</b> ${(total.pct*100).toFixed(0)}%
+    </div>
+
+    <div class="detailHeader">
+        <b>T-3 Delivery:</b> ${fmt(t3(unit))}
+        &nbsp;&nbsp;
+        <b>T-2 Production Control:</b> ${fmt(t2(unit))}
+        &nbsp;&nbsp;
+        <b>T-1 Recovery:</b> ${fmt(t1(unit))}
+        &nbsp;&nbsp;
+        <b>Open Shortages:</b> ${openShortages(unit.id).length}
+    </div>
+
+    <h3 class="sectionTitle">Workflow — Click a Stage to Open It</h3>
+    ${detailWorkflowHTML(unit)}
+
+    <div id="detailStageWorkspace">
+        ${selectedStageHTML(unit)}
+    </div>
+
+    <h3 class="sectionTitle">Production Information</h3>
+    <div class="grid">
+        <label>Priority
+            <input value="${esc(unit.priority)}" onchange="updateUnit('${unit.id}','priority',this.value)">
+        </label>
+        <label>Production Start
+            <input type="datetime-local" value="${unit.productionStart}" onchange="updateUnit('${unit.id}','productionStart',this.value)">
+        </label>
+        <label>Comments
+            <textarea onchange="updateUnit('${unit.id}','comments',this.value)">${esc(unit.comments||'')}</textarea>
+        </label>
+    </div>`;
+
+    document.getElementById("detailContent").innerHTML=html;
+};
+
 /* =========================================================
    RENDER
 ========================================================= */
