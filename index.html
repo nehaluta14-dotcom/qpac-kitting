@@ -5309,55 +5309,109 @@ function ensureSysproLineKeys(){
     localStorage.setItem(DBKEY,JSON.stringify(db));
 }
 
-/* IT replaces only this read function with the approved SYSPRO 8 query/API.
-   IMPORTANT: match by Pick Ticket + Pick Line + Stock Code, not Stock Code alone. */
-SysproAdapter.readKittedQty=function(unit,source,line){
-    /* DEMO ONLY:
-       Each refresh simulates that Right Scan already posted one external
-       transaction to SYSPRO for the first incomplete line in this source.
-       The portal is only reading the resulting quantity. */
-    const nextLine=source.lines.find(l=>Number(l.kittedQty||0)<Number(l.requiredQty||0));
-    if(!nextLine || nextLine.id!==line.id){
-        return {
-            kittedQty:Number(line.kittedQty||0),
-            transactionRef:line.lastSysproTransaction||"",
-            updatedAt:line.lastSysproUpdate||""
-        };
-    }
-    return {
+/* =========================================================
+   LIVE SYSPRO / RIGHT SCAN SYNC
+
+   PRODUCTION DESIGN:
+   Right Scan -> SYSPRO -> approved integration service -> portal.
+   The portal never posts the inventory transaction.
+
+   CRITICAL MATCH KEY:
+   Pick Ticket + Pick Line + Stock Code.
+   Stock Code alone must NEVER be used because the same part can
+   be picked for different MODs / subunits at the same time.
+
+   DEMO BEHAVIOR:
+   GitHub Pages cannot connect to the company's SYSPRO environment.
+   Therefore the demo automatically simulates ONE external Right Scan
+   transaction per SYSPRO source on each live-sync cycle. There is no
+   user Refresh button. IT replaces SysproAdapter.readLiveKittingUpdates()
+   with the approved API / middleware call in production.
+========================================================= */
+
+SysproAdapter.readLiveKittingUpdates=function(unit,source){
+    const line=(source.lines||[]).find(l=>
+        Number(l.kittedQty||0)<Number(l.requiredQty||0)
+    );
+
+    if(!line) return [];
+
+    return [{
+        pickTicket:unit.pickTicket,
+        pickLineNo:line.pickLineNo,
+        stockCode:line.stockCode,
         kittedQty:Number(line.requiredQty||0),
         transactionRef:`RIGHTSCAN-${unit.pickTicket}-${line.pickLineNo}-${Date.now()}`,
         updatedAt:new Date().toISOString()
-    };
+    }];
 };
 
-function refreshSourceFromSyspro(unitId,sourceId){
-    const unit=db.subunits.find(u=>u.id===unitId);
-    const source=unit && unit.sources.find(s=>s.id===sourceId);
-    if(!unit||!source)return;
-
+function applySysproLiveUpdates(unit,source,updates){
     let changed=0;
-    source.lines.forEach(line=>{
-        const result=SysproAdapter.readKittedQty(unit,source,line);
+
+    (updates||[]).forEach(update=>{
+        const line=(source.lines||[]).find(l=>
+            String(unit.pickTicket)===String(update.pickTicket) &&
+            String(l.pickLineNo)===String(update.pickLineNo) &&
+            String(l.stockCode)===String(update.stockCode)
+        );
+
+        if(!line) return;
+
         const oldQty=Number(line.kittedQty||0);
-        const newQty=Math.max(0,Math.min(Number(line.requiredQty||0),Number(result.kittedQty||0)));
+        const required=Number(line.requiredQty||0);
+        const newQty=Math.max(0,Math.min(required,Number(update.kittedQty||0)));
+
         if(newQty!==oldQty){
             line.kittedQty=newQty;
-            line.lastSysproTransaction=result.transactionRef||line.lastSysproTransaction||"";
-            line.lastSysproUpdate=result.updatedAt||new Date().toISOString();
-            line.syncStatus="SYNCED";
             changed++;
-        }else if(newQty>0){
-            line.syncStatus="SYNCED";
         }
+
+        line.lastSysproTransaction=update.transactionRef||line.lastSysproTransaction||"";
+        line.lastSysproUpdate=update.updatedAt||new Date().toISOString();
+        line.syncStatus="SYNCED";
     });
 
     source.lastSysproRefresh=new Date().toISOString();
-    saveDB();
+    return changed;
+}
 
-    alert(changed
-        ? "SYSPRO refresh complete. One simulated Right Scan transaction was found and the exact pick-ticket line was updated."
-        : "SYSPRO refresh complete. No new Right Scan transactions were found for this source.");
+function liveSyncFromSyspro(){
+    let changed=0;
+
+    (db.subunits||[]).forEach(unit=>{
+        (unit.sources||[]).forEach(source=>{
+            if(sourceMode(source.name)!=="SYSPRO" || !(source.lines||[]).length) return;
+
+            const updates=SysproAdapter.readLiveKittingUpdates(unit,source);
+            changed+=applySysproLiveUpdates(unit,source,updates);
+        });
+    });
+
+    /* Save silently so warehouse users are never interrupted by alerts. */
+    localStorage.setItem(DBKEY,JSON.stringify(db));
+
+    /* Repaint the open screens only when data changed. */
+    if(changed>0){
+        renderAll();
+        if(currentDetailId && document.getElementById("detailModal").classList.contains("open")){
+            renderDetail(currentDetailId);
+        }
+    }else{
+        /* Keep Last SYSPRO Check current without forcing the modal to jump. */
+        if(currentDetailId && document.getElementById("detailModal").classList.contains("open")){
+            renderDetail(currentDetailId);
+        }
+    }
+}
+
+/* Five-second demo live-sync cycle. No manual refresh required. */
+const SYSPRO_LIVE_SYNC_MS=5000;
+let sysproLiveTimer=null;
+
+function startSysproLiveSync(){
+    if(sysproLiveTimer) clearInterval(sysproLiveTimer);
+    sysproLiveTimer=setInterval(liveSyncFromSyspro,SYSPRO_LIVE_SYNC_MS);
 }
 
 /* Override ticket creation so every ERP line has a unique pick-line identity. */
@@ -5423,9 +5477,9 @@ function sourcePickHTML(unit,source){
         <div class="erpBanner">
           <b>Read-only SYSPRO flow:</b> Warehouse picker works in <b>Right Scan</b>. Right Scan posts the transaction to SYSPRO. This portal reads the resulting kitted quantity for the exact <b>Pick Ticket + Pick Line + Stock Code</b>.<br><br>
           <b>Pick Ticket:</b> ${esc(unit.pickTicket)} &nbsp;&nbsp;
-          <b>Last Refresh:</b> ${source.lastSysproRefresh?fmt(source.lastSysproRefresh):'Not refreshed yet'}
-          <button class="primary" style="margin-left:14px" onclick="refreshSourceFromSyspro('${unit.id}','${source.id}')">Refresh from SYSPRO</button>
-          <span class="small"> Demo: each refresh simulates one new Right Scan transaction already posted in SYSPRO.</span>
+          <span class="status green">LIVE AUTO SYNC</span> &nbsp;&nbsp;
+          <b>Last SYSPRO Check:</b> ${source.lastSysproRefresh?fmt(source.lastSysproRefresh):'Waiting for live sync'}
+          <span class="small"> No picker refresh is required. Demo mode automatically simulates external Right Scan / SYSPRO updates. Production IT will replace the demo reader with the approved live integration.</span>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:10px;margin-bottom:12px">
@@ -5743,18 +5797,6 @@ sourcePickHTML=function(unit,source){
     return _sysproSourcePickHTML(unit,source);
 };
 
-/* Only ERP sources may use Refresh from SYSPRO. */
-const _refreshSourceFromSyspro=refreshSourceFromSyspro;
-refreshSourceFromSyspro=function(unitId,sourceId){
-    const unit=db.subunits.find(u=>u.id===unitId);
-    const source=unit&&unit.sources.find(s=>s.id===sourceId);
-    if(!source||sourceMode(source.name)!=="SYSPRO"){
-        alert('This source is portal-managed and has no SYSPRO relationship.');
-        return;
-    }
-    return _refreshSourceFromSyspro(unitId,sourceId);
-};
-
 ensureMixedSourceFields();
 saveDB();
 
@@ -5950,6 +5992,7 @@ function renderAll(){
 }
 
 renderAll();
+startSysproLiveSync();
 
 </script>
 
