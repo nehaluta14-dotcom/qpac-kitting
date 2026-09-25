@@ -6572,22 +6572,29 @@ openPC=function(unitId){
     const allLines=deliveredSources.flatMap(source=>(source.lines||[]).map(line=>({source,line})));
     if(!allLines.length){alert("No delivered source line items are available for Production Control yet.");return;}
 
-    let html=`<div class="scanBox"><b>Production Control Barcode Scanner</b>
+    let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+        <div><b>Production Control Verification</b><div class="small">Verify each delivered line. Kitting shortages remain visible until recovered.</div></div>
+        <button class="secondary" type="button" onclick="closeModal('pcModal')">Exit / Back</button>
+      </div>
+      <div class="scanBox"><b>Production Control Barcode Scanner</b>
       <p>Every line from every source already delivered to Production Control is shown below. Additional sources will appear here as soon as their T-3 delivery is confirmed.</p>
       <input id="pcScanInput" placeholder="Scan barcode" onkeydown="if(event.key==='Enter'){pcScan('${unit.id}',this.value);}"></div>
-      <table><thead><tr><th>Received ✓</th><th>Source</th><th>Pick Line</th><th>Stock Code</th><th>Description</th><th>Barcode</th><th>Required</th><th>Warehouse Kitted</th><th>PC Received</th><th>Remaining</th><th>Status</th></tr></thead><tbody>`;
+      <table><thead><tr><th>Received ✓</th><th>Source</th><th>Pick Line</th><th>Stock Code</th><th>Description</th><th>Barcode</th><th>Required</th><th>Warehouse Kitted</th><th>Kitting Shortage</th><th>PC Received</th><th>PC Remaining</th><th>Status</th></tr></thead><tbody>`;
 
     allLines.forEach(({source,line})=>{
         const received=line.pcReceivedQty===""?0:Number(line.pcReceivedQty||0);
         const remaining=Math.max(0,Number(line.requiredQty||0)-received);
-        html+=`<tr class="${line.pcVerified?(remaining===0?'lineComplete':'lineShort'):''}">
+        const kittingShortage=pickerShortageForLine(unit.id,source.id,line.id);
+        const rowClass=kittingShortage>0?'lineShort':(line.pcVerified?(remaining===0?'lineComplete':'lineShort'):'');
+        html+=`<tr class="${rowClass}">
           <td><input type="checkbox" class="check" ${line.pcVerified?'checked':''} onchange="updatePCLine('${unit.id}','${source.id}','${line.id}','pcVerified',this.checked)"></td>
           <td><b>${esc(source.name)}</b></td><td>${esc(line.pickLineNo||'')}</td><td><b>${esc(line.stockCode)}</b></td><td>${esc(line.description)}</td>
           <td>${esc(line.barcode)}</td><td>${Number(line.requiredQty||0)}</td><td>${Number(line.kittedQty||0)}</td>
+          <td>${kittingShortage>0?`<span class="status red">${kittingShortage} SHORT</span>`:'<span class="status green">0</span>'}</td>
           <td><input type="number" min="0" style="width:90px" value="${line.pcReceivedQty}" onchange="updatePCLine('${unit.id}','${source.id}','${line.id}','pcReceivedQty',this.value)"></td>
           <td>${remaining}</td><td><span class="status ${line.pcVerified?(remaining===0?'green':'red'):'gray'}">${line.pcVerified?(remaining===0?'VERIFIED':'SHORT'):'PENDING'}</span></td></tr>`;
     });
-    html+=`</tbody></table><div style="margin-top:14px"><button class="success" onclick="submitPC('${unit.id}')">Submit Verification for Delivered Sources</button></div>`;
+    html+=`</tbody></table><div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="success" onclick="submitPC('${unit.id}')">Submit Verification for Delivered Sources</button><button class="secondary" type="button" onclick="closeModal('pcModal')">Exit / Back</button></div>`;
 
     const content=document.getElementById('pcContent');
     const modal=document.getElementById('pcModal');
