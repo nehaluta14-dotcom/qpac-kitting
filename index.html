@@ -6343,6 +6343,198 @@ function renderEmailRules(){
       <div class="note" style="margin-top:14px"><b>Demo limitation:</b> The current GitHub version creates notification records only. It does not send real company email. The production backend can send these events through the IT-approved email service.</div>`;
 }
 
+
+/* =========================================================
+   UPDATE 08 — PARALLEL T-3 -> PC, 5-SOURCE COUNTS,
+   MULTIPLE DELIVERY PHOTOS
+========================================================= */
+const QPAC_EXPECTED_SOURCES=["Main Warehouse","Machine Shop Warehouse","PLD","Jenbacher","Behlen"];
+
+const ensureT3SourceFieldsUpdate08=ensureT3SourceFields;
+ensureT3SourceFields=function(){
+    ensureT3SourceFieldsUpdate08();
+    (db.subunits||[]).forEach(unit=>{
+        (unit.sources||[]).forEach(source=>{
+            if(!Array.isArray(source.t3DeliveryPhotos)){
+                source.t3DeliveryPhotos=[];
+                if(source.t3DeliveryPhoto){
+                    source.t3DeliveryPhotos.push({name:source.t3DeliveryPhotoName||"Delivery photo",data:source.t3DeliveryPhoto});
+                }
+            }
+            if(source.pcSubmitted===undefined) source.pcSubmitted=false;
+            if(source.pcSubmittedTime===undefined) source.pcSubmittedTime="";
+        });
+    });
+};
+
+function totalExpectedSourceCount(unit){
+    return QPAC_EXPECTED_SOURCES.length;
+}
+function qcCompletedSourceCount(unit){
+    return (unit.sources||[]).filter(s=>s.qcSubmitted===true).length;
+}
+function deliveredSourceCount(unit){
+    return (unit.sources||[]).filter(s=>s.t3Delivered===true).length;
+}
+function pcCompletedSourceCount(unit){
+    return (unit.sources||[]).filter(s=>s.pcSubmitted===true).length;
+}
+
+uploadT3DeliveryPhoto=function(unitId,sourceId,input){
+    const files=Array.from(input.files||[]);
+    if(!files.length)return;
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    if(!Array.isArray(source.t3DeliveryPhotos)) source.t3DeliveryPhotos=[];
+    const tooLarge=files.find(f=>f.size>1200000);
+    if(tooLarge){
+        alert("For this browser demo, each photo must be smaller than 1.2 MB. Production should store photos in company-approved shared storage.");
+        input.value=""; return;
+    }
+    let pending=files.length;
+    files.forEach(file=>{
+        const reader=new FileReader();
+        reader.onload=function(){
+            source.t3DeliveryPhotos.push({name:file.name,data:reader.result,uploaded:new Date().toISOString()});
+            pending--;
+            if(pending===0){ saveDB(); }
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+function removeT3DeliveryPhoto(unitId,sourceId,index){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source||source.t3Delivered)return;
+    source.t3DeliveryPhotos.splice(index,1);
+    saveDB();
+}
+
+confirmSourceT3Delivery=function(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    if(!source.qcSubmitted){ alert("Warehouse QC must be completed for this source before T-3 delivery."); return; }
+    const photos=source.t3DeliveryPhotos||[];
+    if(!photos.length){ alert("Upload at least one delivery photo for this source before confirming delivery."); return; }
+    source.t3Delivered=true;
+    source.t3DeliveredTime=new Date().toISOString();
+    syncUnitT3Status(unit);
+    saveDB();
+};
+
+deliveryHTML=function(unit){
+    ensureT3SourceFields();
+    const sources=unit.sources||[];
+    const ready=sources.filter(s=>s.qcSubmitted===true);
+    const waiting=sources.filter(s=>s.qcSubmitted!==true);
+    const delivered=sources.filter(s=>s.t3Delivered===true);
+    let html=`<div class="erpBanner"><b>T-3 Required Delivery:</b> ${fmt(t3(unit))}<br><br>
+      <b>${delivered.length}/${totalExpectedSourceCount(unit)}</b> source(s) delivered to Production / Staging.
+      ${delivered.length?'<br><br><span class="status green">DELIVERED SOURCES ARE AVAILABLE TO PRODUCTION CONTROL NOW</span>':''}</div>`;
+    if(!ready.length){
+        html+=`<div class="alert">No source has completed Warehouse QC yet. Each source appears here immediately after its own QC is submitted.</div>`;
+    }else{
+        html+=`<div class="note"><b>Independent source delivery:</b> Each QC-complete source can be delivered independently. Upload one or multiple delivery photos, then confirm that source.</div>
+        <table><thead><tr><th>Source</th><th>QC Completed</th><th>Part Lines</th><th>Qty</th><th>Delivery Photos</th><th>Delivery Status</th><th>Action</th></tr></thead><tbody>`;
+        ready.forEach(source=>{
+            const totals=sourceTotals(source,unit.id);
+            const photos=source.t3DeliveryPhotos||[];
+            html+=`<tr class="${source.t3Delivered?'lineComplete':''}"><td><b>${esc(source.name)}</b></td><td>${fmt(source.qcSubmittedTime)}</td>
+            <td>${totals.totalParts}</td><td>${totals.kitted}/${totals.required}</td><td>
+            <input type="file" accept="image/*" multiple ${source.t3Delivered?'disabled':''} onchange="uploadT3DeliveryPhoto('${unit.id}','${source.id}',this)">
+            <div class="small"><b>${photos.length}</b> photo(s) uploaded</div>
+            ${photos.map((p,i)=>`<div class="small">${i+1}. ${esc(p.name)} ${source.t3Delivered?'':`<button class="secondary" style="padding:2px 6px" onclick="removeT3DeliveryPhoto('${unit.id}','${source.id}',${i})">Remove</button>`}</div>`).join('')}
+            </td><td><span class="status ${source.t3Delivered?'green':photos.length?'yellow':'gray'}">${source.t3Delivered?'DELIVERED':photos.length?'PHOTO READY':'READY FOR DELIVERY'}</span>
+            ${source.t3Delivered?`<div class="small">${fmt(source.t3DeliveredTime)}</div>`:''}</td>
+            <td><button class="success" ${source.t3Delivered||!photos.length?'disabled':''} onclick="confirmSourceT3Delivery('${unit.id}','${source.id}')">${source.t3Delivered?'Delivered':'Confirm Source Delivered'}</button></td></tr>`;
+        });
+        html+='</tbody></table>';
+    }
+    if(waiting.length) html+=`<div class="small" style="margin-top:12px"><b>Waiting for Warehouse QC:</b> ${waiting.map(s=>esc(s.name)).join(', ')}</div>`;
+    return html;
+};
+
+/* PC opens as soon as ONE source is delivered; no need to wait for all sources. */
+pcHTML=function(unit){
+    ensureT3SourceFields();
+    const delivered=(unit.sources||[]).filter(s=>s.t3Delivered===true);
+    if(!delivered.length){
+        return `<div class="alert">Production Control is waiting for the first source delivery. PC verification will open immediately when any one source is delivered.</div>`;
+    }
+    const pending=delivered.filter(s=>!s.pcSubmitted);
+    return `<div class="erpBanner"><b>Verification Due:</b> ${fmt(t2(unit))}<p><b>${delivered.length}</b> source(s) delivered and available for Production Control verification now. PC does not need to wait for the remaining sources.</p>
+    <p>${delivered.map(s=>`<span class="status ${s.pcSubmitted?'green':'yellow'}">${esc(s.name)} — ${s.pcSubmitted?'PC COMPLETE':'READY FOR PC'}</span>`).join(' ')}</p>
+    <button class="primary" onclick="openPC('${unit.id}')">${pending.length?'Start / Continue PC Verification':'Review PC Verification'}</button></div>`;
+};
+
+openPC=function(unitId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const deliveredSources=(unit.sources||[]).filter(s=>s.t3Delivered===true);
+    const allLines=deliveredSources.flatMap(source=>(source.lines||[]).map(line=>({source,line})));
+    let html=`<div class="scanBox"><b>Production Control Barcode Scanner</b><p>Only delivered sources are shown. As additional sources are delivered, they automatically become available here.</p>
+    <input id="pcScanInput" placeholder="Scan barcode" onkeydown="if(event.key==='Enter'){pcScan('${unit.id}',this.value);}"></div>
+    <table><thead><tr><th>Received ✓</th><th>Source</th><th>Stock Code</th><th>Description</th><th>Barcode</th><th>Required</th><th>Warehouse Kitted</th><th>PC Received</th><th>Remaining</th><th>Status</th></tr></thead><tbody>`;
+    allLines.forEach(item=>{
+        const line=item.line, received=line.pcReceivedQty===""?0:Number(line.pcReceivedQty), remaining=Math.max(0,Number(line.requiredQty)-received);
+        html+=`<tr class="${line.pcVerified?(remaining===0?'lineComplete':'lineShort'):''}"><td><input type="checkbox" class="check" ${line.pcVerified?'checked':''} onchange="updatePCLine('${unit.id}','${item.source.id}','${line.id}','pcVerified',this.checked)"></td>
+        <td>${esc(item.source.name)}</td><td><b>${esc(line.stockCode)}</b></td><td>${esc(line.description)}</td><td>${esc(line.barcode)}</td><td>${line.requiredQty}</td><td>${line.kittedQty}</td>
+        <td><input type="number" min="0" style="width:90px" value="${line.pcReceivedQty}" onchange="updatePCLine('${unit.id}','${item.source.id}','${line.id}','pcReceivedQty',this.value)"></td>
+        <td>${remaining}</td><td><span class="status ${line.pcVerified?(remaining===0?'green':'red'):'gray'}">${line.pcVerified?(remaining===0?'VERIFIED':'SHORT'):'PENDING'}</span></td></tr>`;
+    });
+    html+=`</tbody></table><div style="margin-top:14px"><button class="success" onclick="submitPC('${unit.id}')">Submit Verification for Delivered Sources</button></div>`;
+    document.getElementById('pcBody').innerHTML=html;
+    document.getElementById('pcModal').classList.add('show');
+    setTimeout(()=>document.getElementById('pcScanInput')?.focus(),100);
+};
+
+pcScan=function(unitId,barcode){
+    const unit=db.subunits.find(u=>u.id===unitId), value=barcode.trim(); let found=null;
+    (unit.sources||[]).filter(s=>s.t3Delivered===true).forEach(source=>(source.lines||[]).forEach(line=>{if(line.barcode===value||line.stockCode===value)found={source,line};}));
+    if(!found){alert("Barcode not found among sources already delivered to Production Control.");return;}
+    found.line.pcReceivedQty=found.line.kittedQty; found.line.pcVerified=true; saveDB(); openPC(unitId);
+};
+
+submitPC=function(unitId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const delivered=(unit.sources||[]).filter(s=>s.t3Delivered===true);
+    const pending=delivered.filter(s=>!s.pcSubmitted);
+    if(!pending.length){ alert("All currently delivered sources have already been submitted by Production Control."); return; }
+    const lines=pending.flatMap(s=>(s.lines||[]).map(line=>({source:s,line})));
+    if(lines.some(x=>!x.line.pcVerified||x.line.pcReceivedQty==="")){alert("Production Control must verify every part line for the currently delivered source(s) before submitting.");return;}
+    let generated=0;
+    lines.forEach(({source,line})=>{
+        const required=Number(line.requiredQty), received=Number(line.pcReceivedQty), missing=Math.max(0,required-received);
+        if(missing>0){
+            let existing=(db.shortages||[]).find(s=>s.type==="PC"&&s.subunitId===unit.id&&s.sourceId===source.id&&s.lineId===line.id&&shortageCalc(s).status!=="CLOSED");
+            if(!existing){ db.shortages.push({id:uid(),type:"PC",subunitId:unit.id,sourceId:source.id,lineId:line.id,part:line.stockCode,description:line.description,requiredQty:required,actualQty:received,recoveredQty:0,owner:db.settings.planner||"Material Planner",comments:"Generated by Production Control verification.",created:new Date().toISOString(),pcRecoveryConfirmed:false,pcRecoveryConfirmedTime:""}); generated++; }
+        }
+    });
+    pending.forEach(s=>{s.pcSubmitted=true;s.pcSubmittedTime=new Date().toISOString();});
+    const active=(unit.sources||[]).filter(s=>(s.lines||[]).length>0);
+    unit.pcSubmitted=active.length>0&&active.every(s=>s.pcSubmitted===true);
+    if(unit.pcSubmitted&&!unit.pcSubmittedTime)unit.pcSubmittedTime=new Date().toISOString();
+    if(generated>0 && typeof addNotification==="function") addNotification(unit,"PC","Production Control Shortage",db.settings.planner||"",`${generated} shortage(s) generated during PC verification.`);
+    saveDB(); closeModal('pcModal');
+};
+
+/* Workflow cards always use the five planned material sources, even before
+   Jenbacher/Behlen Excel lines are loaded. */
+detailWorkflowHTML=function(unit){
+    ensureT3SourceFields();
+    const total=totalExpectedSourceCount(unit), delivered=deliveredSourceCount(unit), qcSources=qcCompletedSourceCount(unit), pcDone=pcCompletedSourceCount(unit);
+    const stages=[
+      {key:"KITTING",name:"Kitting",detail:"Open kitting workspace"},
+      {key:"QC",name:"Warehouse QC",detail:`${qcSources}/${total} source(s) QC complete`},
+      {key:"T3",name:"T-3 Delivery",detail:`${delivered}/${total} source(s) delivered`},
+      {key:"PC",name:"T-2 PC Verification",detail:delivered?`${pcDone}/${delivered} delivered source(s) PC complete`:"Waiting for first delivery"},
+      {key:"T1",name:"T-1 Recovery",detail:openShortages(unit.id).length+" open shortage(s)"}
+    ];
+    return `<div class="process">${stages.map((stage,index)=>`<div class="stage ${detailStageClass(unit,stage.key)}" onclick="setDetailStage('${stage.key}')" style="cursor:pointer;${detailStage===stage.key?'box-shadow:0 0 0 3px rgba(47,111,173,.20);':''}" title="Open ${stage.name}"><b>${stage.name}</b><p>${stage.detail}</p>${detailStage===stage.key?'<div class="small"><b>OPEN</b></div>':'<div class="small">Click to open</div>'}</div>${index<stages.length-1?'<div class="arrow">→</div>':''}`).join('')}</div>`;
+};
+
 function renderAll(){
 
     ensureT3SourceFields();
