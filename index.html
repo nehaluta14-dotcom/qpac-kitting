@@ -5974,6 +5974,130 @@ renderDetail=function(id){
     document.getElementById("detailContent").innerHTML=html;
 };
 
+
+/* =========================================================
+   UPDATE 06 — SHORTAGE / SYSPRO QUANTITY RECONCILIATION
+
+   Prevent contradictory states such as:
+   Required 50 | Kitted 50 | Active Stock Shortage 10.
+
+   For SYSPRO-managed PICKER shortages, the latest kitted quantity
+   from the exact Pick Ticket + Pick Line + Stock Code is authoritative.
+   Whenever that quantity changes, the shortage is recalculated.
+========================================================= */
+
+function reconcilePickerShortagesWithCurrentKitting(){
+    let changed=false;
+
+    (db.shortages||[]).forEach(shortage=>{
+        if(shortage.type!=="PICKER") return;
+
+        const unit=(db.subunits||[]).find(u=>u.id===shortage.subunitId);
+        if(!unit) return;
+
+        const source=(unit.sources||[]).find(s=>s.id===shortage.sourceId);
+        if(!source || sourceMode(source.name)!=="SYSPRO") return;
+
+        const line=(source.lines||[]).find(l=>l.id===shortage.lineId);
+        if(!line) return;
+
+        const required=Number(line.requiredQty||shortage.requiredQty||0);
+        const kitted=Math.max(0,Math.min(required,Number(line.kittedQty||0)));
+
+        if(Number(shortage.requiredQty||0)!==required){
+            shortage.requiredQty=required;
+            changed=true;
+        }
+
+        /* For a picker stock shortage, "actual" is the latest quantity
+           actually kitted for this exact ERP pick-ticket line. */
+        if(Number(shortage.actualQty||0)!==kitted){
+            shortage.actualQty=kitted;
+            changed=true;
+        }
+
+        /* Do not count the same material twice as both SYSPRO kitted and
+           recovered. The live kitted quantity already represents what is
+           currently fulfilled for this source line. */
+        if(Number(shortage.recoveredQty||0)!==0){
+            shortage.recoveredQty=0;
+            changed=true;
+        }
+
+        const resolved=kitted>=required;
+        if(Boolean(shortage.autoResolvedBySourceQty)!==resolved){
+            shortage.autoResolvedBySourceQty=resolved;
+            changed=true;
+        }
+
+        if(resolved){
+            if(!shortage.autoResolvedTime){
+                shortage.autoResolvedTime=new Date().toISOString();
+                changed=true;
+            }
+        }else if(shortage.autoResolvedTime){
+            shortage.autoResolvedTime="";
+            changed=true;
+        }
+    });
+
+    return changed;
+}
+
+/* Override the shortage calculation so an ERP picker shortage closes
+   automatically when the authoritative source quantity reaches required. */
+shortageCalc=function(s){
+    const required=Number(s.requiredQty||0);
+    const actual=Number(s.actualQty||0);
+    const recovered=Number(s.recoveredQty||0);
+    const short=Math.max(0,required-actual);
+    const remaining=Math.max(0,short-recovered);
+
+    let status="OPEN";
+    if(remaining===0 && (s.pcRecoveryConfirmed || s.autoResolvedBySourceQty)){
+        status="CLOSED";
+    }else if(recovered>0){
+        status="RECOVERING";
+    }
+
+    return {short,remaining,status};
+};
+
+/* One line can have only one current missing quantity. Using MAX rather
+   than SUM also protects the UI from old duplicate shortage records. */
+pickerShortageForLine=function(unitId,sourceId,lineId){
+    const values=(db.shortages||[])
+        .filter(s=>
+            s.type==="PICKER" &&
+            s.subunitId===unitId &&
+            s.sourceId===sourceId &&
+            s.lineId===lineId &&
+            shortageCalc(s).status!=="CLOSED"
+        )
+        .map(s=>shortageCalc(s).remaining);
+
+    return values.length ? Math.max(...values) : 0;
+};
+
+/* Wrap live sync so reconciliation happens on every cycle, even when the
+   ERP quantity did not change during that particular five-second check. */
+const liveSyncFromSysproBase=liveSyncFromSyspro;
+liveSyncFromSyspro=function(){
+    liveSyncFromSysproBase();
+
+    if(reconcilePickerShortagesWithCurrentKitting()){
+        localStorage.setItem(DBKEY,JSON.stringify(db));
+        renderAll();
+        if(currentDetailId && document.getElementById("detailModal").classList.contains("open")){
+            renderDetail(currentDetailId);
+        }
+    }
+};
+
+/* Clean stale shortage data immediately when this updated version opens. */
+reconcilePickerShortagesWithCurrentKitting();
+localStorage.setItem(DBKEY,JSON.stringify(db));
+
 /* =========================================================
    RENDER
 ========================================================= */
