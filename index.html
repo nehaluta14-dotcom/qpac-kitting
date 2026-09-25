@@ -6557,5 +6557,79 @@ startSysproLiveSync();
 
 </script>
 
+
+<script>
+/* =========================================================
+   UPDATE 09-25: PC MODAL FIX + VISIBLE MAIN WAREHOUSE SHORTAGE DEMO
+========================================================= */
+
+/* PC modal in the original page uses #pcContent and CSS class .open.
+   This corrected version opens every delivered-source line item. */
+openPC=function(unitId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    if(!unit)return;
+    const deliveredSources=(unit.sources||[]).filter(s=>s.t3Delivered===true);
+    const allLines=deliveredSources.flatMap(source=>(source.lines||[]).map(line=>({source,line})));
+    if(!allLines.length){alert("No delivered source line items are available for Production Control yet.");return;}
+
+    let html=`<div class="scanBox"><b>Production Control Barcode Scanner</b>
+      <p>Every line from every source already delivered to Production Control is shown below. Additional sources will appear here as soon as their T-3 delivery is confirmed.</p>
+      <input id="pcScanInput" placeholder="Scan barcode" onkeydown="if(event.key==='Enter'){pcScan('${unit.id}',this.value);}"></div>
+      <table><thead><tr><th>Received ✓</th><th>Source</th><th>Pick Line</th><th>Stock Code</th><th>Description</th><th>Barcode</th><th>Required</th><th>Warehouse Kitted</th><th>PC Received</th><th>Remaining</th><th>Status</th></tr></thead><tbody>`;
+
+    allLines.forEach(({source,line})=>{
+        const received=line.pcReceivedQty===""?0:Number(line.pcReceivedQty||0);
+        const remaining=Math.max(0,Number(line.requiredQty||0)-received);
+        html+=`<tr class="${line.pcVerified?(remaining===0?'lineComplete':'lineShort'):''}">
+          <td><input type="checkbox" class="check" ${line.pcVerified?'checked':''} onchange="updatePCLine('${unit.id}','${source.id}','${line.id}','pcVerified',this.checked)"></td>
+          <td><b>${esc(source.name)}</b></td><td>${esc(line.pickLineNo||'')}</td><td><b>${esc(line.stockCode)}</b></td><td>${esc(line.description)}</td>
+          <td>${esc(line.barcode)}</td><td>${Number(line.requiredQty||0)}</td><td>${Number(line.kittedQty||0)}</td>
+          <td><input type="number" min="0" style="width:90px" value="${line.pcReceivedQty}" onchange="updatePCLine('${unit.id}','${source.id}','${line.id}','pcReceivedQty',this.value)"></td>
+          <td>${remaining}</td><td><span class="status ${line.pcVerified?(remaining===0?'green':'red'):'gray'}">${line.pcVerified?(remaining===0?'VERIFIED':'SHORT'):'PENDING'}</span></td></tr>`;
+    });
+    html+=`</tbody></table><div style="margin-top:14px"><button class="success" onclick="submitPC('${unit.id}')">Submit Verification for Delivered Sources</button></div>`;
+
+    const content=document.getElementById('pcContent');
+    const modal=document.getElementById('pcModal');
+    if(!content||!modal){alert("PC verification window could not be opened.");return;}
+    content.innerHTML=html;
+    modal.classList.add('open');
+    setTimeout(()=>document.getElementById('pcScanInput')?.focus(),100);
+};
+
+/* Make the requested Main Warehouse shortage example visible directly in Kitting.
+   It is an operational demo shortage: Required 50, Kitted 40, Shortage 10.
+   The mock live SYSPRO filler is already instructed not to auto-fill demoShortageHold lines. */
+function ensureP45MainWarehouseShortageDemo(unit){
+    if(!unit || String(unit.subunit||'').toUpperCase()!=='P45')return;
+    const source=(unit.sources||[]).find(s=>s.name==='Main Warehouse');
+    if(!source || !(source.lines||[]).length)return;
+    const existing=(db.shortages||[]).find(s=>s.demoExample&&s.subunitId===unit.id&&shortageCalc(s).status!=='CLOSED');
+    if(existing)return;
+
+    /* Prefer Support Clamp so the demo is easy to recognize: 50 required / 40 kitted / 10 shortage. */
+    const line=(source.lines||[]).find(l=>String(l.stockCode)==='1502-1512') || (source.lines||[]).find(l=>Number(l.requiredQty||0)>=10) || source.lines[0];
+    const required=Number(line.requiredQty||0);
+    if(required<10)return;
+    const actual=required-10;
+    line.kittedQty=actual;
+    line.demoShortageHold=true;
+    line.lastSysproUpdate=new Date().toISOString();
+    line.lastSysproTransaction='DEMO-STOCK-SHORTAGE';
+
+    const shortage={id:uid(),type:'PICKER',subunitId:unit.id,sourceId:source.id,lineId:line.id,part:line.stockCode,description:line.description,requiredQty:required,actualQty:actual,recoveredQty:0,owner:'Purchaser / Material Planner',comments:'DEMO EXAMPLE: Main Warehouse has 10 pieces unavailable. Required '+required+', Kitted '+actual+', Stock Shortage 10. This shortage remains open through T-1 Recovery until recovered and PC confirms receipt.',created:new Date().toISOString(),pcRecoveryConfirmed:false,pcRecoveryConfirmedTime:'',demoExample:true};
+    db.shortages.push(shortage);
+    if(typeof createNotificationForShortage==='function')createNotificationForShortage(shortage,unit,source);
+    saveDB();
+}
+
+/* Create the P45 shortage before its Kitting source tables are rendered so the
+   Main Warehouse line itself visibly reads Kitted 40 / Stock Shortage 10. */
+const kittingStageHTML_PCShortageFix=kittingStageHTML;
+kittingStageHTML=function(unit){
+    ensureP45MainWarehouseShortageDemo(unit);
+    return kittingStageHTML_PCShortageFix(unit);
+};
+</script>
 </body>
 </html>
