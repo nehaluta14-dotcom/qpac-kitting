@@ -461,6 +461,7 @@ tr:hover{
     <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
     <button onclick="showPage('shortages',this)">Shortage Center</button>
     <button onclick="showPage('notifications',this)">Notifications</button>
+    <button onclick="showPage('emailRules',this)">Email Rules</button>
     <button onclick="showPage('processPage',this)">Process Map</button>
     <button onclick="showPage('settings',this)">Settings</button>
     <button onclick="showPage('backup',this)">Data / Backup</button>
@@ -560,6 +561,14 @@ This demonstration creates notification records. The IT production version can c
 </div>
 </section>
 
+
+<section id="emailRules" class="page">
+<div class="panel">
+<h2>Email Notification Logic</h2>
+<div class="note">This page shows exactly when the application creates an email/notification event and who receives it. In this GitHub demonstration, records are queued locally; IT can connect the same events to the approved company email service.</div>
+<div id="emailRulesTable"></div>
+</div>
+</section>
 
 <section id="processPage" class="page">
 
@@ -6102,7 +6111,241 @@ localStorage.setItem(DBKEY,JSON.stringify(db));
    RENDER
 ========================================================= */
 
+
+/* =========================================================
+   UPDATE 07 — SOURCE-BY-SOURCE T-3 DELIVERY + EMAIL RULES
+   + MAIN WAREHOUSE SHORTAGE DEMONSTRATION
+========================================================= */
+
+function ensureT3SourceFields(){
+    (db.subunits||[]).forEach(unit=>{
+        (unit.sources||[]).forEach(source=>{
+            if(source.t3Delivered===undefined) source.t3Delivered=false;
+            if(source.t3DeliveredTime===undefined) source.t3DeliveredTime="";
+            if(source.t3DeliveryPhoto===undefined) source.t3DeliveryPhoto="";
+            if(source.t3DeliveryPhotoName===undefined) source.t3DeliveryPhotoName="";
+        });
+    });
+}
+
+function activeDeliverySources(unit){
+    return (unit.sources||[]).filter(source=>(source.lines||[]).length>0);
+}
+
+function syncUnitT3Status(unit){
+    const active=activeDeliverySources(unit);
+    const allDelivered=active.length>0 && active.every(source=>source.t3Delivered===true);
+    unit.t3Delivered=allDelivered;
+    if(allDelivered){
+        if(!unit.t3DeliveredTime) unit.t3DeliveredTime=new Date().toISOString();
+    }else{
+        unit.t3DeliveredTime="";
+    }
+}
+
+function uploadT3DeliveryPhoto(unitId,sourceId,input){
+    const file=input.files && input.files[0];
+    if(!file)return;
+    if(file.size>1500000){
+        alert("For this browser demonstration, please use a photo smaller than 1.5 MB. Production should store delivery photos in company-approved shared storage.");
+        input.value="";
+        return;
+    }
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+        source.t3DeliveryPhoto=reader.result;
+        source.t3DeliveryPhotoName=file.name;
+        saveDB();
+    };
+    reader.readAsDataURL(file);
+}
+
+function confirmSourceT3Delivery(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!source)return;
+    if(!source.qcSubmitted){
+        alert("Warehouse QC must be completed for this source before T-3 delivery.");
+        return;
+    }
+    if(!source.t3DeliveryPhoto){
+        alert("Upload a delivery photo for this source before confirming T-3 delivery.");
+        return;
+    }
+    source.t3Delivered=true;
+    source.t3DeliveredTime=new Date().toISOString();
+    syncUnitT3Status(unit);
+    saveDB();
+}
+
+/* Each source becomes available for delivery immediately after its own QC is complete. */
+deliveryHTML=function(unit){
+    ensureT3SourceFields();
+    const active=activeDeliverySources(unit);
+    const ready=active.filter(source=>source.qcSubmitted===true);
+    const waiting=active.filter(source=>source.qcSubmitted!==true);
+    const delivered=active.filter(source=>source.t3Delivered===true);
+
+    let html=`
+    <div class="erpBanner">
+      <b>T-3 Required Delivery:</b> ${fmt(t3(unit))}<br><br>
+      <b>${delivered.length}/${active.length}</b> active source(s) delivered to Production / Staging.
+      ${unit.t3Delivered?'<br><br><span class="status green">ALL SOURCES DELIVERED — READY FOR PRODUCTION CONTROL</span>':''}
+    </div>`;
+
+    if(!ready.length){
+        html+=`<div class="alert">No source has completed Warehouse QC yet. A source will appear here immediately after its own QC is submitted; it does not need to wait for the other sources.</div>`;
+    }else{
+        html+=`<div class="note"><b>Independent source delivery:</b> Upload a separate delivery photo and confirm delivery for each source as soon as that source completes Warehouse QC.</div>
+        <table><thead><tr>
+          <th>Source</th><th>QC Completed</th><th>Part Lines</th><th>Qty</th><th>Delivery Photo</th><th>Delivery Status</th><th>Action</th>
+        </tr></thead><tbody>`;
+        ready.forEach(source=>{
+            const totals=sourceTotals(source,unit.id);
+            html+=`<tr class="${source.t3Delivered?'lineComplete':''}">
+              <td><b>${esc(source.name)}</b></td>
+              <td>${fmt(source.qcSubmittedTime)}</td>
+              <td>${totals.totalParts}</td>
+              <td>${totals.kitted}/${totals.required}</td>
+              <td>
+                <input type="file" accept="image/*" ${source.t3Delivered?'disabled':''}
+                  onchange="uploadT3DeliveryPhoto('${unit.id}','${source.id}',this)">
+                <div class="small">${source.t3DeliveryPhotoName?`Uploaded: ${esc(source.t3DeliveryPhotoName)}`:'No delivery photo uploaded.'}</div>
+              </td>
+              <td><span class="status ${source.t3Delivered?'green':source.t3DeliveryPhoto?'yellow':'gray'}">
+                ${source.t3Delivered?'DELIVERED':source.t3DeliveryPhoto?'PHOTO READY':'READY FOR DELIVERY'}
+              </span>${source.t3Delivered?`<div class="small">${fmt(source.t3DeliveredTime)}</div>`:''}</td>
+              <td><button class="success" ${source.t3Delivered||!source.t3DeliveryPhoto?'disabled':''}
+                onclick="confirmSourceT3Delivery('${unit.id}','${source.id}')">
+                ${source.t3Delivered?'Delivered':'Confirm Source Delivered'}
+              </button></td>
+            </tr>`;
+        });
+        html+='</tbody></table>';
+    }
+    if(waiting.length){
+        html+=`<div class="small" style="margin-top:12px"><b>Waiting for Warehouse QC:</b> ${waiting.map(s=>esc(s.name)).join(', ')}</div>`;
+    }
+    return html;
+};
+
+/* T-3 workflow card now reflects source-level delivery progress. */
+const detailWorkflowHTMLUpdate07=detailWorkflowHTML;
+detailWorkflowHTML=function(unit){
+    ensureT3SourceFields();
+    const active=activeDeliverySources(unit);
+    const delivered=active.filter(s=>s.t3Delivered).length;
+    const qcSources=active.filter(s=>s.qcSubmitted).length;
+    const stages=[
+        {key:"KITTING",name:"Kitting",detail:allPickerSubmitted(unit)?"All active sources handed to QC":"Open kitting workspace"},
+        {key:"QC",name:"Warehouse QC",detail:allQCSubmitted(unit)?"QC Complete":`${qcSources}/${active.length} source(s) QC complete`},
+        {key:"T3",name:"T-3 Delivery",detail:unit.t3Delivered?"All sources delivered":`${delivered}/${active.length} source(s) delivered`},
+        {key:"PC",name:"T-2 PC Verification",detail:unit.pcSubmitted?fmt(unit.pcSubmittedTime):"Due "+fmt(t2(unit))},
+        {key:"T1",name:"T-1 Recovery",detail:openShortages(unit.id).length+" open shortage(s)"}
+    ];
+    return `<div class="process">${stages.map((stage,index)=>`
+      <div class="stage ${detailStageClass(unit,stage.key)}" onclick="setDetailStage('${stage.key}')" style="cursor:pointer;${detailStage===stage.key?'box-shadow:0 0 0 3px rgba(47,111,173,.20);':''}" title="Open ${stage.name}">
+        <b>${stage.name}</b><p>${stage.detail}</p>${detailStage===stage.key?'<div class="small"><b>OPEN</b></div>':'<div class="small">Click to open</div>'}
+      </div>${index<stages.length-1?'<div class="arrow">→</div>':''}`).join('')}</div>`;
+};
+
+/* Demo shortage: creates a controlled 10-piece Main Warehouse example and
+   holds that exact demo line so the automatic mock SYSPRO filler does not
+   immediately erase the example. Production integration ignores this demo flag. */
+function createMainWarehouseShortageExample(unitId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    if(!unit)return;
+    const source=(unit.sources||[]).find(s=>s.name==="Main Warehouse");
+    if(!source || !source.lines.length){alert("Main Warehouse has no material lines.");return;}
+    const line=source.lines.find(l=>Number(l.requiredQty||0)>=10) || source.lines[0];
+    const required=Number(line.requiredQty||0);
+    const actual=Math.max(0,required-10);
+
+    line.kittedQty=actual;
+    line.demoShortageHold=true;
+    line.lastSysproUpdate=new Date().toISOString();
+    line.lastSysproTransaction="DEMO-SHORTAGE-"+Date.now();
+
+    source.qcSubmitted=false; source.qcSubmittedTime="";
+    source.t3Delivered=false; source.t3DeliveredTime="";
+    source.t3DeliveryPhoto=""; source.t3DeliveryPhotoName="";
+    line.qcVerified=false; line.qcReceivedQty="";
+    line.pcVerified=false; line.pcReceivedQty="";
+    unit.pcSubmitted=false; unit.pcSubmittedTime="";
+    unit.t3Delivered=false; unit.t3DeliveredTime="";
+
+    let shortage=(db.shortages||[]).find(s=>s.type==="PICKER"&&s.subunitId===unit.id&&s.sourceId===source.id&&s.lineId===line.id&&shortageCalc(s).status!=="CLOSED");
+    if(!shortage){
+        shortage={id:uid(),type:"PICKER",subunitId:unit.id,sourceId:source.id,lineId:line.id,part:line.stockCode,description:line.description,requiredQty:required,actualQty:actual,recoveredQty:0,owner:"Purchaser / Material Planner",comments:"DEMO EXAMPLE: 10-piece Main Warehouse stock shortage. This remains visible through T-1 Recovery until recovered/confirmed.",created:new Date().toISOString(),pcRecoveryConfirmed:false,pcRecoveryConfirmedTime:"",demoExample:true};
+        db.shortages.push(shortage);
+        createNotificationForShortage(shortage,unit,source);
+    }else{
+        shortage.requiredQty=required; shortage.actualQty=actual; shortage.recoveredQty=0; shortage.pcRecoveryConfirmed=false; shortage.autoResolvedBySourceQty=false; shortage.demoExample=true;
+    }
+    saveDB();
+    detailStage="T1";
+    renderDetail(unit.id);
+}
+
+function clearMainWarehouseShortageExample(unitId){
+    const unit=db.subunits.find(u=>u.id===unitId); if(!unit)return;
+    const source=(unit.sources||[]).find(s=>s.name==="Main Warehouse"); if(!source)return;
+    (source.lines||[]).forEach(line=>{ if(line.demoShortageHold){line.demoShortageHold=false;} });
+    (db.shortages||[]).forEach(s=>{if(s.demoExample&&s.subunitId===unit.id){s.actualQty=s.requiredQty;s.recoveredQty=0;s.autoResolvedBySourceQty=true;s.autoResolvedTime=new Date().toISOString();}});
+    saveDB();
+}
+
+/* Prevent the mock live-sync from immediately filling a line intentionally
+   held for the shortage demonstration. */
+const readLiveKittingUpdatesUpdate07=SysproAdapter.readLiveKittingUpdates;
+SysproAdapter.readLiveKittingUpdates=function(unit,source){
+    const held=(source.lines||[]).filter(l=>l.demoShortageHold);
+    if(!held.length) return readLiveKittingUpdatesUpdate07(unit,source);
+    const eligible=(source.lines||[]).find(l=>!l.demoShortageHold && Number(l.kittedQty||0)<Number(l.requiredQty||0));
+    if(!eligible)return [];
+    return [{pickTicket:unit.pickTicket,pickLineNo:eligible.pickLineNo,stockCode:eligible.stockCode,kittedQty:Number(eligible.requiredQty||0),transactionRef:`RIGHTSCAN-${unit.pickTicket}-${eligible.pickLineNo}-${Date.now()}`,updatedAt:new Date().toISOString()}];
+};
+
+/* Add the shortage demonstration controls immediately below Main Warehouse. */
+const kittingStageHTMLUpdate07=kittingStageHTML;
+kittingStageHTML=function(unit){
+    let html=`<h3 class="sectionTitle">1. Kitting</h3>
+      <div class="note"><b>Two material flows:</b> Main Warehouse, Machine Shop Warehouse and PLD are <b>SYSPRO Managed</b>. Jenbacher and Behlen are <b>Portal Managed</b>.</div>`;
+    (unit.sources||[]).forEach(source=>{
+        html+=sourcePickHTML(unit,source);
+        if(source.name==="Main Warehouse" && (source.lines||[]).length){
+            const hasDemo=(db.shortages||[]).some(s=>s.demoExample&&s.subunitId===unit.id&&shortageCalc(s).status!=="CLOSED");
+            html+=`<div class="note"><b>Proposal Demo — Main Warehouse Shortage:</b> Use this to show a 10-piece shortage flowing from Kitting into the Central Shortage Center, email queue and T-1 Recovery.
+              <br><br><button class="warning" ${hasDemo?'disabled':''} onclick="createMainWarehouseShortageExample('${unit.id}')">Create 10 Qty Shortage Example</button>
+              <button class="secondary" onclick="clearMainWarehouseShortageExample('${unit.id}')">Clear Demo Shortage</button>
+            </div>`;
+        }
+    });
+    return html;
+};
+
+function renderEmailRules(){
+    const el=document.getElementById("emailRulesTable");
+    if(!el)return;
+    const buyer=db.settings.buyer||"Not configured";
+    const planner=db.settings.planner||"Not configured";
+    const supervisor=db.settings.supervisor||"Not configured";
+    el.innerHTML=`
+      <table><thead><tr><th>Event / Condition</th><th>When It Triggers</th><th>Email / Notification To</th><th>Purpose</th></tr></thead><tbody>
+        <tr><td><b>Picker Stock Shortage</b></td><td>Picker/source reports Required Qty greater than available/kitted quantity.</td><td>${esc(buyer)}<br>${esc(planner)}</td><td>Purchasing/material planning starts recovery before T-1.</td></tr>
+        <tr><td><b>Warehouse QC Shortage</b></td><td>Warehouse QC physically verifies less material than the picker/source quantity.</td><td>${esc(supervisor)}</td><td>Warehouse Supervisor investigates the warehouse discrepancy.</td></tr>
+        <tr><td><b>Production Control Shortage</b></td><td>At T-2 verification, Production Control receives less than Required Qty.</td><td>${esc(planner)}<br>${esc(supervisor)}</td><td>Material Planner and Warehouse Supervisor coordinate T-1 recovery.</td></tr>
+        <tr><td><b>T-2 Verification Complete</b></td><td>Production Control submits T-2 verification, including number of new shortages generated.</td><td>${esc(planner)}<br>${esc(supervisor)}</td><td>Confirms verification completion and identifies recovery work.</td></tr>
+      </tbody></table>
+      <div class="note" style="margin-top:14px"><b>Demo limitation:</b> The current GitHub version creates notification records only. It does not send real company email. The production backend can send these events through the IT-approved email service.</div>`;
+}
+
 function renderAll(){
+
+    ensureT3SourceFields();
 
     buildModTabs();
 
@@ -6111,6 +6354,8 @@ function renderAll(){
     renderShortages();
 
     renderNotifications();
+
+    renderEmailRules();
 
     renderSettings();
 }
