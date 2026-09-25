@@ -577,7 +577,7 @@ This demonstration creates notification records. The IT production version can c
 
 <div class="stage">
 <b>Warehouse Picking</b>
-<p>Picker scans stock code and posts the inventory/picking transaction.</p>
+<p>Picker uses the existing Right Scan scanner. Right Scan posts the transaction to SYSPRO; this portal reads the posted kitted quantity.</p>
 </div>
 
 <div class="arrow">→</div>
@@ -2079,7 +2079,7 @@ function renderDetail(id){
     <div class="note">
     The table below represents the pick ticket received from SYSPRO 8.
     Stock code, description, required quantity, warehouse location and barcode are ERP-controlled fields.
-    The picker scans material and posts a picking transaction.
+    The picker uses Right Scan. Right Scan posts to SYSPRO; this portal only reads the resulting kitted quantity.
     </div>
     `;
 
@@ -5278,6 +5278,223 @@ function warehouseQCHTML(unit){
     }
     return html;
 }
+
+/* =========================================================
+   UPDATE 03 — RIGHT SCAN / SYSPRO READ-ONLY INTEGRATION DEMO
+
+   Portal does NOT post inventory transactions.
+   Right Scan posts to SYSPRO. This portal only reads the
+   kitted quantity for the exact Pick Ticket + Pick Line +
+   Stock Code combination.
+========================================================= */
+
+function ensureSysproLineKeys(){
+    db.subunits.forEach(unit=>{
+        (unit.sources||[]).forEach(source=>{
+            (source.lines||[]).forEach((line,index)=>{
+                if(!line.pickLineNo){
+                    line.pickLineNo=String((index+1)*10).padStart(4,'0');
+                }
+                if(!line.erpLineKey){
+                    line.erpLineKey=`${unit.pickTicket}|${line.pickLineNo}|${line.stockCode}`;
+                }
+                if(line.lastSysproUpdate===undefined) line.lastSysproUpdate="";
+                if(line.lastSysproTransaction===undefined) line.lastSysproTransaction="";
+                if(line.syncStatus===undefined) line.syncStatus="WAITING";
+            });
+        });
+    });
+    localStorage.setItem(DBKEY,JSON.stringify(db));
+}
+
+/* IT replaces only this read function with the approved SYSPRO 8 query/API.
+   IMPORTANT: match by Pick Ticket + Pick Line + Stock Code, not Stock Code alone. */
+SysproAdapter.readKittedQty=function(unit,source,line){
+    /* DEMO ONLY:
+       Each refresh simulates that Right Scan already posted one external
+       transaction to SYSPRO for the first incomplete line in this source.
+       The portal is only reading the resulting quantity. */
+    const nextLine=source.lines.find(l=>Number(l.kittedQty||0)<Number(l.requiredQty||0));
+    if(!nextLine || nextLine.id!==line.id){
+        return {
+            kittedQty:Number(line.kittedQty||0),
+            transactionRef:line.lastSysproTransaction||"",
+            updatedAt:line.lastSysproUpdate||""
+        };
+    }
+    return {
+        kittedQty:Number(line.requiredQty||0),
+        transactionRef:`RIGHTSCAN-${unit.pickTicket}-${line.pickLineNo}-${Date.now()}`,
+        updatedAt:new Date().toISOString()
+    };
+};
+
+function refreshSourceFromSyspro(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit && unit.sources.find(s=>s.id===sourceId);
+    if(!unit||!source)return;
+
+    let changed=0;
+    source.lines.forEach(line=>{
+        const result=SysproAdapter.readKittedQty(unit,source,line);
+        const oldQty=Number(line.kittedQty||0);
+        const newQty=Math.max(0,Math.min(Number(line.requiredQty||0),Number(result.kittedQty||0)));
+        if(newQty!==oldQty){
+            line.kittedQty=newQty;
+            line.lastSysproTransaction=result.transactionRef||line.lastSysproTransaction||"";
+            line.lastSysproUpdate=result.updatedAt||new Date().toISOString();
+            line.syncStatus="SYNCED";
+            changed++;
+        }else if(newQty>0){
+            line.syncStatus="SYNCED";
+        }
+    });
+
+    source.lastSysproRefresh=new Date().toISOString();
+    saveDB();
+
+    alert(changed
+        ? "SYSPRO refresh complete. One simulated Right Scan transaction was found and the exact pick-ticket line was updated."
+        : "SYSPRO refresh complete. No new Right Scan transactions were found for this source.");
+}
+
+/* Override ticket creation so every ERP line has a unique pick-line identity. */
+function loadSysproTicket(unit){
+    const erp=SysproAdapter.getPickTicket(unit.mod,unit.subunit);
+    unit.pickTicket=erp.ticketNumber;
+
+    let globalLine=0;
+    unit.sources=SOURCES.map(sourceName=>({
+        id:uid(),
+        name:sourceName,
+        planningCT:"",
+        pickerSubmitted:false,
+        pickerSubmittedTime:"",
+        kittingPhoto:"",
+        kittingPhotoName:"",
+        lastSysproRefresh:"",
+        qcSubmitted:false,
+        qcSubmittedTime:"",
+        lines:erp.lines
+            .filter(line=>line.source===sourceName)
+            .map(line=>{
+                globalLine++;
+                const pickLineNo=String(globalLine*10).padStart(4,'0');
+                return {
+                    id:uid(),
+                    pickLineNo,
+                    erpLineKey:`${erp.ticketNumber}|${pickLineNo}|${line.stockCode}`,
+                    stockCode:line.stockCode,
+                    description:line.description,
+                    requiredQty:line.requiredQty,
+                    location:line.location,
+                    barcode:line.barcode,
+                    kittedQty:0,
+                    lastSysproUpdate:"",
+                    lastSysproTransaction:"",
+                    syncStatus:"WAITING",
+                    transactionIds:[],
+                    labelPrinted:false,
+                    qcReceivedQty:"",
+                    qcVerified:false,
+                    pcReceivedQty:"",
+                    pcVerified:false
+                };
+            })
+    }));
+}
+
+/* Read-only picker view: no Scan/Pick or Post-to-SYSPRO action exists in portal. */
+function sourcePickHTML(unit,source){
+    const totals=sourceTotals(source,unit.id);
+    let html=`
+    <div class="sourceCard">
+      <div class="sourceHead">
+        <div><b>${esc(source.name)}</b> &nbsp; <span class="small">${totals.totalParts} SYSPRO line(s)</span></div>
+        <span class="status ${source.pickerSubmitted?'green':totals.readyForQC?'yellow':'gray'}">
+          ${source.pickerSubmitted?'DELIVERED TO QC':totals.readyForQC?'READY FOR QC':'KITTING / SYSPRO SYNC'}
+        </span>
+      </div>
+      <div class="sourceBody">
+        <div class="erpBanner">
+          <b>Read-only SYSPRO flow:</b> Warehouse picker works in <b>Right Scan</b>. Right Scan posts the transaction to SYSPRO. This portal reads the resulting kitted quantity for the exact <b>Pick Ticket + Pick Line + Stock Code</b>.<br><br>
+          <b>Pick Ticket:</b> ${esc(unit.pickTicket)} &nbsp;&nbsp;
+          <b>Last Refresh:</b> ${source.lastSysproRefresh?fmt(source.lastSysproRefresh):'Not refreshed yet'}
+          <button class="primary" style="margin-left:14px" onclick="refreshSourceFromSyspro('${unit.id}','${source.id}')">Refresh from SYSPRO</button>
+          <span class="small"> Demo: each refresh simulates one new Right Scan transaction already posted in SYSPRO.</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:10px;margin-bottom:12px">
+          <div class="card">Part Lines Fully Kitted<b>${totals.fullyKittedParts}/${totals.totalParts}</b></div>
+          <div class="card">Quantity Kitted<b>${totals.kitted}/${totals.required}</b></div>
+          <div class="card">Stock Shortage Lines<b>${totals.shortageParts}</b></div>
+          <div class="card">Lines Accounted For<b>${totals.accountedParts}/${totals.totalParts}</b></div>
+        </div>
+
+        <div class="toolbar">
+          <b>Parts: ${totals.fullyKittedParts}/${totals.totalParts} (${(totals.partPct*100).toFixed(0)}%)</b>
+          <span>&nbsp; | &nbsp;</span>
+          <b>Qty: ${totals.kitted}/${totals.required} (${(totals.qtyPct*100).toFixed(0)}%)</b>
+          <span>&nbsp; | &nbsp;</span>
+          <b>Accounted: ${totals.accountedParts}/${totals.totalParts}</b>
+        </div>
+        <div class="progressOuter"><div class="progressInner" style="width:${Math.min(100,(totals.accountedParts/Math.max(1,totals.totalParts))*100)}%"></div></div>
+        <br>
+
+        <table><thead><tr>
+          <th>Status</th><th>Pick Line</th><th>Stock Code</th><th>Description</th><th>Required Qty</th><th>Location</th>
+          <th>Kitted Qty (SYSPRO)</th><th>Stock Shortage</th><th>Unaccounted</th><th>Last SYSPRO Update</th>
+          <th>ERP Match Key</th><th>Label</th><th>Shortage</th>
+        </tr></thead><tbody>`;
+
+    source.lines.forEach(line=>{
+        const required=Number(line.requiredQty||0);
+        const kitted=Number(line.kittedQty||0);
+        const shortageQty=pickerShortageForLine(unit.id,source.id,line.id);
+        const unaccounted=Math.max(0,required-kitted-shortageQty);
+        let rowClass='',statusText='WAITING FOR RIGHT SCAN',statusClass='gray';
+        if(kitted>=required){rowClass='lineComplete';statusText='COMPLETE';statusClass='green';}
+        else if(shortageQty>0 && unaccounted===0){rowClass='lineShort';statusText='STOCK SHORTAGE';statusClass='red';}
+        else if(kitted>0){rowClass='linePartial';statusText='PARTIAL';statusClass='yellow';}
+
+        html+=`<tr class="${rowClass}">
+          <td><span class="status ${statusClass}">${statusText}</span></td>
+          <td><b>${esc(line.pickLineNo||'')}</b></td>
+          <td><b>${esc(line.stockCode)}</b></td>
+          <td>${esc(line.description)}</td>
+          <td>${required}</td>
+          <td><b>${esc(line.location)}</b></td>
+          <td><b>${kitted}</b><div class="small">Read only</div></td>
+          <td>${shortageQty>0?`<span class="status red">${shortageQty}</span>`:'0'}</td>
+          <td>${unaccounted>0?`<span class="status yellow">${unaccounted}</span>`:`<span class="status green">0</span>`}</td>
+          <td>${line.lastSysproUpdate?fmt(line.lastSysproUpdate):'<span class="small">No transaction yet</span>'}${line.lastSysproTransaction?`<div class="small">${esc(line.lastSysproTransaction)}</div>`:''}</td>
+          <td><div class="small">${esc(unit.pickTicket)}<br>Line ${esc(line.pickLineNo||'')}<br>${esc(line.stockCode)}</div></td>
+          <td><button class="secondary" ${kitted<=0?'disabled':''} onclick="openLabel('${unit.id}','${source.id}','${line.id}')">Print Label</button></td>
+          <td>${shortageQty>0?`<span class="status red">SHORTAGE OPEN</span>`:`<button class="warning" ${source.pickerSubmitted?'disabled':''} onclick="openLineShortage('${unit.id}','${source.id}','${line.id}','PICKER')">Stock Shortage</button>`}</td>
+        </tr>`;
+    });
+
+    html+=`</tbody></table><br>
+      <div style="border-top:1px solid #d7e0e8;padding-top:14px">
+        <h4 style="margin:0 0 8px">Source Handoff to Warehouse QC</h4>
+        <div class="note">The portal does not post inventory. Kitted Qty comes from SYSPRO. A line can also be accounted for with a documented stock shortage. Example: <b>40 kitted in SYSPRO + 10 documented shortage = 50 accounted</b>. The shortage stays open for recovery and does not block the 40 physically kitted pieces from moving to QC.</div>
+        <label><b>Upload Kitting / Handoff Photo</b><br><br>
+          <input type="file" accept="image/*" ${source.pickerSubmitted?'disabled':''} onchange="uploadKittingPhoto('${unit.id}','${source.id}',this)">
+        </label>
+        ${source.kittingPhoto?`<div style="margin-top:10px"><img src="${source.kittingPhoto}" style="max-width:260px;max-height:180px;border:1px solid #b9c6d2;border-radius:6px"><div class="small">${esc(source.kittingPhotoName||'Uploaded photo')}</div></div>`:`<div class="small" style="margin-top:8px">No photo uploaded.</div>`}
+        <br>
+        <button class="success" ${(!totals.readyForQC||!source.kittingPhoto||source.pickerSubmitted)?'disabled':''} onclick="submitSourcePicking('${unit.id}','${source.id}')">
+          ${source.pickerSubmitted?'Delivered to Warehouse QC':'Deliver to Warehouse QC'}
+        </button>
+        ${!totals.readyForQC?` <span class="small">Every line must be fully kitted in SYSPRO or have its missing quantity documented as a stock shortage.</span>`:!source.kittingPhoto?` <span class="small">Upload a photo before handoff.</span>`:''}
+        ${source.pickerSubmitted?`<div class="note"><b>Available to Warehouse QC:</b> ${fmt(source.pickerSubmittedTime)}. QC can start this source immediately while other sources continue kitting.</div>`:''}
+      </div>
+      </div>
+    </div>`;
+    return html;
+}
+
+ensureSysproLineKeys();
 
 /* =========================================================
    RENDER
