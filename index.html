@@ -3,612 +3,1838 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>QPAC Material Readiness Control</title>
 
 <style>
 :root{
- --nav:#17324d;--blue:#2f6fad;--bg:#f3f6f9;--line:#d7e0e8;
- --green:#63be7b;--yellow:#ffd966;--red:#f8696b;--gray:#e8edf1;
- --purple:#d9ccff;
+    --nav:#17324d;
+    --blue:#2f6fad;
+    --bg:#f3f6f9;
+    --line:#d7e0e8;
+    --green:#63be7b;
+    --greenDark:#31824a;
+    --yellow:#ffd966;
+    --red:#f8696b;
+    --gray:#e8edf1;
+    --purple:#d9ccff;
 }
+
 *{box-sizing:border-box}
-body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:#18232d}
-header{background:var(--nav);color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:21px}
-header span{font-size:13px;opacity:.85}
-.mainnav{background:#fff;border-bottom:1px solid var(--line);padding:0 20px;display:flex}
-.mainnav button{border:0;background:#fff;padding:14px 16px;cursor:pointer;font-weight:600;border-bottom:3px solid transparent}
-.mainnav button.active{color:var(--blue);border-bottom-color:var(--blue)}
-main{max-width:1700px;margin:auto;padding:18px}
-.page{display:none}.page.active{display:block}
-.panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px;overflow:auto}
-.modtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.modtabs button{border:1px solid #b8c6d2;background:#fff;padding:9px 17px;border-radius:5px;cursor:pointer;font-weight:700}
-.modtabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+
+body{
+    margin:0;
+    font-family:Segoe UI,Arial,sans-serif;
+    background:var(--bg);
+    color:#18232d;
+}
+
+header{
+    background:var(--nav);
+    color:white;
+    padding:16px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+header h1{
+    margin:0;
+    font-size:21px;
+}
+
+header span{
+    font-size:13px;
+    opacity:.85;
+}
+
+.mainnav{
+    background:white;
+    border-bottom:1px solid var(--line);
+    padding:0 20px;
+    display:flex;
+    flex-wrap:wrap;
+}
+
+.mainnav button{
+    border:0;
+    background:white;
+    padding:14px 16px;
+    cursor:pointer;
+    font-weight:600;
+    border-bottom:3px solid transparent;
+}
+
+.mainnav button.active{
+    color:var(--blue);
+    border-bottom-color:var(--blue);
+}
+
+main{
+    max-width:1750px;
+    margin:auto;
+    padding:18px;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+.panel{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:16px;
+    overflow:auto;
+}
+
+.modtabs{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+}
+
+.modtabs button{
+    border:1px solid #b8c6d2;
+    background:white;
+    padding:9px 17px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:700;
+}
+
+.modtabs button.active{
+    background:var(--blue);
+    color:white;
+    border-color:var(--blue);
+}
+
+.toolbar{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+}
+
 .right{margin-left:auto}
-.primary,.secondary,.danger,.success,.warning{padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:600}
-.primary{background:var(--blue);color:#fff;border:0}
-.secondary{background:#fff;border:1px solid #aebdca;color:#18232d}
-.danger{background:#b83c3c;color:#fff;border:0}
-.success{background:#3f8f55;color:#fff;border:0}
-.warning{background:#e6b73b;border:0}
-input,select,textarea{border:1px solid #b9c6d2;border-radius:4px;padding:7px;font-family:inherit}
-table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
-th{background:#eaf1f6;padding:9px;text-align:left;border-bottom:1px solid #ccd8e2}
-td{padding:9px;border-bottom:1px solid #e1e7ec;vertical-align:middle}
-tr:hover{background:#f8fafc}
-.status{display:inline-block;padding:4px 9px;border-radius:13px;font-weight:700;font-size:12px}
-.green{background:var(--green)}.yellow{background:var(--yellow)}.red{background:var(--red)}
-.gray{background:#dce5ec}.purple{background:var(--purple)}
-.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:15px}
-.card b{display:block;font-size:27px;margin-top:6px}
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center}
+
+button{
+    font-family:inherit;
+}
+
+.primary,
+.secondary,
+.danger,
+.success,
+.warning{
+    padding:8px 12px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.primary{
+    background:var(--blue);
+    color:white;
+    border:0;
+}
+
+.secondary{
+    background:white;
+    color:#18232d;
+    border:1px solid #aebdca;
+}
+
+.danger{
+    background:#b83c3c;
+    color:white;
+    border:0;
+}
+
+.success{
+    background:#3f8f55;
+    color:white;
+    border:0;
+}
+
+.warning{
+    background:#efb82f;
+    color:#111;
+    border:0;
+}
+
+button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+input,select,textarea{
+    border:1px solid #b9c6d2;
+    border-radius:4px;
+    padding:7px;
+    font-family:inherit;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    white-space:nowrap;
+}
+
+th{
+    background:#eaf1f6;
+    padding:9px;
+    text-align:left;
+    border-bottom:1px solid #ccd8e2;
+}
+
+td{
+    padding:9px;
+    border-bottom:1px solid #e1e7ec;
+    vertical-align:middle;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+.status{
+    display:inline-block;
+    padding:4px 9px;
+    border-radius:13px;
+    font-weight:700;
+    font-size:12px;
+}
+
+.green{background:var(--green)}
+.yellow{background:var(--yellow)}
+.red{background:var(--red)}
+.gray{background:#dce5ec}
+.purple{background:var(--purple)}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:16px;
+}
+
+.card{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:15px;
+}
+
+.card b{
+    display:block;
+    font-size:27px;
+    margin-top:6px;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0008;
+    z-index:20;
+    align-items:center;
+    justify-content:center;
+}
+
 .modal.open{display:flex}
-.modalbox{width:96%;max-width:1350px;max-height:94vh;overflow:auto;background:#fff;border-radius:9px;padding:20px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.grid label{font-size:12px;font-weight:600}
-.grid input,.grid select,.grid textarea{width:100%;margin-top:4px}
-.detailHeader{background:#eef5fa;border-left:5px solid var(--blue);padding:14px;margin-bottom:15px}
-.process{display:flex;gap:7px;align-items:stretch;margin:15px 0;flex-wrap:wrap}
-.stage{flex:1;min-width:175px;border:2px solid #bdcad5;padding:12px;border-radius:7px;text-align:center}
-.stage.done{background:#dff1e4;border-color:#63be7b}
-.stage.progress{background:#fff3c7;border-color:#e2b93b}
-.stage.risk{background:#fbdada;border-color:#f8696b}
-.stage.pending{background:#eef2f5}
-.arrow{align-self:center;font-size:21px}
-.sectionTitle{margin-top:25px;border-bottom:2px solid #d8e3eb;padding-bottom:7px}
-.small{font-size:12px;color:#647585}
-.note{background:#eef6ff;border-left:4px solid var(--blue);padding:10px;margin:10px 0}
-.alert{background:#fff3c7;border-left:4px solid #e0ad20;padding:10px;margin:10px 0}
-.overdue{background:#f8696b!important}
-.sourceCard{border:1px solid var(--line);border-radius:7px;margin:12px 0;overflow:hidden}
-.sourceHead{background:#eaf1f6;padding:12px;display:flex;justify-content:space-between;align-items:center}
-.sourceBody{padding:12px}
-.rolebox{background:#f8fafc;border:1px solid #dce4eb;border-radius:7px;padding:13px;margin-bottom:10px}
-.check{width:18px;height:18px}
-.wrap{white-space:normal}
-@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.arrow{display:none}}
+
+.modalbox{
+    width:97%;
+    max-width:1500px;
+    max-height:95vh;
+    overflow:auto;
+    background:white;
+    border-radius:9px;
+    padding:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.grid label{
+    font-size:12px;
+    font-weight:600;
+}
+
+.grid input,
+.grid select,
+.grid textarea{
+    width:100%;
+    margin-top:4px;
+}
+
+.detailHeader{
+    background:#eef5fa;
+    border-left:5px solid var(--blue);
+    padding:14px;
+    margin-bottom:15px;
+}
+
+.process{
+    display:flex;
+    gap:7px;
+    align-items:stretch;
+    margin:15px 0;
+    flex-wrap:wrap;
+}
+
+.stage{
+    flex:1;
+    min-width:175px;
+    border:2px solid #bdcad5;
+    padding:12px;
+    border-radius:7px;
+    text-align:center;
+}
+
+.stage.done{
+    background:#dff1e4;
+    border-color:#63be7b;
+}
+
+.stage.progress{
+    background:#fff3c7;
+    border-color:#e2b93b;
+}
+
+.stage.pending{
+    background:#eef2f5;
+}
+
+.arrow{
+    align-self:center;
+    font-size:21px;
+}
+
+.sectionTitle{
+    margin-top:25px;
+    border-bottom:2px solid #d8e3eb;
+    padding-bottom:7px;
+}
+
+.small{
+    font-size:12px;
+    color:#647585;
+}
+
+.note{
+    background:#eef6ff;
+    border-left:4px solid var(--blue);
+    padding:10px;
+    margin:10px 0;
+}
+
+.alert{
+    background:#fff3c7;
+    border-left:4px solid #e0ad20;
+    padding:10px;
+    margin:10px 0;
+}
+
+.erpBanner{
+    background:#edf7ed;
+    border:1px solid #b9d9bf;
+    border-radius:7px;
+    padding:12px;
+    margin-bottom:12px;
+}
+
+.sourceCard{
+    border:1px solid var(--line);
+    border-radius:7px;
+    margin:12px 0;
+    overflow:hidden;
+}
+
+.sourceHead{
+    background:#eaf1f6;
+    padding:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.sourceBody{
+    padding:12px;
+}
+
+.progressOuter{
+    width:100%;
+    height:16px;
+    background:#e5ebef;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progressInner{
+    height:100%;
+    background:var(--green);
+}
+
+.barcode{
+    font-family:"Courier New",monospace;
+    font-size:20px;
+    letter-spacing:-2px;
+    white-space:nowrap;
+}
+
+.scanBox{
+    background:#f7fafc;
+    border:2px dashed #9cb3c5;
+    border-radius:8px;
+    padding:15px;
+    margin:12px 0;
+}
+
+.scanBox input{
+    width:260px;
+    font-size:16px;
+}
+
+.lineComplete{
+    background:#e7f5e9 !important;
+}
+
+.linePartial{
+    background:#fff6d8 !important;
+}
+
+.lineShort{
+    background:#fde2e2 !important;
+}
+
+.overdue{
+    background:#f8696b!important;
+}
+
+.wrap{
+    white-space:normal;
+}
+
+@media(max-width:900px){
+    .cards{grid-template-columns:1fr 1fr}
+    .grid{grid-template-columns:1fr}
+    .arrow{display:none}
+}
+
+@media print{
+    body *{
+        visibility:hidden;
+    }
+
+    #printArea,
+    #printArea *{
+        visibility:visible;
+    }
+
+    #printArea{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+    }
+}
 </style>
 </head>
 
 <body>
 
 <header>
- <h1>QPAC Material Readiness Control</h1>
- <span>Picker → Warehouse QC → T-3 Delivery → T-2 Production Control → T-1 Recovery</span>
+    <h1>QPAC Material Readiness Control</h1>
+    <span>SYSPRO 8 Integration Demonstration</span>
 </header>
 
 <div class="mainnav">
- <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
- <button onclick="showPage('shortages',this)">Shortage Center</button>
- <button onclick="showPage('notifications',this)">Notifications</button>
- <button onclick="showPage('processPage',this)">Process Map</button>
- <button onclick="showPage('settings',this)">Settings</button>
- <button onclick="showPage('backup',this)">Data / Backup</button>
+    <button class="active" onclick="showPage('kitting',this)">Kitting Plan</button>
+    <button onclick="showPage('shortages',this)">Shortage Center</button>
+    <button onclick="showPage('notifications',this)">Notifications</button>
+    <button onclick="showPage('processPage',this)">Process Map</button>
+    <button onclick="showPage('settings',this)">Settings</button>
+    <button onclick="showPage('backup',this)">Data / Backup</button>
 </div>
 
 <main>
 
 <section id="kitting" class="page active">
- <div class="modtabs" id="modTabs"></div>
 
- <div class="cards">
-  <div class="card">Displayed Subunits<b id="kpiUnits">0</b></div>
-  <div class="card">T-3 Delivered<b id="kpiDelivered">0</b></div>
-  <div class="card">Awaiting PC<b id="kpiPC">0</b></div>
-  <div class="card">Open Shortages<b id="kpiShort">0</b></div>
-  <div class="card">T-1 Risk<b id="kpiRisk">0</b></div>
- </div>
+<div class="modtabs" id="modTabs"></div>
 
- <div class="panel">
-  <div class="toolbar">
-   <button class="primary" onclick="openAddSubunit()">+ Add Subunit</button>
-   <strong id="workspaceTitle">ALL MODs</strong>
-   <span class="small" id="workspaceDescription"></span>
-   <div class="right">
-    Search <input id="unitSearch" placeholder="Subunit" oninput="renderKitting()">
-   </div>
-  </div>
-  <div id="subunitTable"></div>
- </div>
+<div class="cards">
+    <div class="card">Displayed Subunits<b id="kpiUnits">0</b></div>
+    <div class="card">T-3 Delivered<b id="kpiDelivered">0</b></div>
+    <div class="card">Awaiting PC<b id="kpiPC">0</b></div>
+    <div class="card">Open Shortages<b id="kpiShort">0</b></div>
+    <div class="card">T-1 Risk<b id="kpiRisk">0</b></div>
+</div>
+
+<div class="panel">
+
+<div class="toolbar">
+
+    <button class="primary" onclick="openAddSubunit()">
+        + Add Subunit
+    </button>
+
+    <strong id="workspaceTitle">ALL MODs</strong>
+
+    <span class="small" id="workspaceDescription"></span>
+
+    <div class="right">
+        Search
+        <input id="unitSearch"
+               placeholder="Subunit"
+               oninput="renderKitting()">
+    </div>
+
+</div>
+
+<div id="subunitTable"></div>
+
+</div>
 </section>
+
 
 <section id="shortages" class="page">
- <div class="panel">
-  <div class="toolbar">
-   <h3 style="margin:0">Central Shortage Center</h3>
-   <div class="right">
-    <select id="shortTypeFilter" onchange="renderShortages()">
-     <option value="ALL">All Types</option>
-     <option value="PICKER">Picker Stock Shortage</option>
-     <option value="QC">Warehouse QC Shortage</option>
-     <option value="PC">Production Control Shortage</option>
-    </select>
-    <select id="shortStatusFilter" onchange="renderShortages()">
-     <option>ALL</option><option>OPEN</option><option>RECOVERING</option><option>CLOSED</option>
-    </select>
-    <input id="shortSearch" placeholder="Part / subunit / owner" oninput="renderShortages()">
-   </div>
-  </div>
-  <div id="shortageTable"></div>
- </div>
+
+<div class="panel">
+
+<div class="toolbar">
+
+    <h3 style="margin:0">Central Shortage Center</h3>
+
+    <div class="right">
+
+        <select id="shortTypeFilter" onchange="renderShortages()">
+            <option value="ALL">All Types</option>
+            <option value="PICKER">Picker Stock Shortage</option>
+            <option value="QC">Warehouse QC Shortage</option>
+            <option value="PC">Production Control Shortage</option>
+        </select>
+
+        <select id="shortStatusFilter" onchange="renderShortages()">
+            <option>ALL</option>
+            <option>OPEN</option>
+            <option>RECOVERING</option>
+            <option>CLOSED</option>
+        </select>
+
+        <input id="shortSearch"
+               placeholder="Part / subunit / owner"
+               oninput="renderShortages()">
+
+    </div>
+
+</div>
+
+<div id="shortageTable"></div>
+
+</div>
 </section>
+
 
 <section id="notifications" class="page">
- <div class="panel">
-  <h3>Notification Queue</h3>
-  <div class="note">
-   GitHub Pages cannot securely send server-side email by itself. Each submission below creates a notification record and an email draft addressed to the configured recipients. A mail service/API can be connected later for automatic sending.
-  </div>
-  <div id="notificationTable"></div>
- </div>
+
+<div class="panel">
+
+<h3>Notification Queue</h3>
+
+<div class="note">
+This demonstration creates notification records. The IT production version can connect this queue to the approved company email service.
+</div>
+
+<div id="notificationTable"></div>
+
+</div>
 </section>
+
 
 <section id="processPage" class="page">
- <div class="panel">
-  <h2>Material Control Workflow</h2>
 
-  <div class="process">
-   <div class="stage"><b>1. Warehouse Picker</b><p>Pick ERP pick ticket by source. Record stock shortages and submit completed pick.</p></div>
-   <div class="arrow">→</div>
-   <div class="stage"><b>2. Warehouse QC</b><p>Independently verify picker quantity. Record discrepancies and submit QC.</p></div>
-   <div class="arrow">→</div>
-   <div class="stage"><b>3. T-3 Delivery</b><p>Deliver verified material to production staging and confirm delivery.</p></div>
-   <div class="arrow">→</div>
-   <div class="stage"><b>4. T-2 Production Control</b><p>Verify received material by part and quantity. Submit discrepancies.</p></div>
-   <div class="arrow">→</div>
-   <div class="stage"><b>5. T-1 Recovery</b><p>Warehouse recovers shortages. Production Control confirms receipt and closes each shortage.</p></div>
-  </div>
+<div class="panel">
 
-  <div class="note">
-   <b>Control principle:</b> Warehouse records what it picked, Warehouse QC independently verifies it, and Production Control performs the final receiving verification. A shortage remains visible until recovery is physically received and confirmed.
-  </div>
- </div>
+<h2>Proposed SYSPRO-Connected Material Flow</h2>
+
+<div class="process">
+
+<div class="stage">
+<b>SYSPRO Pick Ticket</b>
+<p>Stock code, description, required quantity, warehouse location and barcode are loaded.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>Warehouse Picking</b>
+<p>Picker scans stock code and posts the inventory/picking transaction.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>Part Label</b>
+<p>Completed line generates a traceable label for the physical material.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>Warehouse QC</b>
+<p>QC scans/verifies physical material against the pick ticket.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>T-3 Delivery</b>
+<p>Verified material is delivered to the production staging area.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>T-2 Production Control</b>
+<p>Production Control scans the same material labels and confirms quantity received.</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>T-1 Recovery</b>
+<p>Missing material is recovered and closed after Production Control confirms receipt.</p>
+</div>
+
+</div>
+
+<div class="note">
+For this demonstration, SYSPRO reads and transactions are simulated locally. The UI deliberately separates the ERP adapter so IT can later replace the mock functions with the company's approved SYSPRO 8 integration.
+</div>
+
+</div>
 </section>
+
 
 <section id="settings" class="page">
- <div class="panel">
-  <h3>Email Routing Settings</h3>
-  <div class="grid">
-   <label>Purchaser / Buyer Email<input id="setBuyer"></label>
-   <label>Material Planner Email<input id="setPlanner"></label>
-   <label>Warehouse Supervisor Email<input id="setSupervisor"></label>
-  </div>
-  <br>
-  <button class="primary" onclick="saveSettings()">Save Email Settings</button>
 
-  <div class="note">
-   Picker stock shortage → Buyer/Purchaser + Material Planner.<br>
-   Warehouse QC discrepancy → Warehouse Supervisor.<br>
-   Production Control shortage → Material Planner + Warehouse Supervisor.
-  </div>
- </div>
+<div class="panel">
+
+<h3>Email Routing</h3>
+
+<div class="grid">
+
+<label>
+Purchaser / Buyer Email
+<input id="setBuyer">
+</label>
+
+<label>
+Material Planner Email
+<input id="setPlanner">
+</label>
+
+<label>
+Warehouse Supervisor Email
+<input id="setSupervisor">
+</label>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="saveSettings()">
+Save Settings
+</button>
+
+</div>
+
+<div class="panel">
+
+<h3>ERP Integration Status</h3>
+
+<table>
+<tr>
+<th>System</th>
+<th>Environment</th>
+<th>Mode</th>
+<th>Status</th>
+</tr>
+
+<tr>
+<td>SYSPRO 8</td>
+<td>Demonstration</td>
+<td>Mock ERP Adapter</td>
+<td><span class="status yellow">SIMULATED</span></td>
+</tr>
+
+</table>
+
+<div class="note">
+The production version should replace the mock ERP functions with IT-approved SYSPRO services. ERP credentials should not be stored in this GitHub Pages file.
+</div>
+
+</div>
+
 </section>
 
+
 <section id="backup" class="page">
- <div class="panel">
-  <h3>Data / Backup</h3>
-  <button class="primary" onclick="downloadBackup()">Download Backup</button>
-  <button class="secondary" onclick="document.getElementById('restoreFile').click()">Restore Backup</button>
-  <input hidden id="restoreFile" type="file" accept=".json" onchange="restoreBackup(event)">
-  <button class="danger" onclick="resetDatabase()">Reset All Data</button>
- </div>
+
+<div class="panel">
+
+<h3>Data / Backup</h3>
+
+<button class="primary" onclick="downloadBackup()">
+Download Backup
+</button>
+
+<button class="secondary"
+onclick="document.getElementById('restoreFile').click()">
+Restore Backup
+</button>
+
+<input hidden
+id="restoreFile"
+type="file"
+accept=".json"
+onchange="restoreBackup(event)">
+
+<button class="danger" onclick="resetDatabase()">
+Reset All Data
+</button>
+
+</div>
+
 </section>
 
 </main>
 
+
 <!-- ADD SUBUNIT -->
+
 <div class="modal" id="addModal">
- <div class="modalbox">
-  <h2>Add Production Subunit</h2>
-  <div class="note">Main Warehouse, Machine Shop Warehouse, PLD and Jenbacher are created automatically.</div>
-  <div class="grid">
-   <label>Priority<input id="addPriority" value="1"></label>
-   <label>MOD<select id="addMod"></select></label>
-   <label>Subunit<input id="addSubunit" placeholder="P41"></label>
-   <label>Production Start Date & Time<input id="addProduction" type="datetime-local"></label>
-   <label>Comments<textarea id="addComments"></textarea></label>
-  </div>
-  <br>
-  <button class="primary" onclick="saveNewSubunit()">Create Subunit</button>
-  <button class="secondary" onclick="closeModal('addModal')">Cancel</button>
- </div>
+
+<div class="modalbox">
+
+<h2>Add Production Subunit</h2>
+
+<div class="note">
+For the IT demonstration, creating a subunit automatically simulates a SYSPRO pick ticket containing 10 material lines.
 </div>
+
+<div class="grid">
+
+<label>
+Priority
+<input id="addPriority" value="1">
+</label>
+
+<label>
+MOD
+<select id="addMod"></select>
+</label>
+
+<label>
+Subunit
+<input id="addSubunit" placeholder="Example: P41">
+</label>
+
+<label>
+Production Start Date & Time
+<input id="addProduction" type="datetime-local">
+</label>
+
+<label>
+Comments
+<textarea id="addComments"></textarea>
+</label>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="saveNewSubunit()">
+Create Subunit + Load SYSPRO Demo Ticket
+</button>
+
+<button class="secondary" onclick="closeModal('addModal')">
+Cancel
+</button>
+
+</div>
+</div>
+
 
 <!-- DETAIL -->
+
 <div class="modal" id="detailModal">
- <div class="modalbox">
-  <div id="detailContent"></div>
- </div>
+
+<div class="modalbox">
+
+<div id="detailContent"></div>
+
+</div>
 </div>
 
-<!-- SHORTAGE ENTRY -->
+
+<!-- PICK TRANSACTION -->
+
+<div class="modal" id="pickModal">
+
+<div class="modalbox" style="max-width:750px">
+
+<h2>SYSPRO Picking Transaction</h2>
+
+<div id="pickInfo"></div>
+
+<div class="scanBox">
+
+<label>
+<b>Scan / Enter Barcode</b><br><br>
+
+<input id="pickBarcode"
+       placeholder="Scan barcode">
+
+</label>
+
+<br><br>
+
+<label>
+<b>Quantity to Kit</b><br><br>
+
+<input id="pickQty"
+       type="number"
+       min="1">
+
+</label>
+
+</div>
+
+<button class="success"
+onclick="postPickTransaction()">
+Post SYSPRO Transaction
+</button>
+
+<button class="secondary"
+onclick="closeModal('pickModal')">
+Cancel
+</button>
+
+</div>
+</div>
+
+
+<!-- LABEL -->
+
+<div class="modal" id="labelModal">
+
+<div class="modalbox" style="max-width:700px">
+
+<div id="printArea"></div>
+
+<br>
+
+<button class="primary" onclick="window.print()">
+Print Label
+</button>
+
+<button class="secondary"
+onclick="closeModal('labelModal')">
+Close
+</button>
+
+</div>
+</div>
+
+
+<!-- SHORTAGE -->
+
 <div class="modal" id="shortModal">
- <div class="modalbox">
-  <h2 id="shortModalTitle">Shortage</h2>
 
-  <div class="note" id="shortContext"></div>
+<div class="modalbox" style="max-width:900px">
 
-  <div class="grid">
-   <label>Part Number<input id="shortPart"></label>
-   <label>Description<input id="shortDesc"></label>
-   <label>Required Qty<input id="shortRequired" type="number" min="0"></label>
-   <label>Actual / Available Qty<input id="shortActual" type="number" min="0"></label>
-   <label>Owner<input id="shortOwner"></label>
-   <label>Comments<textarea id="shortComments"></textarea></label>
-  </div>
+<h2 id="shortModalTitle">Shortage</h2>
 
-  <br>
-  <button class="primary" onclick="saveShortage()">Submit Shortage</button>
-  <button class="secondary" onclick="closeModal('shortModal')">Cancel</button>
- </div>
+<div id="shortContext" class="note"></div>
+
+<div class="grid">
+
+<label>
+Stock Code
+<input id="shortPart">
+</label>
+
+<label>
+Description
+<input id="shortDesc">
+</label>
+
+<label>
+Required Qty
+<input id="shortRequired" type="number">
+</label>
+
+<label>
+Available / Received Qty
+<input id="shortActual" type="number">
+</label>
+
+<label>
+Owner
+<input id="shortOwner">
+</label>
+
+<label>
+Comments
+<textarea id="shortComments"></textarea>
+</label>
+
 </div>
 
-<!-- PC VERIFICATION -->
+<br>
+
+<button class="primary" onclick="saveShortage()">
+Submit Shortage
+</button>
+
+<button class="secondary"
+onclick="closeModal('shortModal')">
+Cancel
+</button>
+
+</div>
+</div>
+
+
+<!-- QC -->
+
+<div class="modal" id="qcModal">
+
+<div class="modalbox">
+
+<h2>Warehouse QC Verification</h2>
+
+<div id="qcContent"></div>
+
+</div>
+</div>
+
+
+<!-- PC -->
+
 <div class="modal" id="pcModal">
- <div class="modalbox">
-  <h2>Production Control Verification</h2>
-  <div id="pcContent"></div>
- </div>
+
+<div class="modalbox">
+
+<h2>T-2 Production Control Verification</h2>
+
+<div id="pcContent"></div>
+
 </div>
+</div>
+
 
 <script>
 
 /* =========================================================
-   CONFIGURATION
+   MASTER DATA
 ========================================================= */
 
 const MODS=["A","B","C","D2","D2B","E"];
 
 const SOURCES=[
- "Main Warehouse",
- "Machine Shop Warehouse",
- "PLD",
- "Jenbacher"
+    "Main Warehouse",
+    "Machine Shop Warehouse",
+    "PLD",
+    "Jenbacher"
 ];
 
-const DBKEY="qpacMaterialReadinessV4";
+const DBKEY="qpacSysproDemoV1";
 
-let db=JSON.parse(localStorage.getItem(DBKEY)||`{
- "subunits":[],
- "shortages":[],
- "notifications":[],
- "settings":{
-  "buyer":"",
-  "planner":"",
-  "supervisor":""
- }
-}`);
+let db=JSON.parse(
+    localStorage.getItem(DBKEY) ||
+    `{
+        "subunits":[],
+        "shortages":[],
+        "notifications":[],
+        "settings":{
+            "buyer":"",
+            "planner":"",
+            "supervisor":""
+        }
+    }`
+);
 
-if(!db.notifications) db.notifications=[];
-if(!db.settings) db.settings={buyer:"",planner:"",supervisor:""};
+if(!db.subunits)db.subunits=[];
+if(!db.shortages)db.shortages=[];
+if(!db.notifications)db.notifications=[];
+if(!db.settings)db.settings={buyer:"",planner:"",supervisor:""};
 
 let selectedMod="ALL";
 let currentDetailId=null;
+
+let currentPick={
+    unitId:null,
+    sourceId:null,
+    lineId:null
+};
+
 let shortageContext=null;
-let currentPCUnit=null;
 
 
 /* =========================================================
-   UTILITIES
+   GENERAL UTILITIES
 ========================================================= */
 
 function uid(){
- return Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+
+    return Date.now().toString(36)+
+           Math.random().toString(36).slice(2,8);
 }
 
 function esc(v){
- return String(v??"").replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+
+    return String(v??"")
+        .replace(/[&<>"']/g,c=>({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#39;"
+        }[c]));
 }
 
 function saveDB(){
- localStorage.setItem(DBKEY,JSON.stringify(db));
- renderAll();
 
- if(currentDetailId &&
-    document.getElementById("detailModal").classList.contains("open")){
-  renderDetail(currentDetailId);
- }
+    localStorage.setItem(
+        DBKEY,
+        JSON.stringify(db)
+    );
+
+    renderAll();
+
+    if(
+        currentDetailId &&
+        document.getElementById("detailModal")
+            .classList.contains("open")
+    ){
+        renderDetail(currentDetailId);
+    }
 }
 
 function dt(v){
- if(!v)return null;
- const d=new Date(v);
- return isNaN(d)?null:d;
+
+    if(!v)return null;
+
+    const d=new Date(v);
+
+    return isNaN(d)?null:d;
 }
 
 function fmt(v){
- const d=v instanceof Date?v:dt(v);
- if(!d)return "";
- return d.toLocaleString([],{
-  year:"numeric",month:"2-digit",day:"2-digit",
-  hour:"numeric",minute:"2-digit"
- });
+
+    const d=
+        v instanceof Date ?
+        v :
+        dt(v);
+
+    if(!d)return "";
+
+    return d.toLocaleString([],{
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"numeric",
+        minute:"2-digit"
+    });
 }
 
 function milestone(start,days){
- const d=dt(start);
- if(!d)return null;
- d.setDate(d.getDate()-days);
- d.setHours(18,0,0,0);
- return d;
+
+    const d=dt(start);
+
+    if(!d)return null;
+
+    d.setDate(d.getDate()-days);
+
+    d.setHours(18,0,0,0);
+
+    return d;
 }
 
 function t3(u){return milestone(u.productionStart,3)}
 function t2(u){return milestone(u.productionStart,2)}
 function t1(u){return milestone(u.productionStart,1)}
 
-function plannedStart(u,s){
- const due=t3(u);
- const ct=Number(s.planningCT||0);
- if(!due||!ct)return null;
- return new Date(due.getTime()-ct*3600000);
-}
-
 function closeModal(id){
- document.getElementById(id).classList.remove("open");
+
+    document.getElementById(id)
+        .classList.remove("open");
 }
 
 
 /* =========================================================
-   EMAIL / NOTIFICATION ROUTING
+   BARCODE DISPLAY
+
+   This is a visual demonstration barcode.
+   Production version should use the exact barcode data /
+   symbology supplied or approved by SYSPRO / IT.
 ========================================================= */
 
-function recipientsFor(type){
- if(type==="PICKER")
-  return [db.settings.buyer,db.settings.planner].filter(Boolean);
+function fakeBarcode(value){
 
- if(type==="QC")
-  return [db.settings.supervisor].filter(Boolean);
+    let result="";
 
- if(type==="PC")
-  return [db.settings.planner,db.settings.supervisor].filter(Boolean);
+    for(let i=0;i<value.length;i++){
 
- return [];
-}
+        const code=value.charCodeAt(i);
 
-function createNotification(type,unit,source,subject,message){
+        result +=
+            code%3===0 ?
+            "||| " :
+            code%2===0 ?
+            "|| | " :
+            "| || ";
+    }
 
- const recipients=recipientsFor(type);
-
- db.notifications.unshift({
-  id:uid(),
-  created:new Date().toISOString(),
-  type,
-  mod:unit.mod,
-  subunit:unit.subunit,
-  source:source?.name||"",
-  recipients,
-  subject,
-  message
- });
-
- if(recipients.length){
-
-  const link=
-   "mailto:"+encodeURIComponent(recipients.join(","))+
-   "?subject="+encodeURIComponent(subject)+
-   "&body="+encodeURIComponent(message);
-
-  window.location.href=link;
- }
+    return result;
 }
 
 
 /* =========================================================
-   SHORTAGE MODEL
+   SYSPRO 8 MOCK ADAPTER
+
+   IMPORTANT FOR IT:
+   Replace functions in this section with approved
+   SYSPRO integration.
+
+   Intended responsibilities:
+
+   1. getPickTicket()
+      Read SYSPRO pick ticket / material requirements.
+
+   2. postPickingTransaction()
+      Post authorized picking/inventory transaction.
+
+   3. refreshPickTicket()
+      Re-read posted quantities from SYSPRO.
+
+   The rest of the application should not need major
+   redesign when these functions are replaced.
+========================================================= */
+
+const SysproAdapter={
+
+    mode:"DEMO",
+
+    getPickTicket:function(mod,subunit){
+
+        const ticket=
+            "PK-"+mod+"-"+subunit+"-"+
+            Math.floor(1000+Math.random()*8999);
+
+        return {
+
+            ticketNumber:ticket,
+
+            lines:[
+
+                {
+                    stockCode:"1502-1511",
+                    description:"Mounting Bracket Assembly",
+                    requiredQty:100,
+                    location:"A01-04",
+                    source:"Main Warehouse",
+                    barcode:"15021511"
+                },
+
+                {
+                    stockCode:"1502-1512",
+                    description:"Support Clamp",
+                    requiredQty:50,
+                    location:"A02-03",
+                    source:"Main Warehouse",
+                    barcode:"15021512"
+                },
+
+                {
+                    stockCode:"1604-2201",
+                    description:"Frame Support Plate",
+                    requiredQty:24,
+                    location:"MS-01-02",
+                    source:"Machine Shop Warehouse",
+                    barcode:"16042201"
+                },
+
+                {
+                    stockCode:"1604-2202",
+                    description:"Machined Spacer",
+                    requiredQty:48,
+                    location:"MS-03-05",
+                    source:"Machine Shop Warehouse",
+                    barcode:"16042202"
+                },
+
+                {
+                    stockCode:"1701-3305",
+                    description:"Electrical Harness",
+                    requiredQty:12,
+                    location:"PLD-02-01",
+                    source:"PLD",
+                    barcode:"17013305"
+                },
+
+                {
+                    stockCode:"1701-3310",
+                    description:"Sensor Cable Assembly",
+                    requiredQty:8,
+                    location:"PLD-02-04",
+                    source:"PLD",
+                    barcode:"17013310"
+                },
+
+                {
+                    stockCode:"1808-4401",
+                    description:"Jenbacher Gasket Kit",
+                    requiredQty:6,
+                    location:"JEN-01-02",
+                    source:"Jenbacher",
+                    barcode:"18084401"
+                },
+
+                {
+                    stockCode:"1808-4402",
+                    description:"Jenbacher Seal Ring",
+                    requiredQty:16,
+                    location:"JEN-01-06",
+                    source:"Jenbacher",
+                    barcode:"18084402"
+                },
+
+                {
+                    stockCode:"1505-1188",
+                    description:"M12 Fastener Kit",
+                    requiredQty:200,
+                    location:"B04-08",
+                    source:"Main Warehouse",
+                    barcode:"15051188"
+                },
+
+                {
+                    stockCode:"1505-1190",
+                    description:"Isolation Mount",
+                    requiredQty:20,
+                    location:"B06-02",
+                    source:"Main Warehouse",
+                    barcode:"15051190"
+                }
+
+            ]
+        };
+    },
+
+
+    postPickingTransaction:function(line,qty){
+
+        /*
+        DEMO:
+        Pretend SYSPRO accepted the transaction.
+
+        PRODUCTION:
+        IT replaces this with approved SYSPRO transaction.
+        */
+
+        return {
+            success:true,
+            transactionId:
+                "SYSPRO-DEMO-"+Date.now(),
+            quantityPosted:qty,
+            timestamp:new Date().toISOString()
+        };
+    },
+
+
+    refreshPickTicket:function(unit){
+
+        /*
+        DEMO:
+        Local state already contains posted quantity.
+
+        PRODUCTION:
+        Re-query SYSPRO and update line quantities.
+        */
+
+        return unit;
+    }
+
+};
+
+
+/* =========================================================
+   CREATE SYSPRO PICK TICKET
+========================================================= */
+
+function loadSysproTicket(unit){
+
+    const erp=
+        SysproAdapter.getPickTicket(
+            unit.mod,
+            unit.subunit
+        );
+
+    unit.pickTicket=
+        erp.ticketNumber;
+
+    unit.sources=
+        SOURCES.map(sourceName=>({
+
+            id:uid(),
+
+            name:sourceName,
+
+            planningCT:"",
+
+            pickerSubmitted:false,
+            pickerSubmittedTime:"",
+
+            qcSubmitted:false,
+            qcSubmittedTime:"",
+
+            lines:
+                erp.lines
+                .filter(
+                    line=>
+                    line.source===sourceName
+                )
+                .map(line=>({
+
+                    id:uid(),
+
+                    stockCode:
+                        line.stockCode,
+
+                    description:
+                        line.description,
+
+                    requiredQty:
+                        line.requiredQty,
+
+                    location:
+                        line.location,
+
+                    barcode:
+                        line.barcode,
+
+                    kittedQty:0,
+
+                    transactionIds:[],
+
+                    labelPrinted:false,
+
+                    qcReceivedQty:"",
+
+                    qcVerified:false,
+
+                    pcReceivedQty:"",
+
+                    pcVerified:false
+
+                }))
+
+        }));
+}
+
+
+/* =========================================================
+   SHORTAGES
 ========================================================= */
 
 function shortageCalc(s){
 
- const req=Number(s.requiredQty||0);
- const actual=Number(s.actualQty||0);
- const recovered=Number(s.recoveredQty||0);
+    const required=
+        Number(s.requiredQty||0);
 
- const short=Math.max(0,req-actual);
- const remaining=Math.max(0,short-recovered);
+    const actual=
+        Number(s.actualQty||0);
 
- let status="OPEN";
+    const recovered=
+        Number(s.recoveredQty||0);
 
- if(remaining===0 && s.pcRecoveryConfirmed)
-  status="CLOSED";
- else if(recovered>0)
-  status="RECOVERING";
+    const short=
+        Math.max(
+            0,
+            required-actual
+        );
 
- return {short,remaining,status};
+    const remaining=
+        Math.max(
+            0,
+            short-recovered
+        );
+
+    let status="OPEN";
+
+    if(
+        remaining===0 &&
+        s.pcRecoveryConfirmed
+    ){
+        status="CLOSED";
+    }
+    else if(recovered>0){
+        status="RECOVERING";
+    }
+
+    return {
+        short,
+        remaining,
+        status
+    };
 }
 
 function shortagesForUnit(id){
- return db.shortages.filter(s=>s.subunitId===id);
+
+    return db.shortages.filter(
+        s=>s.subunitId===id
+    );
 }
 
 function openShortages(id){
- return shortagesForUnit(id).filter(s=>shortageCalc(s).status!=="CLOSED");
-}
 
-function sourceShortages(unitId,sourceId,type=null){
- return db.shortages.filter(s=>
-  s.subunitId===unitId &&
-  s.sourceId===sourceId &&
-  (!type||s.type===type)
- );
+    return shortagesForUnit(id)
+        .filter(
+            s=>
+            shortageCalc(s).status!=="CLOSED"
+        );
 }
 
 
 /* =========================================================
-   SUBUNIT STATUS
+   SOURCE / UNIT CALCULATIONS
 ========================================================= */
 
-function sourcePct(s){
- const total=Number(s.totalParts||0);
- const picked=Number(s.pickedParts||0);
- return total?Math.min(1,picked/total):0;
+function sourceTotals(source){
+
+    let required=0;
+    let kitted=0;
+
+    source.lines.forEach(line=>{
+
+        required +=
+            Number(line.requiredQty||0);
+
+        kitted +=
+            Number(line.kittedQty||0);
+    });
+
+    return {
+        required,
+        kitted,
+        pct:
+            required ?
+            kitted/required :
+            0
+    };
 }
 
-function totals(u){
- let total=0,picked=0;
- u.sources.forEach(s=>{
-  total+=Number(s.totalParts||0);
-  picked+=Number(s.pickedParts||0);
- });
- return {total,picked,pct:total?picked/total:0};
+function unitTotals(unit){
+
+    let required=0;
+    let kitted=0;
+
+    unit.sources.forEach(source=>{
+
+        const x=
+            sourceTotals(source);
+
+        required+=x.required;
+        kitted+=x.kitted;
+    });
+
+    return {
+        required,
+        kitted,
+        pct:
+            required ?
+            kitted/required :
+            0
+    };
 }
 
-function statusFor(u){
+function allPickerSubmitted(unit){
 
- const open=openShortages(u.id);
- const allPicker=u.sources.every(s=>s.pickerSubmitted);
- const allQC=u.sources.every(s=>s.qcSubmitted);
+    return unit.sources
+        .filter(s=>s.lines.length)
+        .every(s=>s.pickerSubmitted);
+}
 
- if(open.length && t1(u) && t1(u)<new Date())
-  return {text:"T-1 SHORTAGE RISK",css:"red"};
+function allQCSubmitted(unit){
 
- if(u.pcSubmitted && open.length)
-  return {text:"T-1 RECOVERY",css:"yellow"};
+    return unit.sources
+        .filter(s=>s.lines.length)
+        .every(s=>s.qcSubmitted);
+}
 
- if(u.pcSubmitted && !open.length)
-  return {text:"PC VERIFIED",css:"green"};
+function statusFor(unit){
 
- if(u.t3Delivered)
-  return {text:"READY FOR PC VERIFICATION",css:"purple"};
+    if(
+        openShortages(unit.id).length &&
+        t1(unit) &&
+        t1(unit)<new Date()
+    ){
+        return {
+            text:"T-1 SHORTAGE RISK",
+            css:"red"
+        };
+    }
 
- if(allQC)
-  return {text:"READY FOR T-3 DELIVERY",css:"yellow"};
+    if(unit.pcSubmitted){
 
- if(allPicker)
-  return {text:"WAREHOUSE QC",css:"yellow"};
+        if(openShortages(unit.id).length){
+            return {
+                text:"T-1 RECOVERY",
+                css:"yellow"
+            };
+        }
 
- return {text:"KITTING",css:"gray"};
+        return {
+            text:"PC VERIFIED",
+            css:"green"
+        };
+    }
+
+    if(unit.t3Delivered){
+        return {
+            text:"READY FOR PC VERIFICATION",
+            css:"purple"
+        };
+    }
+
+    if(allQCSubmitted(unit)){
+        return {
+            text:"READY FOR T-3 DELIVERY",
+            css:"yellow"
+        };
+    }
+
+    if(allPickerSubmitted(unit)){
+        return {
+            text:"WAREHOUSE QC",
+            css:"yellow"
+        };
+    }
+
+    return {
+        text:"KITTING",
+        css:"gray"
+    };
 }
 
 
 /* =========================================================
-   NAV
+   NAVIGATION
 ========================================================= */
 
-function showPage(id,btn){
- document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
- document.getElementById(id).classList.add("active");
- document.querySelectorAll(".mainnav button").forEach(x=>x.classList.remove("active"));
- btn.classList.add("active");
- renderAll();
+function showPage(id,button){
+
+    document.querySelectorAll(".page")
+        .forEach(
+            x=>x.classList.remove("active")
+        );
+
+    document.getElementById(id)
+        .classList.add("active");
+
+    document.querySelectorAll(".mainnav button")
+        .forEach(
+            x=>x.classList.remove("active")
+        );
+
+    button.classList.add("active");
+
+    renderAll();
 }
 
 
 /* =========================================================
-   MOD WORKSPACES
+   MOD TABS
 ========================================================= */
 
 function buildModTabs(){
- const box=document.getElementById("modTabs");
- box.innerHTML="";
 
- ["ALL",...MODS].forEach(m=>{
-  const b=document.createElement("button");
-  b.textContent=m==="ALL"?"ALL":"MOD "+m;
-  if(selectedMod===m)b.classList.add("active");
+    const holder=
+        document.getElementById("modTabs");
 
-  b.onclick=()=>{
-   selectedMod=m;
-   buildModTabs();
-   renderKitting();
-  };
+    holder.innerHTML="";
 
-  box.appendChild(b);
- });
+    ["ALL",...MODS].forEach(mod=>{
+
+        const button=
+            document.createElement("button");
+
+        button.textContent=
+            mod==="ALL" ?
+            "ALL" :
+            "MOD "+mod;
+
+        if(selectedMod===mod){
+            button.classList.add("active");
+        }
+
+        button.onclick=()=>{
+
+            selectedMod=mod;
+
+            buildModTabs();
+            renderKitting();
+        };
+
+        holder.appendChild(button);
+    });
 }
 
 function visibleUnits(){
 
- const now=new Date();
+    const now=new Date();
 
- if(selectedMod==="ALL"){
-  return [...db.subunits]
-   .filter(u=>dt(u.productionStart)>=now)
-   .sort((a,b)=>dt(a.productionStart)-dt(b.productionStart))
-   .slice(0,10);
- }
+    if(selectedMod==="ALL"){
 
- const units=db.subunits.filter(u=>u.mod===selectedMod);
+        return [...db.subunits]
 
- const old=units
-  .filter(u=>dt(u.productionStart)<now)
-  .sort((a,b)=>dt(b.productionStart)-dt(a.productionStart));
+            .filter(
+                u=>
+                dt(u.productionStart) &&
+                dt(u.productionStart)>=now
+            )
 
- const next=units
-  .filter(u=>dt(u.productionStart)>=now)
-  .sort((a,b)=>dt(a.productionStart)-dt(b.productionStart))
-  .slice(0,10);
+            .sort(
+                (a,b)=>
+                dt(a.productionStart)-
+                dt(b.productionStart)
+            )
 
- return [...old,...next];
+            .slice(0,10);
+    }
+
+    const units=
+        db.subunits.filter(
+            u=>u.mod===selectedMod
+        );
+
+    const previous=
+        units
+        .filter(
+            u=>
+            dt(u.productionStart) &&
+            dt(u.productionStart)<now
+        )
+        .sort(
+            (a,b)=>
+            dt(b.productionStart)-
+            dt(a.productionStart)
+        );
+
+    const upcoming=
+        units
+        .filter(
+            u=>
+            dt(u.productionStart) &&
+            dt(u.productionStart)>=now
+        )
+        .sort(
+            (a,b)=>
+            dt(a.productionStart)-
+            dt(b.productionStart)
+        )
+        .slice(0,10);
+
+    return [
+        ...previous,
+        ...upcoming
+    ];
 }
 
 
 /* =========================================================
-   MAIN KITTING VIEW
+   MAIN KITTING PLAN
 ========================================================= */
 
 function renderKitting(){
 
- let units=visibleUnits();
+    let units=
+        visibleUnits();
 
- const q=document.getElementById("unitSearch").value.toLowerCase();
+    const search=
+        document.getElementById("unitSearch")
+        .value
+        .toLowerCase();
 
- units=units.filter(u=>u.subunit.toLowerCase().includes(q));
+    units=
+        units.filter(
+            u=>
+            u.subunit
+            .toLowerCase()
+            .includes(search)
+        );
 
- document.getElementById("workspaceTitle").textContent=
-  selectedMod==="ALL"?"ALL MODs":"MOD "+selectedMod;
+    document.getElementById("workspaceTitle")
+        .textContent=
+        selectedMod==="ALL" ?
+        "ALL MODs" :
+        "MOD "+selectedMod;
 
- document.getElementById("workspaceDescription").textContent=
-  selectedMod==="ALL"?
-  "Next 10 upcoming subunits":
-  "Previous units + next 10 upcoming units";
+    document.getElementById("workspaceDescription")
+        .textContent=
+        selectedMod==="ALL" ?
+        "Next 10 upcoming subunits" :
+        "Previous units + next 10 upcoming units";
 
- let html=`
- <table>
- <thead><tr>
- <th>Priority</th><th>MOD</th><th>Subunit</th>
- <th>Production Start</th><th>T-3 Delivery</th>
- <th>T-2 Verification</th><th>T-1 Recovery</th>
- <th>Picked Parts</th><th>Open Shortages</th>
- <th>Current Stage</th><th>Action</th>
- </tr></thead><tbody>`;
+    let html=`
 
- units.forEach(u=>{
+    <table>
 
-  const x=totals(u);
-  const st=statusFor(u);
+    <thead>
 
-  html+=`
-  <tr>
-   <td>${esc(u.priority)}</td>
-   <td>${esc(u.mod)}</td>
-   <td><b>${esc(u.subunit)}</b></td>
-   <td>${fmt(u.productionStart)}</td>
-   <td>${fmt(t3(u))}</td>
-   <td>${fmt(t2(u))}</td>
-   <td>${fmt(t1(u))}</td>
-   <td>${x.picked}/${x.total} (${(x.pct*100).toFixed(0)}%)</td>
-   <td>${openShortages(u.id).length}</td>
-   <td><span class="status ${st.css}">${st.text}</span></td>
-   <td><button class="primary" onclick="openDetail('${u.id}')">Open Details</button></td>
-  </tr>`;
- });
+    <tr>
+        <th>Priority</th>
+        <th>MOD</th>
+        <th>Subunit</th>
+        <th>SYSPRO Pick Ticket</th>
+        <th>Production Start</th>
+        <th>T-3 Delivery</th>
+        <th>T-2 PC Verification</th>
+        <th>T-1 Recovery</th>
+        <th>Kitted Qty</th>
+        <th>Open Shortages</th>
+        <th>Current Stage</th>
+        <th>Action</th>
+    </tr>
 
- html+="</tbody></table>";
+    </thead>
 
- document.getElementById("subunitTable").innerHTML=html;
+    <tbody>
+    `;
 
- document.getElementById("kpiUnits").textContent=units.length;
- document.getElementById("kpiDelivered").textContent=units.filter(u=>u.t3Delivered).length;
- document.getElementById("kpiPC").textContent=units.filter(u=>u.t3Delivered&&!u.pcSubmitted).length;
- document.getElementById("kpiShort").textContent=units.reduce((n,u)=>n+openShortages(u.id).length,0);
- document.getElementById("kpiRisk").textContent=
-  units.filter(u=>openShortages(u.id).length&&t1(u)&&t1(u)<new Date()).length;
+    units.forEach(unit=>{
+
+        const x=
+            unitTotals(unit);
+
+        const status=
+            statusFor(unit);
+
+        html+=`
+
+        <tr>
+
+        <td>${esc(unit.priority)}</td>
+
+        <td>${esc(unit.mod)}</td>
+
+        <td>
+        <b>${esc(unit.subunit)}</b>
+        </td>
+
+        <td>
+        ${esc(unit.pickTicket||"")}
+        </td>
+
+        <td>
+        ${fmt(unit.productionStart)}
+        </td>
+
+        <td>
+        ${fmt(t3(unit))}
+        </td>
+
+        <td>
+        ${fmt(t2(unit))}
+        </td>
+
+        <td>
+        ${fmt(t1(unit))}
+        </td>
+
+        <td>
+        ${x.kitted}/${x.required}
+        (${(x.pct*100).toFixed(0)}%)
+        </td>
+
+        <td>
+        ${openShortages(unit.id).length}
+        </td>
+
+        <td>
+        <span class="status ${status.css}">
+        ${status.text}
+        </span>
+        </td>
+
+        <td>
+
+        <button
+        class="primary"
+        onclick="openDetail('${unit.id}')">
+
+        Open Details
+
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+="</tbody></table>";
+
+    document.getElementById("subunitTable")
+        .innerHTML=html;
+
+    document.getElementById("kpiUnits")
+        .textContent=
+        units.length;
+
+    document.getElementById("kpiDelivered")
+        .textContent=
+        units.filter(
+            u=>u.t3Delivered
+        ).length;
+
+    document.getElementById("kpiPC")
+        .textContent=
+        units.filter(
+            u=>
+            u.t3Delivered &&
+            !u.pcSubmitted
+        ).length;
+
+    document.getElementById("kpiShort")
+        .textContent=
+        units.reduce(
+            (n,u)=>
+            n+
+            openShortages(u.id).length,
+            0
+        );
+
+    document.getElementById("kpiRisk")
+        .textContent=
+        units.filter(
+            u=>
+            openShortages(u.id).length &&
+            t1(u) &&
+            t1(u)<new Date()
+        ).length;
 }
 
 
@@ -618,64 +1844,104 @@ function renderKitting(){
 
 function openAddSubunit(){
 
- addMod.innerHTML=MODS.map(m=>`<option>${m}</option>`).join("");
+    const select=
+        document.getElementById("addMod");
 
- if(selectedMod!=="ALL")addMod.value=selectedMod;
+    select.innerHTML=
+        MODS.map(
+            m=>
+            `<option value="${m}">
+            ${m}
+            </option>`
+        ).join("");
 
- addPriority.value="1";
- addSubunit.value="";
- addProduction.value="";
- addComments.value="";
+    if(selectedMod!=="ALL"){
+        select.value=selectedMod;
+    }
 
- addModal.classList.add("open");
+    document.getElementById("addPriority").value="1";
+    document.getElementById("addSubunit").value="";
+    document.getElementById("addProduction").value="";
+    document.getElementById("addComments").value="";
+
+    document.getElementById("addModal")
+        .classList.add("open");
 }
 
 function saveNewSubunit(){
 
- const sub=addSubunit.value.trim();
+    const mod=
+        document.getElementById("addMod").value;
 
- if(!sub||!addProduction.value){
-  alert("Subunit and Production Start are required.");
-  return;
- }
+    const subunit=
+        document.getElementById("addSubunit")
+        .value
+        .trim();
 
- if(db.subunits.some(u=>u.mod===addMod.value&&u.subunit.toLowerCase()===sub.toLowerCase())){
-  alert("This MOD/Subunit already exists.");
-  return;
- }
+    const productionStart=
+        document.getElementById("addProduction")
+        .value;
 
- db.subunits.push({
-  id:uid(),
-  priority:addPriority.value,
-  mod:addMod.value,
-  subunit:sub,
-  productionStart:addProduction.value,
-  comments:addComments.value,
+    if(!subunit||!productionStart){
 
-  sources:SOURCES.map(name=>({
-   id:uid(),
-   name,
-   totalParts:"",
-   pickedParts:"",
-   planningCT:"",
-   actualStart:"",
-   actualFinish:"",
-   pickerSubmitted:false,
-   pickerSubmittedTime:"",
-   qcVerifiedQty:"",
-   qcSubmitted:false,
-   qcSubmittedTime:""
-  })),
+        alert(
+            "Subunit and Production Start are required."
+        );
 
-  t3Delivered:false,
-  t3DeliveredTime:"",
-  pcLines:[],
-  pcSubmitted:false,
-  pcSubmittedTime:""
- });
+        return;
+    }
 
- closeModal("addModal");
- saveDB();
+    const duplicate=
+        db.subunits.some(
+            u=>
+            u.mod===mod &&
+            u.subunit.toLowerCase()===
+            subunit.toLowerCase()
+        );
+
+    if(duplicate){
+
+        alert(
+            "This MOD / Subunit already exists."
+        );
+
+        return;
+    }
+
+    const unit={
+
+        id:uid(),
+
+        priority:
+            document.getElementById("addPriority").value,
+
+        mod,
+
+        subunit,
+
+        productionStart,
+
+        comments:
+            document.getElementById("addComments").value,
+
+        pickTicket:"",
+
+        sources:[],
+
+        t3Delivered:false,
+        t3DeliveredTime:"",
+
+        pcSubmitted:false,
+        pcSubmittedTime:""
+    };
+
+    loadSysproTicket(unit);
+
+    db.subunits.push(unit);
+
+    closeModal("addModal");
+
+    saveDB();
 }
 
 
@@ -684,209 +1950,1263 @@ function saveNewSubunit(){
 ========================================================= */
 
 function openDetail(id){
- currentDetailId=id;
- renderDetail(id);
- detailModal.classList.add("open");
+
+    currentDetailId=id;
+
+    renderDetail(id);
+
+    document.getElementById("detailModal")
+        .classList.add("open");
 }
 
 function renderDetail(id){
 
- const u=db.subunits.find(x=>x.id===id);
- if(!u)return;
+    const unit=
+        db.subunits.find(
+            u=>u.id===id
+        );
 
- const x=totals(u);
- const st=statusFor(u);
+    if(!unit)return;
 
- let html=`
- <div class="toolbar">
-  <div>
-   <h2 style="margin:0">MOD ${esc(u.mod)} — ${esc(u.subunit)}</h2>
-   <span class="small">Production Start: ${fmt(u.productionStart)}</span>
-  </div>
-  <div class="right">
-   <span class="status ${st.css}">${st.text}</span>
-   <button class="secondary" onclick="currentDetailId=null;closeModal('detailModal')">Close</button>
-  </div>
- </div>
+    const total=
+        unitTotals(unit);
 
- <div class="detailHeader">
-  <b>Picked:</b> ${x.picked}/${x.total} (${(x.pct*100).toFixed(0)}%)
-  &nbsp;&nbsp; <b>Open Shortages:</b> ${openShortages(u.id).length}
-  <br><br>
-  <b>T-3 Delivery:</b> ${fmt(t3(u))}
-  &nbsp;&nbsp; <b>T-2 Production Control:</b> ${fmt(t2(u))}
-  &nbsp;&nbsp; <b>T-1 Recovery:</b> ${fmt(t1(u))}
- </div>
+    const status=
+        statusFor(unit);
 
- <h3 class="sectionTitle">Workflow</h3>
- ${workflowHTML(u)}
+    let html=`
 
- <h3 class="sectionTitle">1. Warehouse Picker — Source Kitting</h3>
- <div class="note">
- Picker works from the ERP pick ticket. If stock is unavailable, record the missing part under that source. When the source is finished, submit the source for Warehouse QC.
- </div>`;
+    <div class="toolbar">
 
- u.sources.forEach(s=>{
-  html+=sourceHTML(u,s);
- });
+    <div>
 
- html+=`
- <h3 class="sectionTitle">2. Warehouse QC</h3>
- <div class="note">
- Warehouse QC independently verifies the material physically kitted by the picker. Any discrepancy is submitted as a QC shortage to the Warehouse Supervisor.
- </div>
- ${qcTableHTML(u)}
+        <h2 style="margin:0">
+        MOD ${esc(unit.mod)}
+        — ${esc(unit.subunit)}
+        </h2>
 
- <h3 class="sectionTitle">3. T-3 Delivery</h3>
- ${deliveryHTML(u)}
+        <span class="small">
+        Production Start:
+        ${fmt(unit.productionStart)}
+        </span>
 
- <h3 class="sectionTitle">4. T-2 Production Control Verification</h3>
- ${pcSectionHTML(u)}
+    </div>
 
- <h3 class="sectionTitle">5. T-1 Shortage Recovery</h3>
- ${recoveryHTML(u)}
+    <div class="right">
 
- <h3 class="sectionTitle">Production Information</h3>
- <div class="grid">
-  <label>Priority<input value="${esc(u.priority)}" onchange="updateUnit('${u.id}','priority',this.value)"></label>
-  <label>Production Start<input type="datetime-local" value="${u.productionStart}" onchange="updateUnit('${u.id}','productionStart',this.value)"></label>
-  <label>Comments<textarea onchange="updateUnit('${u.id}','comments',this.value)">${esc(u.comments||"")}</textarea></label>
- </div>`;
+        <span class="status ${status.css}">
+        ${status.text}
+        </span>
 
- document.getElementById("detailContent").innerHTML=html;
+        <button
+        class="secondary"
+        onclick="
+            currentDetailId=null;
+            closeModal('detailModal')
+        ">
+        Close
+        </button>
+
+    </div>
+
+    </div>
+
+
+    <div class="erpBanner">
+
+    <b>SYSPRO 8 Pick Ticket:</b>
+    ${esc(unit.pickTicket)}
+
+    &nbsp;&nbsp;
+
+    <b>Integration:</b>
+    <span class="status yellow">
+    DEMONSTRATION / MOCK ERP
+    </span>
+
+    <br><br>
+
+    <b>Required Qty:</b>
+    ${total.required}
+
+    &nbsp;&nbsp;
+
+    <b>Kitted Qty:</b>
+    ${total.kitted}
+
+    &nbsp;&nbsp;
+
+    <b>Overall:</b>
+    ${(total.pct*100).toFixed(0)}%
+
+    </div>
+
+
+    <div class="detailHeader">
+
+    <b>T-3 Delivery:</b>
+    ${fmt(t3(unit))}
+
+    &nbsp;&nbsp;
+
+    <b>T-2 Production Control:</b>
+    ${fmt(t2(unit))}
+
+    &nbsp;&nbsp;
+
+    <b>T-1 Recovery:</b>
+    ${fmt(t1(unit))}
+
+    &nbsp;&nbsp;
+
+    <b>Open Shortages:</b>
+    ${openShortages(unit.id).length}
+
+    </div>
+
+
+    <h3 class="sectionTitle">
+    Workflow
+    </h3>
+
+    ${workflowHTML(unit)}
+
+
+    <h3 class="sectionTitle">
+    1. Warehouse Picker — SYSPRO Pick Ticket
+    </h3>
+
+    <div class="note">
+    The table below represents the pick ticket received from SYSPRO 8.
+    Stock code, description, required quantity, warehouse location and barcode are ERP-controlled fields.
+    The picker scans material and posts a picking transaction.
+    </div>
+    `;
+
+    unit.sources.forEach(source=>{
+
+        if(source.lines.length){
+
+            html+=
+                sourcePickHTML(
+                    unit,
+                    source
+                );
+        }
+    });
+
+
+    html+=`
+
+    <h3 class="sectionTitle">
+    2. Warehouse QC
+    </h3>
+
+    ${warehouseQCHTML(unit)}
+
+
+    <h3 class="sectionTitle">
+    3. T-3 Delivery
+    </h3>
+
+    ${deliveryHTML(unit)}
+
+
+    <h3 class="sectionTitle">
+    4. T-2 Production Control Verification
+    </h3>
+
+    ${pcHTML(unit)}
+
+
+    <h3 class="sectionTitle">
+    5. T-1 Shortage Recovery
+    </h3>
+
+    ${recoveryHTML(unit)}
+
+
+    <h3 class="sectionTitle">
+    Production Information
+    </h3>
+
+    <div class="grid">
+
+    <label>
+    Priority
+
+    <input
+    value="${esc(unit.priority)}"
+    onchange="
+        updateUnit(
+            '${unit.id}',
+            'priority',
+            this.value
+        )
+    ">
+    </label>
+
+
+    <label>
+    Production Start
+
+    <input
+    type="datetime-local"
+    value="${unit.productionStart}"
+    onchange="
+        updateUnit(
+            '${unit.id}',
+            'productionStart',
+            this.value
+        )
+    ">
+    </label>
+
+
+    <label>
+    Comments
+
+    <textarea
+    onchange="
+        updateUnit(
+            '${unit.id}',
+            'comments',
+            this.value
+        )
+    ">${esc(unit.comments||"")}</textarea>
+
+    </label>
+
+    </div>
+    `;
+
+    document.getElementById("detailContent")
+        .innerHTML=html;
 }
 
 
 /* =========================================================
-   WORKFLOW VISUAL
+   WORKFLOW
 ========================================================= */
 
-function workflowHTML(u){
+function workflowHTML(unit){
 
- const picker=u.sources.every(s=>s.pickerSubmitted);
- const qc=u.sources.every(s=>s.qcSubmitted);
+    const picker=
+        allPickerSubmitted(unit);
 
- const stages=[
-  ["Kitting",picker,picker?"Submitted":"In Progress"],
-  ["Warehouse QC",qc,qc?"Verified":"Pending"],
-  ["T-3 Delivered",u.t3Delivered,u.t3Delivered?fmt(u.t3DeliveredTime):"Due "+fmt(t3(u))],
-  ["T-2 PC Verified",u.pcSubmitted,u.pcSubmitted?fmt(u.pcSubmittedTime):"Due "+fmt(t2(u))],
-  ["T-1 Recovery",openShortages(u.id).length===0,u.pcSubmitted?(openShortages(u.id).length+" open"):"Pending"]
- ];
+    const qc=
+        allQCSubmitted(unit);
 
- return `<div class="process">`+
- stages.map((s,i)=>`
-  <div class="stage ${s[1]?"done":"pending"}">
-   <b>${s[0]}</b><p>${s[2]}</p>
-  </div>${i<stages.length-1?'<div class="arrow">→</div>':''}`
- ).join("")+
- `</div>`;
+    const stages=[
+
+        {
+            name:"SYSPRO Kitting",
+            done:picker,
+            detail:
+                picker ?
+                "All sources submitted" :
+                "In Progress"
+        },
+
+        {
+            name:"Warehouse QC",
+            done:qc,
+            detail:
+                qc ?
+                "QC Complete" :
+                "Pending"
+        },
+
+        {
+            name:"T-3 Delivered",
+            done:unit.t3Delivered,
+            detail:
+                unit.t3Delivered ?
+                fmt(unit.t3DeliveredTime) :
+                "Due "+fmt(t3(unit))
+        },
+
+        {
+            name:"T-2 PC Verification",
+            done:unit.pcSubmitted,
+            detail:
+                unit.pcSubmitted ?
+                fmt(unit.pcSubmittedTime) :
+                "Due "+fmt(t2(unit))
+        },
+
+        {
+            name:"T-1 Recovery",
+            done:
+                unit.pcSubmitted &&
+                openShortages(unit.id).length===0,
+            detail:
+                unit.pcSubmitted ?
+                openShortages(unit.id).length+
+                " open shortage(s)" :
+                "Pending"
+        }
+    ];
+
+    return `
+
+    <div class="process">
+
+    ${
+        stages.map(
+            (stage,index)=>
+            `
+            <div class="stage ${
+                stage.done ?
+                "done" :
+                "pending"
+            }">
+
+            <b>${stage.name}</b>
+
+            <p>${stage.detail}</p>
+
+            </div>
+
+            ${
+                index<stages.length-1 ?
+                '<div class="arrow">→</div>' :
+                ''
+            }
+            `
+        ).join("")
+    }
+
+    </div>
+    `;
 }
 
 
 /* =========================================================
-   PICKER
+   PICKER SOURCE TABLE
 ========================================================= */
 
-function sourceHTML(u,s){
+function sourcePickHTML(unit,source){
 
- const shorts=sourceShortages(u.id,s.id,"PICKER")
-  .filter(x=>shortageCalc(x).status!=="CLOSED");
+    const totals=
+        sourceTotals(source);
 
- return `
- <div class="sourceCard">
+    let html=`
 
-  <div class="sourceHead">
-   <div><b>${esc(s.name)}</b></div>
-   <span class="status ${s.pickerSubmitted?'green':'gray'}">
-    ${s.pickerSubmitted?'PICK SUBMITTED':'KITTING'}
-   </span>
-  </div>
+    <div class="sourceCard">
 
-  <div class="sourceBody">
+    <div class="sourceHead">
 
-   <div class="grid">
-    <label>Total Parts on Pick Ticket
-     <input type="number" min="0" value="${s.totalParts}"
-      onchange="updateSource('${u.id}','${s.id}','totalParts',this.value)">
-    </label>
+    <div>
 
-    <label>Parts Kitted
-     <input type="number" min="0" value="${s.pickedParts}"
-      onchange="updateSource('${u.id}','${s.id}','pickedParts',this.value)">
-    </label>
+        <b>${esc(source.name)}</b>
 
-    <label>Planning CT (hr)
-     <input type="number" step=".1" value="${s.planningCT}"
-      onchange="updateSource('${u.id}','${s.id}','planningCT',this.value)">
-    </label>
+        &nbsp;
 
-    <label>Calculated Kit Start
-     <input value="${fmt(plannedStart(u,s))}" disabled>
-    </label>
+        <span class="small">
+        ${source.lines.length}
+        SYSPRO line(s)
+        </span>
 
-    <label>Actual Kit Start
-     <input type="datetime-local" value="${s.actualStart||""}"
-      onchange="updateSource('${u.id}','${s.id}','actualStart',this.value)">
-    </label>
+    </div>
 
-    <label>Actual Kit Finish
-     <input type="datetime-local" value="${s.actualFinish||""}"
-      onchange="updateSource('${u.id}','${s.id}','actualFinish',this.value)">
-    </label>
-   </div>
+    <span class="status ${
+        source.pickerSubmitted ?
+        "green" :
+        "gray"
+    }">
 
-   <br>
+    ${
+        source.pickerSubmitted ?
+        "PICK SUBMITTED" :
+        "KITTING"
+    }
 
-   <button class="warning"
-    onclick="openShortage('${u.id}','${s.id}','PICKER')">
-    + Stock Shortage
-   </button>
+    </span>
 
-   <button class="success"
-    onclick="submitPicker('${u.id}','${s.id}')"
-    ${s.pickerSubmitted?'disabled':''}>
-    ${s.pickerSubmitted?'Submitted to QC':'Submit Kitting'}
-   </button>
+    </div>
 
-   <span class="small">
-    ${shorts.length} open picker shortage(s)
-   </span>
 
-  </div>
- </div>`;
+    <div class="sourceBody">
+
+    <div class="toolbar">
+
+        <b>
+        ${totals.kitted}
+        /
+        ${totals.required}
+        qty kitted
+        </b>
+
+        <span>
+        ${(totals.pct*100).toFixed(0)}%
+        </span>
+
+    </div>
+
+    <div class="progressOuter">
+
+        <div
+        class="progressInner"
+        style="
+        width:
+        ${Math.min(100,totals.pct*100)}%
+        ">
+        </div>
+
+    </div>
+
+    <br>
+
+
+    <table>
+
+    <thead>
+
+    <tr>
+
+        <th>Status</th>
+        <th>Stock Code</th>
+        <th>Description</th>
+        <th>Required Qty</th>
+        <th>Location</th>
+        <th>Kitted Qty</th>
+        <th>Remaining</th>
+        <th>SYSPRO Barcode</th>
+        <th>Picker Action</th>
+        <th>Label</th>
+        <th>Shortage</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    source.lines.forEach(line=>{
+
+        const required=
+            Number(line.requiredQty||0);
+
+        const kitted=
+            Number(line.kittedQty||0);
+
+        const remaining=
+            Math.max(
+                0,
+                required-kitted
+            );
+
+        let rowClass="";
+
+        if(kitted>=required){
+            rowClass="lineComplete";
+        }
+        else if(kitted>0){
+            rowClass="linePartial";
+        }
+
+        html+=`
+
+        <tr class="${rowClass}">
+
+        <td>
+
+        <span class="status ${
+            remaining===0 ?
+            "green" :
+            kitted>0 ?
+            "yellow" :
+            "gray"
+        }">
+
+        ${
+            remaining===0 ?
+            "COMPLETE" :
+            kitted>0 ?
+            "PARTIAL" :
+            "NOT PICKED"
+        }
+
+        </span>
+
+        </td>
+
+
+        <td>
+        <b>${esc(line.stockCode)}</b>
+        </td>
+
+
+        <td>
+        ${esc(line.description)}
+        </td>
+
+
+        <td>
+        ${line.requiredQty}
+        </td>
+
+
+        <td>
+        <b>${esc(line.location)}</b>
+        </td>
+
+
+        <td>
+        <b>${line.kittedQty}</b>
+        </td>
+
+
+        <td>
+        ${remaining}
+        </td>
+
+
+        <td>
+
+        <div class="barcode">
+        ${fakeBarcode(line.barcode)}
+        </div>
+
+        <div class="small">
+        ${esc(line.barcode)}
+        </div>
+
+        </td>
+
+
+        <td>
+
+        <button
+        class="primary"
+        onclick="
+            openPickTransaction(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}'
+            )
+        ">
+
+        Scan / Pick
+
+        </button>
+
+        </td>
+
+
+        <td>
+
+        <button
+        class="secondary"
+        ${
+            kitted<=0 ?
+            "disabled" :
+            ""
+        }
+        onclick="
+            openLabel(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}'
+            )
+        ">
+
+        Print Label
+
+        </button>
+
+        </td>
+
+
+        <td>
+
+        <button
+        class="warning"
+        onclick="
+            openLineShortage(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}',
+                'PICKER'
+            )
+        ">
+
+        Stock Shortage
+
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+=`
+
+    </tbody>
+    </table>
+
+    <br>
+
+    <button
+    class="success"
+    ${
+        source.pickerSubmitted ?
+        "disabled" :
+        ""
+    }
+    onclick="
+        submitSourcePicking(
+            '${unit.id}',
+            '${source.id}'
+        )
+    ">
+
+    ${
+        source.pickerSubmitted ?
+        "Kitting Submitted" :
+        "Submit Source Kitting"
+    }
+
+    </button>
+
+    </div>
+    </div>
+    `;
+
+    return html;
 }
 
-function submitPicker(unitId,sourceId){
 
- const u=db.subunits.find(x=>x.id===unitId);
- const s=u.sources.find(x=>x.id===sourceId);
+/* =========================================================
+   PICK TRANSACTION
+========================================================= */
 
- if(!s.totalParts){
-  alert("Enter total parts from the ERP pick ticket first.");
-  return;
- }
+function openPickTransaction(
+    unitId,
+    sourceId,
+    lineId
+){
 
- s.pickerSubmitted=true;
- s.pickerSubmittedTime=new Date().toISOString();
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
 
- const shorts=sourceShortages(unitId,sourceId,"PICKER")
-  .filter(x=>shortageCalc(x).status!=="CLOSED");
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
 
- const subject=`Kitting Submitted - MOD ${u.mod} ${u.subunit} - ${s.name}`;
+    const line=
+        source.lines.find(
+            l=>l.id===lineId
+        );
 
- const body=
- `MOD: ${u.mod}
-Subunit: ${u.subunit}
-Source: ${s.name}
-Pick Ticket Parts: ${s.totalParts}
-Kitted Parts: ${s.pickedParts}
-Open Stock Shortages: ${shorts.length}
-T-3 Delivery Due: ${fmt(t3(u))}`;
+    currentPick={
+        unitId,
+        sourceId,
+        lineId
+    };
 
- createNotification("PICKER",u,s,subject,body);
+    const remaining=
+        Math.max(
+            0,
+            Number(line.requiredQty)-
+            Number(line.kittedQty)
+        );
 
- saveDB();
+    document.getElementById("pickInfo")
+        .innerHTML=`
+
+        <div class="erpBanner">
+
+        <b>SYSPRO Pick Ticket:</b>
+        ${esc(unit.pickTicket)}
+
+        <br><br>
+
+        <b>Source:</b>
+        ${esc(source.name)}
+
+        <br>
+
+        <b>Stock Code:</b>
+        ${esc(line.stockCode)}
+
+        <br>
+
+        <b>Description:</b>
+        ${esc(line.description)}
+
+        <br>
+
+        <b>Location:</b>
+        ${esc(line.location)}
+
+        <br>
+
+        <b>Required:</b>
+        ${line.requiredQty}
+
+        <br>
+
+        <b>Already Kitted:</b>
+        ${line.kittedQty}
+
+        <br>
+
+        <b>Remaining:</b>
+        ${remaining}
+
+        </div>
+        `;
+
+    document.getElementById("pickBarcode")
+        .value="";
+
+    document.getElementById("pickQty")
+        .value=
+        remaining>0 ?
+        remaining :
+        "";
+
+    document.getElementById("pickModal")
+        .classList.add("open");
+
+    setTimeout(
+        ()=>
+        document.getElementById("pickBarcode")
+        .focus(),
+        100
+    );
+}
+
+function postPickTransaction(){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===currentPick.unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===currentPick.sourceId
+        );
+
+    const line=
+        source.lines.find(
+            l=>l.id===currentPick.lineId
+        );
+
+    const scanned=
+        document.getElementById("pickBarcode")
+        .value
+        .trim();
+
+    const qty=
+        Number(
+            document.getElementById("pickQty")
+            .value
+        );
+
+    if(
+        scanned!==line.barcode &&
+        scanned!==line.stockCode
+    ){
+
+        alert(
+            "Barcode does not match this SYSPRO stock code."
+        );
+
+        return;
+    }
+
+    if(!qty||qty<=0){
+
+        alert(
+            "Enter a valid quantity."
+        );
+
+        return;
+    }
+
+    const remaining=
+        Math.max(
+            0,
+            Number(line.requiredQty)-
+            Number(line.kittedQty)
+        );
+
+    if(qty>remaining){
+
+        alert(
+            "Quantity exceeds remaining required quantity."
+        );
+
+        return;
+    }
+
+    const response=
+        SysproAdapter
+        .postPickingTransaction(
+            line,
+            qty
+        );
+
+    if(!response.success){
+
+        alert(
+            "SYSPRO transaction failed."
+        );
+
+        return;
+    }
+
+    line.kittedQty=
+        Number(line.kittedQty)+
+        Number(response.quantityPosted);
+
+    line.transactionIds.push({
+        transactionId:
+            response.transactionId,
+        qty:
+            response.quantityPosted,
+        time:
+            response.timestamp
+    });
+
+    SysproAdapter
+        .refreshPickTicket(unit);
+
+    closeModal("pickModal");
+
+    saveDB();
+
+    alert(
+        "DEMO SYSPRO transaction posted successfully.\n\n"+
+        "Transaction: "+
+        response.transactionId
+    );
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+function openLabel(
+    unitId,
+    sourceId,
+    lineId
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const line=
+        source.lines.find(
+            l=>l.id===lineId
+        );
+
+    line.labelPrinted=true;
+
+    document.getElementById("printArea")
+        .innerHTML=`
+
+        <div style="
+        border:3px solid #111;
+        padding:22px;
+        font-family:Arial;
+        max-width:650px;
+        margin:auto;
+        ">
+
+        <div style="
+        text-align:center;
+        font-size:25px;
+        font-weight:bold;
+        margin-bottom:16px;
+        ">
+        QPAC KIT MATERIAL
+        </div>
+
+
+        <table style="
+        font-size:17px;
+        white-space:normal;
+        ">
+
+        <tr>
+        <td><b>MOD</b></td>
+        <td>${esc(unit.mod)}</td>
+        <td><b>SUBUNIT</b></td>
+        <td>${esc(unit.subunit)}</td>
+        </tr>
+
+        <tr>
+        <td><b>SOURCE</b></td>
+        <td colspan="3">
+        ${esc(source.name)}
+        </td>
+        </tr>
+
+        <tr>
+        <td><b>PICK TICKET</b></td>
+        <td colspan="3">
+        ${esc(unit.pickTicket)}
+        </td>
+        </tr>
+
+        <tr>
+        <td><b>STOCK CODE</b></td>
+        <td colspan="3">
+        ${esc(line.stockCode)}
+        </td>
+        </tr>
+
+        <tr>
+        <td><b>DESCRIPTION</b></td>
+        <td colspan="3">
+        ${esc(line.description)}
+        </td>
+        </tr>
+
+        <tr>
+        <td><b>REQUIRED QTY</b></td>
+        <td>${line.requiredQty}</td>
+
+        <td><b>KITTED QTY</b></td>
+        <td>${line.kittedQty}</td>
+        </tr>
+
+        <tr>
+        <td><b>LOCATION</b></td>
+        <td colspan="3">
+        ${esc(line.location)}
+        </td>
+        </tr>
+
+        </table>
+
+
+        <div style="
+        margin-top:25px;
+        text-align:center;
+        font-family:'Courier New';
+        font-size:36px;
+        letter-spacing:-4px;
+        ">
+
+        ${fakeBarcode(line.barcode)}
+
+        </div>
+
+
+        <div style="
+        text-align:center;
+        font-size:18px;
+        font-weight:bold;
+        margin-top:5px;
+        ">
+
+        ${esc(line.barcode)}
+
+        </div>
+
+
+        <div style="
+        text-align:center;
+        margin-top:15px;
+        font-size:12px;
+        ">
+
+        SYSPRO 8 Integration Demonstration
+
+        </div>
+
+        </div>
+        `;
+
+    document.getElementById("labelModal")
+        .classList.add("open");
+
+    saveDB();
+}
+
+
+/* =========================================================
+   PICKER SHORTAGE
+========================================================= */
+
+function openLineShortage(
+    unitId,
+    sourceId,
+    lineId,
+    type
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const line=
+        source.lines.find(
+            l=>l.id===lineId
+        );
+
+    shortageContext={
+        unitId,
+        sourceId,
+        lineId,
+        type
+    };
+
+    document.getElementById("shortModalTitle")
+        .textContent=
+        type==="PICKER" ?
+        "Warehouse Stock Shortage" :
+        type==="QC" ?
+        "Warehouse QC Discrepancy" :
+        "Production Control Shortage";
+
+    document.getElementById("shortContext")
+        .innerHTML=`
+
+        <b>
+        MOD ${esc(unit.mod)}
+        /
+        ${esc(unit.subunit)}
+        </b>
+
+        <br>
+
+        Source:
+        ${esc(source.name)}
+
+        <br>
+
+        SYSPRO Pick Ticket:
+        ${esc(unit.pickTicket)}
+        `;
+
+    document.getElementById("shortPart")
+        .value=
+        line.stockCode;
+
+    document.getElementById("shortDesc")
+        .value=
+        line.description;
+
+    document.getElementById("shortRequired")
+        .value=
+        line.requiredQty;
+
+    if(type==="PICKER"){
+
+        document.getElementById("shortActual")
+            .value=
+            line.kittedQty;
+
+        document.getElementById("shortOwner")
+            .value=
+            "Purchaser / Material Planner";
+    }
+
+    else if(type==="QC"){
+
+        document.getElementById("shortActual")
+            .value=
+            line.qcReceivedQty||0;
+
+        document.getElementById("shortOwner")
+            .value=
+            "Warehouse Supervisor";
+    }
+
+    else{
+
+        document.getElementById("shortActual")
+            .value=
+            line.pcReceivedQty||0;
+
+        document.getElementById("shortOwner")
+            .value=
+            "Warehouse / Material Planner";
+    }
+
+    document.getElementById("shortComments")
+        .value="";
+
+    document.getElementById("shortModal")
+        .classList.add("open");
+}
+
+function saveShortage(){
+
+    const ctx=
+        shortageContext;
+
+    if(!ctx)return;
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===ctx.unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===ctx.sourceId
+        );
+
+    const required=
+        Number(
+            document.getElementById("shortRequired")
+            .value
+        );
+
+    const actual=
+        Number(
+            document.getElementById("shortActual")
+            .value
+        );
+
+    if(actual>=required){
+
+        alert(
+            "Actual quantity is not below required quantity."
+        );
+
+        return;
+    }
+
+    const shortage={
+
+        id:uid(),
+
+        type:
+            ctx.type,
+
+        subunitId:
+            unit.id,
+
+        sourceId:
+            source.id,
+
+        lineId:
+            ctx.lineId,
+
+        part:
+            document.getElementById("shortPart").value,
+
+        description:
+            document.getElementById("shortDesc").value,
+
+        requiredQty:
+            required,
+
+        actualQty:
+            actual,
+
+        recoveredQty:0,
+
+        owner:
+            document.getElementById("shortOwner").value,
+
+        comments:
+            document.getElementById("shortComments").value,
+
+        created:
+            new Date().toISOString(),
+
+        pcRecoveryConfirmed:false,
+
+        pcRecoveryConfirmedTime:""
+    };
+
+    db.shortages.push(shortage);
+
+    createNotificationForShortage(
+        shortage,
+        unit,
+        source
+    );
+
+    closeModal("shortModal");
+
+    saveDB();
+}
+
+
+/* =========================================================
+   SOURCE SUBMIT
+========================================================= */
+
+function submitSourcePicking(
+    unitId,
+    sourceId
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const incomplete=
+        source.lines.filter(
+            line=>
+            Number(line.kittedQty) <
+            Number(line.requiredQty)
+        );
+
+    if(incomplete.length){
+
+        const openForSource=
+            db.shortages.filter(
+                sh=>
+                sh.subunitId===unitId &&
+                sh.sourceId===sourceId &&
+                sh.type==="PICKER" &&
+                shortageCalc(sh).status!=="CLOSED"
+            );
+
+        if(!openForSource.length){
+
+            alert(
+                "This source still has unfilled material.\n\n"+
+                "Record the stock shortage before submitting the source."
+            );
+
+            return;
+        }
+    }
+
+    source.pickerSubmitted=true;
+
+    source.pickerSubmittedTime=
+        new Date().toISOString();
+
+    saveDB();
 }
 
 
@@ -894,89 +3214,407 @@ T-3 Delivery Due: ${fmt(t3(u))}`;
    WAREHOUSE QC
 ========================================================= */
 
-function qcTableHTML(u){
+function warehouseQCHTML(unit){
 
- let html=`<table><thead><tr>
- <th>Source</th><th>Picker Says Kitted</th>
- <th>QC Physically Verified</th><th>Difference</th>
- <th>QC Shortage</th><th>QC Status</th><th>Action</th>
- </tr></thead><tbody>`;
+    if(!allPickerSubmitted(unit)){
 
- u.sources.forEach(s=>{
+        return `
 
-  const picked=Number(s.pickedParts||0);
-  const verified=Number(s.qcVerifiedQty||0);
-  const diff=s.qcVerifiedQty===""?"":Math.max(0,picked-verified);
+        <div class="alert">
 
-  html+=`
-  <tr>
-   <td><b>${esc(s.name)}</b></td>
-   <td>${picked}</td>
-   <td>
-    <input type="number" min="0" style="width:85px"
-     value="${s.qcVerifiedQty}"
-     ${!s.pickerSubmitted?'disabled':''}
-     onchange="updateSource('${u.id}','${s.id}','qcVerifiedQty',this.value)">
-   </td>
-   <td>${diff}</td>
-   <td>
-    <button class="warning"
-     ${!s.pickerSubmitted?'disabled':''}
-     onclick="openShortage('${u.id}','${s.id}','QC')">
-     + QC Discrepancy
-    </button>
-   </td>
-   <td>
-    <span class="status ${s.qcSubmitted?'green':'gray'}">
-     ${s.qcSubmitted?'QC COMPLETE':'PENDING'}
-    </span>
-   </td>
-   <td>
-    <button class="success"
-     ${!s.pickerSubmitted||s.qcSubmitted?'disabled':''}
-     onclick="submitQC('${u.id}','${s.id}')">
-     Submit QC
-    </button>
-   </td>
-  </tr>`;
- });
+        Warehouse QC is waiting for all active source pick tickets to be submitted.
 
- return html+"</tbody></table>";
+        </div>
+        `;
+    }
+
+    let html=`
+
+    <div class="note">
+
+    QC scans the same material label and verifies the quantity physically present.
+    For this demonstration, use the Verify Source button.
+
+    </div>
+
+
+    <table>
+
+    <thead>
+
+    <tr>
+        <th>Source</th>
+        <th>Lines</th>
+        <th>Picker Kitted Qty</th>
+        <th>QC Verified Lines</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    unit.sources
+    .filter(s=>s.lines.length)
+    .forEach(source=>{
+
+        const totals=
+            sourceTotals(source);
+
+        const verified=
+            source.lines.filter(
+                l=>l.qcVerified
+            ).length;
+
+        html+=`
+
+        <tr>
+
+        <td>
+        <b>${esc(source.name)}</b>
+        </td>
+
+        <td>
+        ${source.lines.length}
+        </td>
+
+        <td>
+        ${totals.kitted}
+        </td>
+
+        <td>
+        ${verified}/${source.lines.length}
+        </td>
+
+        <td>
+
+        <span class="status ${
+            source.qcSubmitted ?
+            "green" :
+            "yellow"
+        }">
+
+        ${
+            source.qcSubmitted ?
+            "QC COMPLETE" :
+            "QC REQUIRED"
+        }
+
+        </span>
+
+        </td>
+
+        <td>
+
+        <button
+        class="primary"
+        onclick="
+            openQC(
+                '${unit.id}',
+                '${source.id}'
+            )
+        ">
+
+        Verify Source
+
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+="</tbody></table>";
+
+    return html;
 }
 
-function submitQC(unitId,sourceId){
+function openQC(
+    unitId,
+    sourceId
+){
 
- const u=db.subunits.find(x=>x.id===unitId);
- const s=u.sources.find(x=>x.id===sourceId);
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
 
- if(s.qcVerifiedQty===""){
-  alert("QC must enter the physically verified quantity.");
-  return;
- }
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
 
- s.qcSubmitted=true;
- s.qcSubmittedTime=new Date().toISOString();
+    let html=`
 
- const discrepancies=sourceShortages(unitId,sourceId,"QC")
-  .filter(x=>shortageCalc(x).status!=="CLOSED");
+    <div class="erpBanner">
 
- if(discrepancies.length){
+    <b>
+    ${esc(source.name)}
+    </b>
 
-  createNotification(
-   "QC",u,s,
-   `Warehouse QC Discrepancy - MOD ${u.mod} ${u.subunit} - ${s.name}`,
-   `Warehouse QC found discrepancy.
+    <br>
 
-MOD: ${u.mod}
-Subunit: ${u.subunit}
-Source: ${s.name}
-Picker Kitted Qty: ${s.pickedParts}
-QC Verified Qty: ${s.qcVerifiedQty}
-Open QC Discrepancies: ${discrepancies.length}`
-  );
- }
+    SYSPRO Pick Ticket:
+    ${esc(unit.pickTicket)}
 
- saveDB();
+    </div>
+
+
+    <table>
+
+    <thead>
+
+    <tr>
+        <th>Scan</th>
+        <th>Stock Code</th>
+        <th>Description</th>
+        <th>Picker Kitted</th>
+        <th>QC Physical Qty</th>
+        <th>Difference</th>
+        <th>QC Status</th>
+        <th>Shortage</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    source.lines.forEach(line=>{
+
+        const qcQty=
+            line.qcReceivedQty==="" ?
+            "" :
+            Number(line.qcReceivedQty);
+
+        const diff=
+            qcQty==="" ?
+            "" :
+            Math.max(
+                0,
+                Number(line.kittedQty)-
+                qcQty
+            );
+
+        html+=`
+
+        <tr>
+
+        <td>
+
+        <input
+        class="check"
+        type="checkbox"
+        ${line.qcVerified?"checked":""}
+        onchange="
+            updateQCLine(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}',
+                'qcVerified',
+                this.checked
+            )
+        ">
+
+        </td>
+
+
+        <td>
+        <b>${esc(line.stockCode)}</b>
+        </td>
+
+
+        <td>
+        ${esc(line.description)}
+        </td>
+
+
+        <td>
+        ${line.kittedQty}
+        </td>
+
+
+        <td>
+
+        <input
+        type="number"
+        min="0"
+        style="width:90px"
+        value="${line.qcReceivedQty}"
+        onchange="
+            updateQCLine(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}',
+                'qcReceivedQty',
+                this.value
+            )
+        ">
+
+        </td>
+
+
+        <td>
+        ${diff}
+        </td>
+
+
+        <td>
+
+        <span class="status ${
+            line.qcVerified ?
+            "green" :
+            "gray"
+        }">
+
+        ${
+            line.qcVerified ?
+            "VERIFIED" :
+            "PENDING"
+        }
+
+        </span>
+
+        </td>
+
+
+        <td>
+
+        <button
+        class="warning"
+        onclick="
+            openLineShortage(
+                '${unit.id}',
+                '${source.id}',
+                '${line.id}',
+                'QC'
+            )
+        ">
+
+        QC Shortage
+
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+=`
+
+    </tbody>
+    </table>
+
+    <br>
+
+    <button
+    class="success"
+    onclick="
+        submitQC(
+            '${unit.id}',
+            '${source.id}'
+        )
+    ">
+
+    Submit Warehouse QC
+
+    </button>
+
+    <button
+    class="secondary"
+    onclick="closeModal('qcModal')">
+
+    Close
+
+    </button>
+    `;
+
+    document.getElementById("qcContent")
+        .innerHTML=html;
+
+    document.getElementById("qcModal")
+        .classList.add("open");
+}
+
+function updateQCLine(
+    unitId,
+    sourceId,
+    lineId,
+    field,
+    value
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const line=
+        source.lines.find(
+            l=>l.id===lineId
+        );
+
+    line[field]=value;
+
+    localStorage.setItem(
+        DBKEY,
+        JSON.stringify(db)
+    );
+
+    openQC(
+        unitId,
+        sourceId
+    );
+}
+
+function submitQC(
+    unitId,
+    sourceId
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const incomplete=
+        source.lines.some(
+            line=>
+            !line.qcVerified ||
+            line.qcReceivedQty===""
+        );
+
+    if(incomplete){
+
+        alert(
+            "QC must verify every line and enter the physical quantity."
+        );
+
+        return;
+    }
+
+    source.qcSubmitted=true;
+
+    source.qcSubmittedTime=
+        new Date().toISOString();
+
+    closeModal("qcModal");
+
+    saveDB();
 }
 
 
@@ -984,50 +3622,102 @@ Open QC Discrepancies: ${discrepancies.length}`
    T-3 DELIVERY
 ========================================================= */
 
-function deliveryHTML(u){
+function deliveryHTML(unit){
 
- const qcComplete=u.sources.every(s=>s.qcSubmitted);
+    const ready=
+        allQCSubmitted(unit);
 
- return `
- <div class="rolebox">
+    return `
 
-  <b>Required T-3 Delivery:</b> ${fmt(t3(u))}
+    <div class="erpBanner">
 
-  <br><br>
+    <b>Required Delivery:</b>
+    ${fmt(t3(unit))}
 
-  ${
-   u.t3Delivered
-   ? `<span class="status green">DELIVERED ${fmt(u.t3DeliveredTime)}</span>`
-   : `<span class="status ${qcComplete?'yellow':'gray'}">
-      ${qcComplete?'READY TO DELIVER':'WAITING FOR WAREHOUSE QC'}
-      </span>`
-  }
+    <br><br>
 
-  <br><br>
+    ${
+        unit.t3Delivered ?
 
-  <button class="success"
-   ${!qcComplete||u.t3Delivered?'disabled':''}
-   onclick="confirmDelivery('${u.id}')">
-   Confirm Delivered to Production
-  </button>
+        `
+        <span class="status green">
+        DELIVERED
+        ${fmt(unit.t3DeliveredTime)}
+        </span>
+        `
 
-  ${
-   u.t3Delivered
-   ? `<div class="note"><b>Production Control:</b> Material is ready for T-2 verification.</div>`
-   : ""
-  }
+        :
 
- </div>`;
+        `
+        <span class="status ${
+            ready ?
+            "yellow" :
+            "gray"
+        }">
+
+        ${
+            ready ?
+            "READY FOR T-3 DELIVERY" :
+            "WAITING FOR WAREHOUSE QC"
+        }
+
+        </span>
+        `
+    }
+
+    <br><br>
+
+    <button
+    class="success"
+    ${
+        !ready ||
+        unit.t3Delivered ?
+        "disabled" :
+        ""
+    }
+    onclick="
+        confirmDelivery(
+            '${unit.id}'
+        )
+    ">
+
+    Confirm Delivered to Production
+
+    </button>
+
+    ${
+        unit.t3Delivered ?
+
+        `
+        <div class="note">
+
+        Material is now highlighted as
+        <b>READY FOR PRODUCTION CONTROL VERIFICATION</b>.
+
+        </div>
+        `
+
+        :
+        ""
+    }
+
+    </div>
+    `;
 }
 
 function confirmDelivery(unitId){
 
- const u=db.subunits.find(x=>x.id===unitId);
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
 
- u.t3Delivered=true;
- u.t3DeliveredTime=new Date().toISOString();
+    unit.t3Delivered=true;
 
- saveDB();
+    unit.t3DeliveredTime=
+        new Date().toISOString();
+
+    saveDB();
 }
 
 
@@ -1035,281 +3725,511 @@ function confirmDelivery(unitId){
    PRODUCTION CONTROL
 ========================================================= */
 
-function pcSectionHTML(u){
+function pcHTML(unit){
 
- if(!u.t3Delivered){
-  return `<div class="alert">
-  Production Control verification is locked until Warehouse confirms T-3 delivery.
-  </div>`;
- }
+    if(!unit.t3Delivered){
 
- const lines=buildPCLines(u);
+        return `
 
- return `
- <div class="rolebox">
+        <div class="alert">
 
-  <b>Verification Due:</b> ${fmt(t2(u))}
+        Production Control verification is locked until T-3 delivery is confirmed.
 
-  <p>
-  Production Control verifies each part/quantity physically received.
-  If required quantity is not present, the system calculates the remaining quantity.
-  </p>
+        </div>
+        `;
+    }
 
-  <button class="primary"
-   onclick="openPCVerification('${u.id}')">
-   ${u.pcSubmitted?'Review Verification':'Start Production Control Verification'}
-  </button>
+    return `
 
-  <span class="small">
-   ${lines.length} part line(s) available for verification
-  </span>
+    <div class="erpBanner">
 
- </div>`;
+    <b>Verification Due:</b>
+    ${fmt(t2(unit))}
+
+    <p>
+
+    Production Control scans the same physical material label created during picking.
+    The barcode identifies the stock code automatically.
+
+    </p>
+
+    <button
+    class="primary"
+    onclick="
+        openPC(
+            '${unit.id}'
+        )
+    ">
+
+    ${
+        unit.pcSubmitted ?
+        "Review PC Verification" :
+        "Start Barcode Verification"
+    }
+
+    </button>
+
+    </div>
+    `;
 }
 
+function openPC(unitId){
 
-/*
-The app does not have ERP part-level pick ticket lines yet.
-So PC verification lines are created from all shortage part records
-plus any manually added verification lines.
-*/
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
 
-function buildPCLines(u){
+    const allLines=
+        unit.sources
+        .flatMap(
+            source=>
+            source.lines.map(
+                line=>({
+                    source,
+                    line
+                })
+            )
+        );
 
- if(!u.pcLines)u.pcLines=[];
+    let html=`
 
- const map=new Map();
+    <div class="scanBox">
 
- u.pcLines.forEach(l=>map.set(l.id,l));
+    <b>Production Control Barcode Scanner</b>
 
- shortagesForUnit(u.id).forEach(s=>{
+    <p>
+    Scan a bag label. For the demonstration, type a barcode shown below and press Enter.
+    </p>
 
-  const key="short-"+s.id;
+    <input
+    id="pcScanInput"
+    placeholder="Scan barcode"
+    onkeydown="
+        if(event.key==='Enter'){
+            pcScan(
+                '${unit.id}',
+                this.value
+            );
+        }
+    ">
 
-  if(!map.has(key)){
-   map.set(key,{
-    id:key,
-    sourceId:s.sourceId,
-    part:s.part,
-    description:s.description,
-    requiredQty:s.requiredQty,
-    receivedQty:"",
-    verified:false
-   });
-  }
- });
+    </div>
 
- return [...map.values()];
-}
 
-function openPCVerification(unitId){
+    <table>
 
- currentPCUnit=unitId;
+    <thead>
 
- const u=db.subunits.find(x=>x.id===unitId);
+    <tr>
+        <th>Received ✓</th>
+        <th>Source</th>
+        <th>Stock Code</th>
+        <th>Description</th>
+        <th>Barcode</th>
+        <th>Required</th>
+        <th>Warehouse Kitted</th>
+        <th>PC Received</th>
+        <th>Remaining</th>
+        <th>Status</th>
+    </tr>
 
- let lines=buildPCLines(u);
+    </thead>
 
- u.pcLines=lines;
+    <tbody>
+    `;
 
- let html=`
- <div class="note">
- Check each material line physically received. Enter the actual quantity received.
- Remaining quantity is calculated automatically.
- </div>
+    allLines.forEach(item=>{
 
- <div class="toolbar">
-  <button class="secondary" onclick="addPCLine('${u.id}')">
-   + Add Part Line
-  </button>
- </div>
+        const line=
+            item.line;
 
- <table>
- <thead><tr>
-  <th>Received ✓</th><th>Source</th><th>Part</th>
-  <th>Description</th><th>Required Qty</th>
-  <th>Received Qty</th><th>Remaining</th>
- </tr></thead><tbody>`;
+        const received=
+            line.pcReceivedQty==="" ?
+            0 :
+            Number(line.pcReceivedQty);
 
- lines.forEach(l=>{
+        const remaining=
+            Math.max(
+                0,
+                Number(line.requiredQty)-
+                received
+            );
 
-  const source=u.sources.find(s=>s.id===l.sourceId);
-  const remaining=
-   l.receivedQty===""?"":Math.max(0,Number(l.requiredQty||0)-Number(l.receivedQty||0));
+        html+=`
 
-  html+=`
-  <tr>
-   <td>
-    <input class="check" type="checkbox"
-     ${l.verified?'checked':''}
-     onchange="updatePCLine('${u.id}','${l.id}','verified',this.checked)">
-   </td>
+        <tr class="${
+            line.pcVerified ?
+            remaining===0 ?
+            "lineComplete" :
+            "lineShort" :
+            ""
+        }">
 
-   <td>${esc(source?.name||"")}</td>
+        <td>
 
-   <td>
-    <input value="${esc(l.part||"")}"
-     onchange="updatePCLine('${u.id}','${l.id}','part',this.value)">
-   </td>
+        <input
+        type="checkbox"
+        class="check"
+        ${line.pcVerified?"checked":""}
+        onchange="
+            updatePCLine(
+                '${unit.id}',
+                '${item.source.id}',
+                '${line.id}',
+                'pcVerified',
+                this.checked
+            )
+        ">
 
-   <td>
-    <input value="${esc(l.description||"")}"
-     onchange="updatePCLine('${u.id}','${l.id}','description',this.value)">
-   </td>
+        </td>
 
-   <td>
-    <input type="number" min="0" style="width:85px"
-     value="${l.requiredQty||""}"
-     onchange="updatePCLine('${u.id}','${l.id}','requiredQty',this.value)">
-   </td>
 
-   <td>
-    <input type="number" min="0" style="width:85px"
-     value="${l.receivedQty||""}"
-     onchange="updatePCLine('${u.id}','${l.id}','receivedQty',this.value)">
-   </td>
+        <td>
+        ${esc(item.source.name)}
+        </td>
 
-   <td><b>${remaining}</b></td>
-  </tr>`;
- });
 
- html+=`
- </tbody></table>
+        <td>
+        <b>${esc(line.stockCode)}</b>
+        </td>
 
- <br>
 
- <button class="success" onclick="submitPCVerification('${u.id}')">
-  Submit Production Control Verification
- </button>
+        <td>
+        ${esc(line.description)}
+        </td>
 
- <button class="secondary" onclick="closeModal('pcModal')">
-  Cancel
- </button>`;
 
- document.getElementById("pcContent").innerHTML=html;
- pcModal.classList.add("open");
+        <td>
+        ${esc(line.barcode)}
+        </td>
 
- saveDB();
-}
 
-function addPCLine(unitId){
+        <td>
+        ${line.requiredQty}
+        </td>
 
- const u=db.subunits.find(x=>x.id===unitId);
 
- if(!u.pcLines)u.pcLines=[];
+        <td>
+        ${line.kittedQty}
+        </td>
 
- u.pcLines.push({
-  id:uid(),
-  sourceId:u.sources[0].id,
-  part:"",
-  description:"",
-  requiredQty:"",
-  receivedQty:"",
-  verified:false
- });
 
- localStorage.setItem(DBKEY,JSON.stringify(db));
+        <td>
 
- openPCVerification(unitId);
-}
+        <input
+        type="number"
+        min="0"
+        style="width:90px"
+        value="${line.pcReceivedQty}"
+        onchange="
+            updatePCLine(
+                '${unit.id}',
+                '${item.source.id}',
+                '${line.id}',
+                'pcReceivedQty',
+                this.value
+            )
+        ">
 
-function updatePCLine(unitId,lineId,field,value){
+        </td>
 
- const u=db.subunits.find(x=>x.id===unitId);
- const line=u.pcLines.find(x=>x.id===lineId);
 
- if(!line)return;
+        <td>
+        ${remaining}
+        </td>
 
- line[field]=value;
 
- localStorage.setItem(DBKEY,JSON.stringify(db));
+        <td>
 
- openPCVerification(unitId);
-}
+        <span class="status ${
+            line.pcVerified ?
+            remaining===0 ?
+            "green" :
+            "red" :
+            "gray"
+        }">
 
-function submitPCVerification(unitId){
+        ${
+            line.pcVerified ?
+            remaining===0 ?
+            "RECEIVED" :
+            "SHORT" :
+            "PENDING"
+        }
 
- const u=db.subunits.find(x=>x.id===unitId);
+        </span>
 
- if(!u.pcLines||!u.pcLines.length){
-  alert("There are no part lines to verify.");
-  return;
- }
+        </td>
 
- const incomplete=u.pcLines.some(l=>
-  !l.verified ||
-  l.requiredQty==="" ||
-  l.receivedQty===""
- );
-
- if(incomplete){
-  alert("Production Control must verify every line and enter required/received quantities.");
-  return;
- }
-
- let generated=0;
-
- u.pcLines.forEach(l=>{
-
-  const remaining=
-   Math.max(0,Number(l.requiredQty)-Number(l.receivedQty));
-
-  if(remaining>0){
-
-   const existing=db.shortages.find(s=>
-    s.type==="PC" &&
-    s.subunitId===u.id &&
-    s.pcLineId===l.id &&
-    shortageCalc(s).status!=="CLOSED"
-   );
-
-   if(!existing){
-
-    db.shortages.push({
-     id:uid(),
-     type:"PC",
-     subunitId:u.id,
-     sourceId:l.sourceId,
-     pcLineId:l.id,
-     part:l.part,
-     description:l.description,
-     requiredQty:l.requiredQty,
-     actualQty:l.receivedQty,
-     recoveredQty:0,
-     owner:"Warehouse / Material Planner",
-     comments:"Generated from T-2 Production Control verification.",
-     created:new Date().toISOString(),
-     pcRecoveryConfirmed:false,
-     pcRecoveryConfirmedTime:""
+        </tr>
+        `;
     });
 
-    generated++;
-   }
-  }
- });
+    html+=`
 
- u.pcSubmitted=true;
- u.pcSubmittedTime=new Date().toISOString();
+    </tbody>
+    </table>
 
- createNotification(
-  "PC",
-  u,
-  null,
-  `T-2 Production Control Verification - MOD ${u.mod} ${u.subunit}`,
-  `Production Control verification completed.
+    <br>
 
-MOD: ${u.mod}
-Subunit: ${u.subunit}
-Verification Time: ${fmt(u.pcSubmittedTime)}
-New Shortages Generated: ${generated}
-T-1 Recovery Deadline: ${fmt(t1(u))}
+    <button
+    class="success"
+    onclick="
+        submitPC(
+            '${unit.id}'
+        )
+    ">
 
-Please review and recover all open shortages before T-1 closure.`
- );
+    Submit Production Control Verification
 
- closeModal("pcModal");
+    </button>
 
- saveDB();
+    <button
+    class="secondary"
+    onclick="
+        closeModal('pcModal')
+    ">
+
+    Close
+
+    </button>
+    `;
+
+    document.getElementById("pcContent")
+        .innerHTML=html;
+
+    document.getElementById("pcModal")
+        .classList.add("open");
+
+    setTimeout(
+        ()=>
+        document.getElementById("pcScanInput")
+        ?.focus(),
+        100
+    );
+}
+
+function pcScan(
+    unitId,
+    barcode
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const value=
+        barcode.trim();
+
+    let found=null;
+
+    unit.sources.forEach(source=>{
+
+        source.lines.forEach(line=>{
+
+            if(
+                line.barcode===value ||
+                line.stockCode===value
+            ){
+
+                found={
+                    source,
+                    line
+                };
+            }
+        });
+    });
+
+    if(!found){
+
+        alert(
+            "Barcode not found on this subunit."
+        );
+
+        return;
+    }
+
+    found.line.pcReceivedQty=
+        found.line.kittedQty;
+
+    found.line.pcVerified=true;
+
+    localStorage.setItem(
+        DBKEY,
+        JSON.stringify(db)
+    );
+
+    openPC(unitId);
+}
+
+function updatePCLine(
+    unitId,
+    sourceId,
+    lineId,
+    field,
+    value
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
+
+    const line=
+        source.lines.find(
+            l=>l.id===lineId
+        );
+
+    line[field]=value;
+
+    localStorage.setItem(
+        DBKEY,
+        JSON.stringify(db)
+    );
+
+    openPC(unitId);
+}
+
+function submitPC(unitId){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
+
+    const lines=
+        unit.sources.flatMap(
+            s=>s.lines
+        );
+
+    const incomplete=
+        lines.some(
+            line=>
+            !line.pcVerified ||
+            line.pcReceivedQty===""
+        );
+
+    if(incomplete){
+
+        alert(
+            "Production Control must verify every part line."
+        );
+
+        return;
+    }
+
+    let generated=0;
+
+    unit.sources.forEach(source=>{
+
+        source.lines.forEach(line=>{
+
+            const required=
+                Number(line.requiredQty);
+
+            const received=
+                Number(line.pcReceivedQty);
+
+            const missing=
+                Math.max(
+                    0,
+                    required-received
+                );
+
+            if(missing>0){
+
+                const existing=
+                    db.shortages.find(
+                        s=>
+                        s.type==="PC" &&
+                        s.subunitId===unit.id &&
+                        s.lineId===line.id &&
+                        shortageCalc(s).status!=="CLOSED"
+                    );
+
+                if(!existing){
+
+                    db.shortages.push({
+
+                        id:uid(),
+
+                        type:"PC",
+
+                        subunitId:
+                            unit.id,
+
+                        sourceId:
+                            source.id,
+
+                        lineId:
+                            line.id,
+
+                        part:
+                            line.stockCode,
+
+                        description:
+                            line.description,
+
+                        requiredQty:
+                            required,
+
+                        actualQty:
+                            received,
+
+                        recoveredQty:0,
+
+                        owner:
+                            "Warehouse / Material Planner",
+
+                        comments:
+                            "Automatically generated from T-2 Production Control verification.",
+
+                        created:
+                            new Date().toISOString(),
+
+                        pcRecoveryConfirmed:false,
+
+                        pcRecoveryConfirmedTime:""
+                    });
+
+                    generated++;
+                }
+            }
+        });
+    });
+
+    unit.pcSubmitted=true;
+
+    unit.pcSubmittedTime=
+        new Date().toISOString();
+
+    createNotification({
+
+        type:"PC",
+
+        unit,
+
+        source:null,
+
+        subject:
+            `T-2 PC Verification - MOD ${unit.mod} ${unit.subunit}`,
+
+        message:
+            `Production Control verification completed.
+New shortages generated: ${generated}.
+T-1 Recovery Deadline: ${fmt(t1(unit))}.`
+    });
+
+    closeModal("pcModal");
+
+    saveDB();
 }
 
 
@@ -1317,296 +4237,278 @@ Please review and recover all open shortages before T-1 closure.`
    T-1 RECOVERY
 ========================================================= */
 
-function recoveryHTML(u){
+function recoveryHTML(unit){
 
- const shorts=openShortages(u.id);
+    const list=
+        openShortages(unit.id);
 
- if(!shorts.length){
-  return `<div class="note">
-   No open shortages. All recorded shortages are closed or none have been identified.
-  </div>`;
- }
+    if(!list.length){
 
- let html=`
- <div class="alert">
-  <b>T-1 Recovery Deadline:</b> ${fmt(t1(u))}<br>
-  Warehouse/material owner updates recovered quantity.
-  Production Control closes the shortage only after physically confirming receipt.
- </div>
+        return `
 
- <table>
- <thead><tr>
-  <th>Origin</th><th>Source</th><th>Part</th>
-  <th>Required</th><th>Initial Actual</th><th>Original Short</th>
-  <th>Recovered</th><th>Remaining</th><th>Owner</th>
-  <th>Status</th><th>PC Confirmation</th>
- </tr></thead><tbody>`;
+        <div class="note">
 
- shorts.forEach(s=>{
+        No open shortages.
 
-  const c=shortageCalc(s);
-  const source=u.sources.find(x=>x.id===s.sourceId);
+        </div>
+        `;
+    }
 
-  html+=`
-  <tr>
-   <td>${typeName(s.type)}</td>
-   <td>${esc(source?.name||"")}</td>
-   <td><b>${esc(s.part)}</b></td>
-   <td>${s.requiredQty}</td>
-   <td>${s.actualQty}</td>
-   <td>${c.short}</td>
+    let html=`
 
-   <td>
-    <input type="number" min="0" style="width:85px"
-     value="${s.recoveredQty||0}"
-     onchange="updateRecovery('${s.id}',this.value)">
-   </td>
+    <div class="alert">
 
-   <td><b>${c.remaining}</b></td>
-   <td>${esc(s.owner||"")}</td>
+    <b>T-1 Deadline:</b>
+    ${fmt(t1(unit))}
 
-   <td>
-    <span class="status ${c.status==="CLOSED"?"green":c.status==="RECOVERING"?"yellow":"red"}">
-     ${c.status}
-    </span>
-   </td>
+    <br>
 
-   <td>
-    <button class="success"
-     ${c.remaining>0||s.pcRecoveryConfirmed?'disabled':''}
-     onclick="confirmRecovery('${s.id}')">
-     ${s.pcRecoveryConfirmed?'Received / Closed':'Confirm Received'}
-    </button>
-   </td>
-  </tr>`;
- });
+    Warehouse/material owner updates recovery quantity.
+    Production Control closes the shortage after physically receiving the recovered material.
 
- return html+"</tbody></table>";
+    </div>
+
+
+    <table>
+
+    <thead>
+
+    <tr>
+        <th>Origin</th>
+        <th>Source</th>
+        <th>Stock Code</th>
+        <th>Description</th>
+        <th>Required</th>
+        <th>Initial Received</th>
+        <th>Original Short</th>
+        <th>Recovered</th>
+        <th>Remaining</th>
+        <th>Status</th>
+        <th>PC Confirmation</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    list.forEach(shortage=>{
+
+        const source=
+            unit.sources.find(
+                s=>s.id===shortage.sourceId
+            );
+
+        const calc=
+            shortageCalc(shortage);
+
+        html+=`
+
+        <tr>
+
+        <td>
+        ${typeName(shortage.type)}
+        </td>
+
+        <td>
+        ${esc(source?.name||"")}
+        </td>
+
+        <td>
+        <b>${esc(shortage.part)}</b>
+        </td>
+
+        <td>
+        ${esc(shortage.description)}
+        </td>
+
+        <td>
+        ${shortage.requiredQty}
+        </td>
+
+        <td>
+        ${shortage.actualQty}
+        </td>
+
+        <td>
+        ${calc.short}
+        </td>
+
+        <td>
+
+        <input
+        type="number"
+        min="0"
+        style="width:90px"
+        value="${shortage.recoveredQty||0}"
+        onchange="
+            updateRecovery(
+                '${shortage.id}',
+                this.value
+            )
+        ">
+
+        </td>
+
+        <td>
+        <b>${calc.remaining}</b>
+        </td>
+
+        <td>
+
+        <span class="status ${
+            calc.status==="CLOSED" ?
+            "green" :
+            calc.status==="RECOVERING" ?
+            "yellow" :
+            "red"
+        }">
+
+        ${calc.status}
+
+        </span>
+
+        </td>
+
+        <td>
+
+        <button
+        class="success"
+        ${
+            calc.remaining>0 ||
+            shortage.pcRecoveryConfirmed ?
+            "disabled" :
+            ""
+        }
+        onclick="
+            confirmRecovery(
+                '${shortage.id}'
+            )
+        ">
+
+        ${
+            shortage.pcRecoveryConfirmed ?
+            "Received / Closed" :
+            "PC Confirm Received"
+        }
+
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+="</tbody></table>";
+
+    return html;
 }
 
-function updateRecovery(shortageId,value){
+function updateRecovery(
+    shortageId,
+    value
+){
 
- const s=db.shortages.find(x=>x.id===shortageId);
- if(!s)return;
+    const shortage=
+        db.shortages.find(
+            s=>s.id===shortageId
+        );
 
- s.recoveredQty=value;
- s.pcRecoveryConfirmed=false;
- s.pcRecoveryConfirmedTime="";
+    shortage.recoveredQty=
+        value;
 
- saveDB();
+    shortage.pcRecoveryConfirmed=false;
+
+    shortage.pcRecoveryConfirmedTime="";
+
+    saveDB();
 }
 
-function confirmRecovery(shortageId){
+function confirmRecovery(
+    shortageId
+){
 
- const s=db.shortages.find(x=>x.id===shortageId);
- if(!s)return;
+    const shortage=
+        db.shortages.find(
+            s=>s.id===shortageId
+        );
 
- const c=shortageCalc(s);
+    const calc=
+        shortageCalc(shortage);
 
- if(c.remaining>0){
-  alert("Remaining quantity must be zero before Production Control can close this shortage.");
-  return;
- }
+    if(calc.remaining>0){
 
- s.pcRecoveryConfirmed=true;
- s.pcRecoveryConfirmedTime=new Date().toISOString();
+        alert(
+            "Remaining quantity must be zero before closing the shortage."
+        );
 
- saveDB();
-}
+        return;
+    }
 
+    shortage.pcRecoveryConfirmed=true;
 
-/* =========================================================
-   SHORTAGE ENTRY
-========================================================= */
+    shortage.pcRecoveryConfirmedTime=
+        new Date().toISOString();
 
-function openShortage(unitId,sourceId,type){
-
- shortageContext={unitId,sourceId,type};
-
- const u=db.subunits.find(x=>x.id===unitId);
- const s=u.sources.find(x=>x.id===sourceId);
-
- shortModalTitle.textContent=
-  type==="PICKER"?
-  "Warehouse Picker Stock Shortage":
-  "Warehouse QC Discrepancy";
-
- shortContext.innerHTML=
-  `<b>MOD ${esc(u.mod)} / ${esc(u.subunit)}</b><br>
-   Source: ${esc(s.name)}<br>
-   Origin: ${typeName(type)}`;
-
- shortPart.value="";
- shortDesc.value="";
- shortRequired.value="";
- shortActual.value="";
- shortComments.value="";
-
- shortOwner.value=
-  type==="PICKER"?
-  "Purchaser / Material Planner":
-  "Warehouse Supervisor";
-
- shortModal.classList.add("open");
-}
-
-function saveShortage(){
-
- const ctx=shortageContext;
- const u=db.subunits.find(x=>x.id===ctx.unitId);
- const source=u.sources.find(x=>x.id===ctx.sourceId);
-
- if(!shortPart.value.trim()||shortRequired.value===""||shortActual.value===""){
-  alert("Part Number, Required Qty and Actual/Available Qty are required.");
-  return;
- }
-
- const shortage={
-  id:uid(),
-  type:ctx.type,
-  subunitId:u.id,
-  sourceId:source.id,
-  part:shortPart.value.trim(),
-  description:shortDesc.value,
-  requiredQty:shortRequired.value,
-  actualQty:shortActual.value,
-  recoveredQty:0,
-  owner:shortOwner.value,
-  comments:shortComments.value,
-  created:new Date().toISOString(),
-  pcRecoveryConfirmed:false,
-  pcRecoveryConfirmedTime:""
- };
-
- const c=shortageCalc(shortage);
-
- if(c.short<=0){
-  alert("Actual quantity is not less than required quantity, so there is no shortage.");
-  return;
- }
-
- db.shortages.push(shortage);
-
- const subject=
-  `${typeName(ctx.type)} - MOD ${u.mod} ${u.subunit} - ${shortage.part}`;
-
- const message=
- `MOD: ${u.mod}
-Subunit: ${u.subunit}
-Source: ${source.name}
-Shortage Origin: ${typeName(ctx.type)}
-Part: ${shortage.part}
-Description: ${shortage.description}
-Required Qty: ${shortage.requiredQty}
-Available / Verified Qty: ${shortage.actualQty}
-Short Qty: ${c.short}
-Owner: ${shortage.owner}
-T-1 Recovery Deadline: ${fmt(t1(u))}
-Comments: ${shortage.comments}`;
-
- createNotification(ctx.type,u,source,subject,message);
-
- closeModal("shortModal");
-
- saveDB();
-}
-
-function typeName(type){
- if(type==="PICKER")return "Picker Stock Shortage";
- if(type==="QC")return "Warehouse QC Shortage";
- if(type==="PC")return "Production Control Shortage";
- return type;
-}
-
-
-/* =========================================================
-   SOURCE / UNIT UPDATE
-========================================================= */
-
-function updateSource(unitId,sourceId,field,value){
-
- const u=db.subunits.find(x=>x.id===unitId);
- const s=u.sources.find(x=>x.id===sourceId);
-
- if(!s)return;
-
- s[field]=value;
-
- saveDB();
-}
-
-function updateUnit(id,field,value){
-
- const u=db.subunits.find(x=>x.id===id);
- if(!u)return;
-
- u[field]=value;
- saveDB();
+    saveDB();
 }
 
 
 /* =========================================================
-   CENTRAL SHORTAGE CENTER
+   SOURCE PICK SUBMISSION
 ========================================================= */
 
-function renderShortages(){
+function submitSourcePicking(
+    unitId,
+    sourceId
+){
 
- const typeFilter=shortTypeFilter.value;
- const statusFilter=shortStatusFilter.value;
- const q=shortSearch.value.toLowerCase();
+    const unit=
+        db.subunits.find(
+            u=>u.id===unitId
+        );
 
- const list=db.shortages.filter(s=>{
+    const source=
+        unit.sources.find(
+            s=>s.id===sourceId
+        );
 
-  const u=db.subunits.find(x=>x.id===s.subunitId);
-  if(!u)return false;
+    const incomplete=
+        source.lines.filter(
+            line=>
+            Number(line.kittedQty)<
+            Number(line.requiredQty)
+        );
 
-  const source=u.sources.find(x=>x.id===s.sourceId);
-  const c=shortageCalc(s);
+    if(incomplete.length){
 
-  const text=
-   `${u.mod} ${u.subunit} ${source?.name||""}
-    ${s.part} ${s.description} ${s.owner}`.toLowerCase();
+        const hasShortage=
+            db.shortages.some(
+                sh=>
+                sh.subunitId===unitId &&
+                sh.sourceId===sourceId &&
+                sh.type==="PICKER" &&
+                shortageCalc(sh).status!=="CLOSED"
+            );
 
-  return
-   (typeFilter==="ALL"||s.type===typeFilter) &&
-   (statusFilter==="ALL"||c.status===statusFilter) &&
-   text.includes(q);
- });
+        if(!hasShortage){
 
- let html=`<table><thead><tr>
- <th>Origin</th><th>MOD</th><th>Subunit</th><th>Source</th>
- <th>Part</th><th>Required</th><th>Actual</th><th>Short</th>
- <th>Recovered</th><th>Remaining</th><th>Owner</th>
- <th>T-1 Due</th><th>Status</th>
- </tr></thead><tbody>`;
+            alert(
+                "This source has incomplete material.\n\n"+
+                "Record the stock shortage before submitting."
+            );
 
- list.forEach(s=>{
+            return;
+        }
+    }
 
-  const u=db.subunits.find(x=>x.id===s.subunitId);
-  const source=u.sources.find(x=>x.id===s.sourceId);
-  const c=shortageCalc(s);
+    source.pickerSubmitted=true;
 
-  html+=`
-  <tr>
-   <td>${typeName(s.type)}</td>
-   <td>${u.mod}</td>
-   <td><button class="secondary" onclick="openDetail('${u.id}')">${esc(u.subunit)}</button></td>
-   <td>${esc(source?.name||"")}</td>
-   <td><b>${esc(s.part)}</b></td>
-   <td>${s.requiredQty}</td>
-   <td>${s.actualQty}</td>
-   <td>${c.short}</td>
-   <td>${s.recoveredQty||0}</td>
-   <td>${c.remaining}</td>
-   <td>${esc(s.owner)}</td>
-   <td class="${t1(u)<new Date()&&c.status!=="CLOSED"?'overdue':''}">${fmt(t1(u))}</td>
-   <td><span class="status ${c.status==="CLOSED"?"green":c.status==="RECOVERING"?"yellow":"red"}">${c.status}</span></td>
-  </tr>`;
- });
+    source.pickerSubmittedTime=
+        new Date().toISOString();
 
- html+="</tbody></table>";
-
- shortageTable.innerHTML=html;
+    saveDB();
 }
 
 
@@ -1614,41 +4516,389 @@ function renderShortages(){
    NOTIFICATIONS
 ========================================================= */
 
+function recipientsFor(type){
+
+    if(type==="PICKER"){
+
+        return [
+            db.settings.buyer,
+            db.settings.planner
+        ].filter(Boolean);
+    }
+
+    if(type==="QC"){
+
+        return [
+            db.settings.supervisor
+        ].filter(Boolean);
+    }
+
+    if(type==="PC"){
+
+        return [
+            db.settings.planner,
+            db.settings.supervisor
+        ].filter(Boolean);
+    }
+
+    return [];
+}
+
+function createNotification({
+    type,
+    unit,
+    source,
+    subject,
+    message
+}){
+
+    db.notifications.unshift({
+
+        id:uid(),
+
+        created:
+            new Date().toISOString(),
+
+        type,
+
+        mod:
+            unit.mod,
+
+        subunit:
+            unit.subunit,
+
+        source:
+            source?.name||"",
+
+        recipients:
+            recipientsFor(type),
+
+        subject,
+
+        message
+    });
+}
+
+function createNotificationForShortage(
+    shortage,
+    unit,
+    source
+){
+
+    const calc=
+        shortageCalc(shortage);
+
+    createNotification({
+
+        type:
+            shortage.type,
+
+        unit,
+
+        source,
+
+        subject:
+            `${typeName(shortage.type)} - ${unit.mod} ${unit.subunit} - ${shortage.part}`,
+
+        message:
+            `MOD: ${unit.mod}
+Subunit: ${unit.subunit}
+Source: ${source.name}
+Stock Code: ${shortage.part}
+Description: ${shortage.description}
+Required Qty: ${shortage.requiredQty}
+Actual Qty: ${shortage.actualQty}
+Short Qty: ${calc.short}
+T-1 Deadline: ${fmt(t1(unit))}`
+    });
+}
+
+function typeName(type){
+
+    if(type==="PICKER")
+        return "Picker Stock Shortage";
+
+    if(type==="QC")
+        return "Warehouse QC Shortage";
+
+    if(type==="PC")
+        return "Production Control Shortage";
+
+    return type;
+}
+
+
+/* =========================================================
+   CENTRAL SHORTAGE REPORT
+========================================================= */
+
+function renderShortages(){
+
+    const typeFilter=
+        document.getElementById("shortTypeFilter").value;
+
+    const statusFilter=
+        document.getElementById("shortStatusFilter").value;
+
+    const search=
+        document.getElementById("shortSearch")
+        .value
+        .toLowerCase();
+
+    const list=
+        db.shortages.filter(shortage=>{
+
+            const unit=
+                db.subunits.find(
+                    u=>u.id===shortage.subunitId
+                );
+
+            if(!unit)return false;
+
+            const source=
+                unit.sources.find(
+                    s=>s.id===shortage.sourceId
+                );
+
+            const calc=
+                shortageCalc(shortage);
+
+            const text=
+                `${unit.mod}
+                 ${unit.subunit}
+                 ${source?.name||""}
+                 ${shortage.part}
+                 ${shortage.description}
+                 ${shortage.owner}`
+                .toLowerCase();
+
+            return (
+                typeFilter==="ALL" ||
+                shortage.type===typeFilter
+            )
+            &&
+            (
+                statusFilter==="ALL" ||
+                calc.status===statusFilter
+            )
+            &&
+            text.includes(search);
+        });
+
+    let html=`
+
+    <table>
+
+    <thead>
+
+    <tr>
+        <th>Origin</th>
+        <th>MOD</th>
+        <th>Subunit</th>
+        <th>Source</th>
+        <th>Stock Code</th>
+        <th>Description</th>
+        <th>Required</th>
+        <th>Actual</th>
+        <th>Short</th>
+        <th>Recovered</th>
+        <th>Remaining</th>
+        <th>Owner</th>
+        <th>T-1 Due</th>
+        <th>Status</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    list.forEach(shortage=>{
+
+        const unit=
+            db.subunits.find(
+                u=>u.id===shortage.subunitId
+            );
+
+        const source=
+            unit.sources.find(
+                s=>s.id===shortage.sourceId
+            );
+
+        const calc=
+            shortageCalc(shortage);
+
+        html+=`
+
+        <tr>
+
+        <td>
+        ${typeName(shortage.type)}
+        </td>
+
+        <td>
+        ${esc(unit.mod)}
+        </td>
+
+        <td>
+
+        <button
+        class="secondary"
+        onclick="
+            openDetail(
+                '${unit.id}'
+            )
+        ">
+
+        ${esc(unit.subunit)}
+
+        </button>
+
+        </td>
+
+        <td>
+        ${esc(source?.name||"")}
+        </td>
+
+        <td>
+        <b>${esc(shortage.part)}</b>
+        </td>
+
+        <td>
+        ${esc(shortage.description)}
+        </td>
+
+        <td>
+        ${shortage.requiredQty}
+        </td>
+
+        <td>
+        ${shortage.actualQty}
+        </td>
+
+        <td>
+        ${calc.short}
+        </td>
+
+        <td>
+        ${shortage.recoveredQty||0}
+        </td>
+
+        <td>
+        ${calc.remaining}
+        </td>
+
+        <td>
+        ${esc(shortage.owner)}
+        </td>
+
+        <td class="${
+            t1(unit)<new Date() &&
+            calc.status!=="CLOSED" ?
+            "overdue" :
+            ""
+        }">
+
+        ${fmt(t1(unit))}
+
+        </td>
+
+        <td>
+
+        <span class="status ${
+            calc.status==="CLOSED" ?
+            "green" :
+            calc.status==="RECOVERING" ?
+            "yellow" :
+            "red"
+        }">
+
+        ${calc.status}
+
+        </span>
+
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+="</tbody></table>";
+
+    document.getElementById("shortageTable")
+        .innerHTML=html;
+}
+
+
+/* =========================================================
+   NOTIFICATION TABLE
+========================================================= */
+
 function renderNotifications(){
 
- let html=`<table><thead><tr>
- <th>Date</th><th>Type</th><th>MOD</th><th>Subunit</th>
- <th>Source</th><th>Recipients</th><th>Subject</th><th>Action</th>
- </tr></thead><tbody>`;
+    let html=`
 
- db.notifications.forEach(n=>{
+    <table>
 
-  const mailto=
-   `mailto:${encodeURIComponent(n.recipients.join(","))}`+
-   `?subject=${encodeURIComponent(n.subject)}`+
-   `&body=${encodeURIComponent(n.message)}`;
+    <thead>
 
-  html+=`
-  <tr>
-   <td>${fmt(n.created)}</td>
-   <td>${typeName(n.type)}</td>
-   <td>${esc(n.mod)}</td>
-   <td>${esc(n.subunit)}</td>
-   <td>${esc(n.source)}</td>
-   <td class="wrap">${esc(n.recipients.join(", "))||"Not configured"}</td>
-   <td class="wrap">${esc(n.subject)}</td>
-   <td>
-    ${n.recipients.length?
-     `<a href="${mailto}"><button class="primary">Open Email</button></a>`:
-     `<span class="status yellow">EMAIL NOT SET</span>`
-    }
-   </td>
-  </tr>`;
- });
+    <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>MOD</th>
+        <th>Subunit</th>
+        <th>Source</th>
+        <th>Recipients</th>
+        <th>Subject</th>
+    </tr>
 
- html+="</tbody></table>";
+    </thead>
 
- notificationTable.innerHTML=html;
+    <tbody>
+    `;
+
+    db.notifications.forEach(n=>{
+
+        html+=`
+
+        <tr>
+
+        <td>
+        ${fmt(n.created)}
+        </td>
+
+        <td>
+        ${typeName(n.type)}
+        </td>
+
+        <td>
+        ${esc(n.mod)}
+        </td>
+
+        <td>
+        ${esc(n.subunit)}
+        </td>
+
+        <td>
+        ${esc(n.source)}
+        </td>
+
+        <td class="wrap">
+        ${esc(n.recipients.join(", "))||"Not configured"}
+        </td>
+
+        <td class="wrap">
+        ${esc(n.subject)}
+        </td>
+
+        </tr>
+        `;
+    });
+
+    html+="</tbody></table>";
+
+    document.getElementById("notificationTable")
+        .innerHTML=html;
 }
 
 
@@ -1657,22 +4907,68 @@ function renderNotifications(){
 ========================================================= */
 
 function renderSettings(){
- setBuyer.value=db.settings.buyer||"";
- setPlanner.value=db.settings.planner||"";
- setSupervisor.value=db.settings.supervisor||"";
+
+    document.getElementById("setBuyer")
+        .value=
+        db.settings.buyer||"";
+
+    document.getElementById("setPlanner")
+        .value=
+        db.settings.planner||"";
+
+    document.getElementById("setSupervisor")
+        .value=
+        db.settings.supervisor||"";
 }
 
 function saveSettings(){
 
- db.settings={
-  buyer:setBuyer.value.trim(),
-  planner:setPlanner.value.trim(),
-  supervisor:setSupervisor.value.trim()
- };
+    db.settings={
 
- saveDB();
+        buyer:
+            document.getElementById("setBuyer")
+            .value
+            .trim(),
 
- alert("Email routing saved.");
+        planner:
+            document.getElementById("setPlanner")
+            .value
+            .trim(),
+
+        supervisor:
+            document.getElementById("setSupervisor")
+            .value
+            .trim()
+    };
+
+    saveDB();
+
+    alert(
+        "Email routing saved."
+    );
+}
+
+
+/* =========================================================
+   GENERIC UNIT UPDATE
+========================================================= */
+
+function updateUnit(
+    id,
+    field,
+    value
+){
+
+    const unit=
+        db.subunits.find(
+            u=>u.id===id
+        );
+
+    if(!unit)return;
+
+    unit[field]=value;
+
+    saveDB();
 }
 
 
@@ -1682,57 +4978,102 @@ function saveSettings(){
 
 function downloadBackup(){
 
- const blob=new Blob(
-  [JSON.stringify(db,null,2)],
-  {type:"application/json"}
- );
+    const blob=
+        new Blob(
+            [JSON.stringify(db,null,2)],
+            {type:"application/json"}
+        );
 
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="QPAC_Material_Readiness_Backup.json";
- a.click();
- URL.revokeObjectURL(a.href);
+    const a=
+        document.createElement("a");
+
+    a.href=
+        URL.createObjectURL(blob);
+
+    a.download=
+        "QPAC_SYSPRO_Demo_Backup.json";
+
+    a.click();
+
+    URL.revokeObjectURL(a.href);
 }
 
-function restoreBackup(e){
+function restoreBackup(event){
 
- const file=e.target.files[0];
- if(!file)return;
+    const file=
+        event.target.files[0];
 
- const r=new FileReader();
+    if(!file)return;
 
- r.onload=()=>{
-  try{
-   db=JSON.parse(r.result);
+    const reader=
+        new FileReader();
 
-   if(!db.subunits||!db.shortages)throw new Error();
+    reader.onload=()=>{
 
-   if(!db.notifications)db.notifications=[];
-   if(!db.settings)db.settings={buyer:"",planner:"",supervisor:""};
+        try{
 
-   saveDB();
-   alert("Backup restored.");
-  }
-  catch{
-   alert("Invalid backup.");
-  }
- };
+            const data=
+                JSON.parse(reader.result);
 
- r.readAsText(file);
+            if(
+                !Array.isArray(data.subunits) ||
+                !Array.isArray(data.shortages)
+            ){
+                throw new Error();
+            }
+
+            db=data;
+
+            if(!db.notifications)
+                db.notifications=[];
+
+            if(!db.settings)
+                db.settings={
+                    buyer:"",
+                    planner:"",
+                    supervisor:""
+                };
+
+            saveDB();
+
+            alert(
+                "Backup restored."
+            );
+        }
+
+        catch{
+
+            alert(
+                "Invalid backup file."
+            );
+        }
+    };
+
+    reader.readAsText(file);
 }
 
 function resetDatabase(){
 
- if(!confirm("Delete all locally stored application data?"))return;
+    if(
+        !confirm(
+            "Delete all demonstration data?"
+        )
+    ){
+        return;
+    }
 
- db={
-  subunits:[],
-  shortages:[],
-  notifications:[],
-  settings:{buyer:"",planner:"",supervisor:""}
- };
+    db={
+        subunits:[],
+        shortages:[],
+        notifications:[],
+        settings:{
+            buyer:"",
+            planner:"",
+            supervisor:""
+        }
+    };
 
- saveDB();
+    saveDB();
 }
 
 
@@ -1741,15 +5082,21 @@ function resetDatabase(){
 ========================================================= */
 
 function renderAll(){
- buildModTabs();
- renderKitting();
- renderShortages();
- renderNotifications();
- renderSettings();
+
+    buildModTabs();
+
+    renderKitting();
+
+    renderShortages();
+
+    renderNotifications();
+
+    renderSettings();
 }
 
 renderAll();
 
 </script>
+
 </body>
 </html>
