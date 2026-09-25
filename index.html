@@ -447,6 +447,7 @@ tr:hover{
     }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -956,7 +957,8 @@ const SOURCES=[
     "Main Warehouse",
     "Machine Shop Warehouse",
     "PLD",
-    "Jenbacher"
+    "Jenbacher",
+    "Behlen"
 ];
 
 const DBKEY="qpacSysproDemoV1";
@@ -5509,6 +5511,252 @@ function ensureQCHandoffFields(){
 
 ensureQCHandoffFields();
 ensureSysproLineKeys();
+
+
+
+/* =========================================================
+   UPDATE 04 — MIXED SOURCE ARCHITECTURE
+
+   SYSPRO MANAGED:
+   - Main Warehouse
+   - Machine Shop Warehouse
+   - PLD
+   Right Scan -> SYSPRO -> Portal read-only sync.
+
+   PORTAL MANAGED:
+   - Jenbacher
+   - Behlen
+   Excel -> Portal pick ticket -> Portal barcode -> Portal scanner.
+========================================================= */
+
+const SYSPRO_MANAGED_SOURCES=["Main Warehouse","Machine Shop Warehouse","PLD"];
+const PORTAL_MANAGED_SOURCES=["Jenbacher","Behlen"];
+
+function sourceMode(name){
+    return SYSPRO_MANAGED_SOURCES.includes(name)?"SYSPRO":"PORTAL";
+}
+
+function portalTicketNumber(unit,sourceName){
+    const prefix=sourceName.replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+    return `${prefix}-${unit.mod}-${unit.subunit}-${String(Date.now()).slice(-6)}`;
+}
+
+/* Replace ticket creation. SYSPRO only supplies the three ERP-controlled sources.
+   Jenbacher / Behlen start empty and are populated from their Excel lists. */
+function loadSysproTicket(unit){
+    const erp=SysproAdapter.getPickTicket(unit.mod,unit.subunit);
+    unit.pickTicket=erp.ticketNumber;
+    let erpLineCounter=0;
+
+    unit.sources=SOURCES.map(sourceName=>{
+        const mode=sourceMode(sourceName);
+        const source={
+            id:uid(), name:sourceName, integrationMode:mode, planningCT:"",
+            pickerSubmitted:false,pickerSubmittedTime:"",qcDelivered:false,qcDeliveredTime:"",
+            kittingPhoto:"",kittingPhotoName:"",lastSysproRefresh:"",
+            portalPickTicket: mode==="PORTAL" ? portalTicketNumber(unit,sourceName) : "",
+            qcSubmitted:false,qcSubmittedTime:"",lines:[]
+        };
+        if(mode==="SYSPRO"){
+            source.lines=erp.lines.filter(line=>line.source===sourceName).map(line=>{
+                erpLineCounter++;
+                const pickLineNo=String(erpLineCounter*10).padStart(4,'0');
+                return {
+                    id:uid(),pickLineNo,
+                    erpLineKey:`${erp.ticketNumber}|${pickLineNo}|${line.stockCode}`,
+                    stockCode:line.stockCode,description:line.description,requiredQty:line.requiredQty,
+                    location:line.location,barcode:line.barcode,kittedQty:0,lastSysproUpdate:"",
+                    lastSysproTransaction:"",syncStatus:"WAITING",transactionIds:[],labelPrinted:false,
+                    qcReceivedQty:"",qcVerified:false,pcReceivedQty:"",pcVerified:false
+                };
+            });
+        }
+        return source;
+    });
+}
+
+function ensureMixedSourceFields(){
+    db.subunits.forEach(unit=>{
+        // add missing source cards for old saved records
+        SOURCES.forEach(name=>{
+            if(!(unit.sources||[]).some(s=>s.name===name)){
+                unit.sources.push({
+                    id:uid(),name,integrationMode:sourceMode(name),planningCT:"",pickerSubmitted:false,pickerSubmittedTime:"",
+                    qcDelivered:false,qcDeliveredTime:"",kittingPhoto:"",kittingPhotoName:"",lastSysproRefresh:"",
+                    portalPickTicket:sourceMode(name)==="PORTAL"?portalTicketNumber(unit,name):"",
+                    qcSubmitted:false,qcSubmittedTime:"",lines:[]
+                });
+            }
+        });
+        (unit.sources||[]).forEach(source=>{
+            source.integrationMode=sourceMode(source.name);
+            if(source.integrationMode==="PORTAL" && !source.portalPickTicket) source.portalPickTicket=portalTicketNumber(unit,source.name);
+            // Remove old mock SYSPRO Jenbacher lines. Portal-managed lines are only kept if explicitly imported/marked portal.
+            if(source.integrationMode==="PORTAL"){
+                source.lines=(source.lines||[]).filter(l=>l.portalManaged===true);
+            }
+        });
+    });
+}
+
+function normalizeHeader(v){return String(v||"").trim().toLowerCase().replace(/[^a-z0-9]/g,"");}
+function excelValue(row,names){
+    const keys=Object.keys(row||{});
+    for(const wanted of names){
+        const k=keys.find(x=>normalizeHeader(x)===normalizeHeader(wanted));
+        if(k!==undefined && row[k]!==undefined && row[k]!==null && String(row[k]).trim()!=="") return row[k];
+    }
+    return "";
+}
+
+function triggerPortalExcelImport(unitId,sourceId){
+    const input=document.createElement('input');
+    input.type='file'; input.accept='.xlsx,.xls,.csv';
+    input.onchange=e=>importPortalExcel(unitId,sourceId,e.target.files&&e.target.files[0]);
+    input.click();
+}
+
+function importPortalExcel(unitId,sourceId,file){
+    if(!file)return;
+    if(typeof XLSX==='undefined'){
+        alert('Excel reader did not load. Check internet access or ask IT to host the SheetJS library locally.');
+        return;
+    }
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit&&unit.sources.find(s=>s.id===sourceId);
+    if(!source||source.integrationMode!=="PORTAL")return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+        try{
+            const wb=XLSX.read(ev.target.result,{type:'array'});
+            const ws=wb.Sheets[wb.SheetNames[0]];
+            const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+            const imported=[];
+            rows.forEach((row,index)=>{
+                const part=String(excelValue(row,['Part Number','Part #','Part','Stock Code','StockCode','Item','Item Number'])).trim();
+                const desc=String(excelValue(row,['Description','Part Description','Item Description'])).trim();
+                const qty=Number(excelValue(row,['Required Qty','Required Quantity','Qty','Quantity','QTY']));
+                const loc=String(excelValue(row,['Location','Warehouse Location','Bin','Bin Location'])).trim();
+                if(!part||!Number.isFinite(qty)||qty<=0)return;
+                const pickLineNo=String((imported.length+1)*10).padStart(4,'0');
+                const portalBarcode=`QPAC|${source.portalPickTicket}|${pickLineNo}|${part}`;
+                imported.push({
+                    id:uid(),portalManaged:true,pickLineNo,portalLineKey:`${source.portalPickTicket}|${pickLineNo}|${part}`,
+                    stockCode:part,description:desc,requiredQty:qty,location:loc,barcode:portalBarcode,
+                    kittedQty:0,lastPortalScan:"",lastPortalTransaction:"",transactionIds:[],labelPrinted:false,
+                    qcReceivedQty:"",qcVerified:false,pcReceivedQty:"",pcVerified:false
+                });
+            });
+            if(!imported.length){
+                alert('No valid material rows were found. Excel needs Part Number/Stock Code and Required Qty columns. Description and Location are optional.');
+                return;
+            }
+            if(source.lines.length && !confirm(`Replace the existing ${source.lines.length} ${source.name} line(s) with ${imported.length} line(s) from this Excel file?`))return;
+            source.lines=imported;
+            source.excelFileName=file.name;
+            source.excelImportedTime=new Date().toISOString();
+            source.qcDelivered=false; source.qcDeliveredTime=""; source.qcSubmitted=false; source.qcSubmittedTime="";
+            saveDB();
+            alert(`${imported.length} ${source.name} line(s) imported. Portal pick ticket ${source.portalPickTicket} is ready.`);
+        }catch(err){
+            alert('Could not read the Excel file: '+err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function scanPortalMaterial(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit&&unit.sources.find(s=>s.id===sourceId);
+    if(!source||source.integrationMode!=="PORTAL"||!source.lines.length)return;
+    const scanned=prompt('Scan / enter the QPAC portal barcode from the pick-ticket line:');
+    if(!scanned)return;
+    const value=scanned.trim();
+    const line=source.lines.find(l=>String(l.barcode)===value || String(l.portalLineKey)===value);
+    if(!line){
+        alert('Barcode does not belong to this portal pick ticket/source. No quantity was updated.');
+        return;
+    }
+    const remaining=Math.max(0,Number(line.requiredQty||0)-Number(line.kittedQty||0));
+    if(remaining<=0){alert('This pick line is already fully kitted.');return;}
+    const qty=Number(prompt(`Part: ${line.stockCode}\nRequired: ${line.requiredQty}\nAlready Kitted: ${line.kittedQty}\nRemaining: ${remaining}\n\nEnter quantity being scanned/kitted:`,'1'));
+    if(!Number.isFinite(qty)||qty<=0){alert('Enter a valid quantity greater than 0.');return;}
+    if(qty>remaining){alert(`Quantity cannot exceed remaining quantity (${remaining}).`);return;}
+    line.kittedQty=Number(line.kittedQty||0)+qty;
+    line.lastPortalScan=new Date().toISOString();
+    line.lastPortalTransaction=`PORTAL-SCAN-${Date.now()}`;
+    saveDB();
+}
+
+function portalSourceHTML(unit,source){
+    const totals=sourceTotals(source,unit.id);
+    let html=`<div class="sourceCard">
+      <div class="sourceHead"><div><b>${esc(source.name)}</b> &nbsp; <span class="status purple">PORTAL MANAGED</span> &nbsp; <span class="small">${totals.totalParts} portal line(s)</span></div>
+      <span class="status ${source.qcDelivered?'green':totals.readyForQC?'yellow':'gray'}">${source.qcDelivered?'DELIVERED TO QC':totals.readyForQC?'READY FOR QC':'PORTAL KITTING'}</span></div>
+      <div class="sourceBody">
+        <div class="erpBanner"><b>No SYSPRO relationship.</b> ${esc(source.name)} material is loaded from Excel. The portal generates its own pick ticket and unique barcode for every pick line. A separate scanner updates Kitted Qty directly in the portal.<br><br>
+        <b>Portal Pick Ticket:</b> ${esc(source.portalPickTicket)} &nbsp;&nbsp;
+        <button class="primary" onclick="triggerPortalExcelImport('${unit.id}','${source.id}')">Import / Replace Excel</button>
+        <button class="success" ${!source.lines.length||source.qcDelivered?'disabled':''} onclick="scanPortalMaterial('${unit.id}','${source.id}')">Scan Portal Barcode</button>
+        ${source.excelFileName?`<span class="small"> Loaded: ${esc(source.excelFileName)} ${source.excelImportedTime?'— '+fmt(source.excelImportedTime):''}</span>`:''}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:10px;margin-bottom:12px">
+          <div class="card">Part Lines Fully Kitted<b>${totals.fullyKittedParts}/${totals.totalParts}</b></div>
+          <div class="card">Quantity Kitted<b>${totals.kitted}/${totals.required}</b></div>
+          <div class="card">Stock Shortage Lines<b>${totals.shortageParts}</b></div>
+          <div class="card">Lines Accounted For<b>${totals.accountedParts}/${totals.totalParts}</b></div>
+        </div>`;
+    if(!source.lines.length){
+        html+=`<div class="alert"><b>No ${esc(source.name)} material list loaded yet.</b><br>Import the Excel list for MOD ${esc(unit.mod)} / ${esc(unit.subunit)}. Required columns: <b>Part Number (or Stock Code)</b> and <b>Required Qty</b>. Description and Location are optional.</div>`;
+    }else{
+        html+=`<div class="toolbar"><b>Parts: ${totals.fullyKittedParts}/${totals.totalParts} (${(totals.partPct*100).toFixed(0)}%)</b><span>|</span><b>Qty: ${totals.kitted}/${totals.required} (${(totals.qtyPct*100).toFixed(0)}%)</b><span>|</span><b>Accounted: ${totals.accountedParts}/${totals.totalParts}</b></div>
+        <div class="progressOuter"><div class="progressInner" style="width:${Math.min(100,(totals.accountedParts/Math.max(1,totals.totalParts))*100)}%"></div></div><br>
+        <table><thead><tr><th>Status</th><th>Pick Line</th><th>Part #</th><th>Description</th><th>Required Qty</th><th>Location</th><th>Kitted Qty (Portal)</th><th>Stock Shortage</th><th>Unaccounted</th><th>Portal Barcode / Match Key</th><th>Last Scan</th><th>Label</th><th>Shortage</th></tr></thead><tbody>`;
+        source.lines.forEach(line=>{
+            const required=Number(line.requiredQty||0),kitted=Number(line.kittedQty||0);
+            const shortageQty=pickerShortageForLine(unit.id,source.id,line.id);
+            const unaccounted=Math.max(0,required-kitted-shortageQty);
+            let rowClass='',statusText='NOT SCANNED',statusClass='gray';
+            if(kitted>=required){rowClass='lineComplete';statusText='COMPLETE';statusClass='green';}
+            else if(shortageQty>0&&unaccounted===0){rowClass='lineShort';statusText='STOCK SHORTAGE';statusClass='red';}
+            else if(kitted>0){rowClass='linePartial';statusText='PARTIAL';statusClass='yellow';}
+            html+=`<tr class="${rowClass}"><td><span class="status ${statusClass}">${statusText}</span></td><td><b>${esc(line.pickLineNo)}</b></td><td><b>${esc(line.stockCode)}</b></td><td>${esc(line.description)}</td><td>${required}</td><td>${esc(line.location||'—')}</td><td><b>${kitted}</b></td><td>${shortageQty?`<span class="status red">${shortageQty}</span>`:'0'}</td><td>${unaccounted?`<span class="status yellow">${unaccounted}</span>`:`<span class="status green">0</span>`}</td><td class="wrap"><div class="small">${esc(line.barcode)}</div></td><td>${line.lastPortalScan?fmt(line.lastPortalScan):'<span class="small">No scan yet</span>'}</td><td><button class="secondary" ${kitted<=0?'disabled':''} onclick="openLabel('${unit.id}','${source.id}','${line.id}')">Print Label</button></td><td>${shortageQty?'<span class="status red">SHORTAGE OPEN</span>':`<button class="warning" ${source.qcDelivered?'disabled':''} onclick="openLineShortage('${unit.id}','${source.id}','${line.id}','PICKER')">Stock Shortage</button>`}</td></tr>`;
+        });
+        html+='</tbody></table>';
+    }
+    html+=`<br><div style="border-top:1px solid #d7e0e8;padding-top:14px"><h4 style="margin:0 0 8px">Source Handoff to Warehouse QC</h4>
+      <div class="note">Portal-managed material follows the same handoff rule: every line must be fully kitted or its missing quantity must be documented as a shortage. The shortage remains open while available material can move to QC.</div>
+      <label><b>Upload Kitting / Handoff Photo</b><br><br><input type="file" accept="image/*" ${source.qcDelivered?'disabled':''} onchange="uploadKittingPhoto('${unit.id}','${source.id}',this)"></label>
+      ${source.kittingPhoto?`<div style="margin-top:10px"><img src="${source.kittingPhoto}" style="max-width:260px;max-height:180px;border:1px solid #b9c6d2;border-radius:6px"><div class="small">${esc(source.kittingPhotoName||'Uploaded photo')}</div></div>`:'<div class="small" style="margin-top:8px">No photo uploaded.</div>'}<br>
+      <button class="success" ${(!totals.readyForQC||!source.kittingPhoto||source.qcDelivered)?'disabled':''} onclick="submitSourcePicking('${unit.id}','${source.id}')">${source.qcDelivered?'Delivered to Warehouse QC':'Deliver to Warehouse QC'}</button>
+      ${!totals.readyForQC?' <span class="small">Every line must be accounted for before handoff.</span>':!source.kittingPhoto?' <span class="small">Upload a photo before handoff.</span>':''}
+      ${source.qcDelivered?`<div class="note"><b>Available to Warehouse QC:</b> ${fmt(source.qcDeliveredTime)}. QC can start immediately while other sources continue kitting.</div>`:''}
+      </div></div></div>`;
+    return html;
+}
+
+/* Keep the existing SYSPRO read-only renderer for ERP sources, and route
+   portal-managed sources to the new Excel/scanner renderer. */
+const _sysproSourcePickHTML=sourcePickHTML;
+sourcePickHTML=function(unit,source){
+    if(sourceMode(source.name)==="PORTAL") return portalSourceHTML(unit,source);
+    return _sysproSourcePickHTML(unit,source);
+};
+
+/* Only ERP sources may use Refresh from SYSPRO. */
+const _refreshSourceFromSyspro=refreshSourceFromSyspro;
+refreshSourceFromSyspro=function(unitId,sourceId){
+    const unit=db.subunits.find(u=>u.id===unitId);
+    const source=unit&&unit.sources.find(s=>s.id===sourceId);
+    if(!source||sourceMode(source.name)!=="SYSPRO"){
+        alert('This source is portal-managed and has no SYSPRO relationship.');
+        return;
+    }
+    return _refreshSourceFromSyspro(unitId,sourceId);
+};
+
+ensureMixedSourceFields();
+saveDB();
 
 /* =========================================================
    RENDER
