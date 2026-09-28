@@ -5858,6 +5858,7 @@ function setDetailStage(stage){
 openDetail=function(id){
     currentDetailId=id;
     detailStage="KITTING";
+    if(typeof palletStage!=="undefined") palletStage="KITTING";
     renderDetail(id);
     document.getElementById("detailModal").classList.add("open");
 };
@@ -6696,6 +6697,10 @@ function createPallet(unitId){
  saveDB();
 }
 function palletParts(u,p){return p.operations.flatMap(n=>{const o=u.operations.find(x=>x.number===n);return (o?.parts||[]).map(x=>({...x,operation:n}))})}
+function operationsSummary(u){
+ const assigned=new Set((u.pallets||[]).flatMap(p=>p.operations||[]));
+ return `<div class="miniGrid">${(u.operations||[]).map(o=>{const pallet=(u.pallets||[]).find(p=>(p.operations||[]).includes(o.number));const qty=(o.parts||[]).reduce((a,x)=>a+Number(x.kittedQty||0),0);return `<div class="miniCard"><b>Operation ${o.number}</b><br><span class="small">${(o.parts||[]).length} part line(s) · ${qty} qty kitted</span><br>${pallet?`<span class="status ${palletBadge(pallet)}">${esc(pallet.palletId)}</span>`:'<span class="status gray">NOT ASSIGNED</span>'}</div>`}).join('')}</div>`;
+}
 function simulateBinTransfer(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);p.binTransferPosted=true;p.binTransferTime=new Date().toISOString();p.sysproBinRef='BINTR-'+Date.now();saveDB()}
 function scanPalletQC(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);if(!p.binTransferPosted){alert('SYSPRO bin transfer has not been posted for this pallet.');return}p.qrScannedQC=true;saveDB()}
 function toggleQCLine(uid,pid,lineId,val){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);p.qcLines[lineId]=val;localStorage.setItem(DBKEY,JSON.stringify(db));renderDetail(uid)}
