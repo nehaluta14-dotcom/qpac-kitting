@@ -574,61 +574,87 @@ This demonstration creates notification records. The IT production version can c
 
 <div class="panel">
 
-<h2>Proposed SYSPRO-Connected Material Flow</h2>
+<h2>Operation-Based Pallet Material Flow</h2>
+
+<div class="note">
+Material is controlled pallet-by-pallet. A pallet may contain one or more operations for a MOD/subunit (for example, MOD A / P41 — Operations 1–3). Each pallet moves independently through Kitting, Warehouse QC, Warehouse Physical Delivery, and Production Control.
+</div>
 
 <div class="process">
 
 <div class="stage">
-<b>SYSPRO Pick Ticket</b>
-<p>Stock code, description, required quantity, warehouse location and barcode are loaded.</p>
+<b>1. Operation Material / Pick Requirement</b>
+<p>Material requirements are organized by MOD, subunit and operation. Example: MOD A / P41 has Operations 1–8.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>Warehouse Picking</b>
-<p>Picker uses the existing Right Scan scanner. Right Scan posts the transaction to SYSPRO; this portal reads the posted kitted quantity.</p>
+<b>2. Pallet Kitting</b>
+<p>Warehouse Picker groups one or more operations onto a physical pallet, such as Operations 1–3, and the portal creates a unique Pallet ID / QR code.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>Part Label</b>
-<p>Completed line generates a traceable label for the physical material.</p>
+<b>3. SYSPRO Bin Transfer</b>
+<p>Warehouse creates/uses the pallet bin and posts the bin-transfer inventory transaction in SYSPRO for the material placed on that pallet.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>Warehouse QC</b>
-<p>QC scans/verifies physical material against the pick ticket.</p>
+<b>4. Warehouse QC</b>
+<p>QC scans the pallet QR code, opens the exact pallet and verifies every operation and part line physically on that pallet.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>T-3 Delivery</b>
-<p>Verified material is delivered to the production staging area.</p>
+<b>5. Ready for Warehouse Delivery</b>
+<p>After QC passes, that pallet becomes independently available for physical delivery. Other pallets do not need to be complete.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>T-2 Production Control</b>
-<p>Production Control scans the same material labels and confirms quantity received.</p>
+<b>6. Warehouse Physical Delivery</b>
+<p>Warehouse/material handler moves the pallet to the production floor, scans the pallet QR and confirms delivery. No SYSPRO inventory issue is posted by Warehouse at this step.</p>
 </div>
 
 <div class="arrow">→</div>
 
 <div class="stage">
-<b>T-1 Recovery</b>
-<p>Missing material is recovered and closed after Production Control confirms receipt.</p>
+<b>7. Production Control Verification</b>
+<p>Production Control scans the same pallet QR, reviews every part line and confirms that Production physically received the pallet.</p>
 </div>
 
+<div class="arrow">→</div>
+
+<div class="stage">
+<b>8. SYSPRO Issue to Production Floor</b>
+<p>After receipt verification, Production Control performs the SYSPRO issue-to-production/floor transaction. This is the final inventory issue step.</p>
+</div>
+
+</div>
+
+<h3 class="sectionTitle">Responsibility / Transaction Control</h3>
+<table>
+<thead><tr><th>Step</th><th>Responsible Team</th><th>Physical Action</th><th>SYSPRO Inventory Transaction</th></tr></thead>
+<tbody>
+<tr><td>Pallet Kitting / Bin Transfer</td><td>Warehouse Picker</td><td>Kit operations onto pallet and attach QR</td><td><b>YES — Bin Transfer</b></td></tr>
+<tr><td>Warehouse QC</td><td>Warehouse QC</td><td>Scan pallet and verify pallet contents</td><td>NO</td></tr>
+<tr><td>Warehouse Delivery</td><td>Warehouse / Material Handler</td><td>Physically move pallet to production and confirm delivery</td><td><b>NO</b></td></tr>
+<tr><td>Production Verification / Issue</td><td>Production Control</td><td>Verify production receipt and issue pallet material</td><td><b>YES — Issue to Production Floor</b></td></tr>
+</tbody>
+</table>
+
+<div class="note">
+<b>Pallet independence:</b> Pallet 001 can already be QC verified, physically delivered and issued to Production while Pallet 002 is still being kitted or waiting for QC. Production Control only sees a pallet after Warehouse has confirmed its physical delivery.
 </div>
 
 <div class="note">
-For this demonstration, SYSPRO reads and transactions are simulated locally. The UI deliberately separates the ERP adapter so IT can later replace the mock functions with the company's approved SYSPRO 8 integration.
+For this demonstration, SYSPRO transactions are simulated locally. In production, the portal should use the company-approved integration layer to read the actual Warehouse bin-transfer result and to execute/confirm the Production Control issue transaction.
 </div>
 
 </div>
@@ -6637,6 +6663,53 @@ kittingStageHTML=function(unit){
     ensureP45MainWarehouseShortageDemo(unit);
     return kittingStageHTML_PCShortageFix(unit);
 };
+</script>
+
+<style>
+.opTabs{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.opTab{padding:14px 18px;border:1px solid #b8c8d6;border-radius:8px;background:#edf2f6;cursor:pointer;font-weight:700}.opTab.active{background:#fff0bd;border:2px solid #e7b42c}.palletCard{border:1px solid #cbd8e3;border-radius:9px;margin:14px 0;background:#fff}.palletHead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px;background:#eef4f8}.palletBody{padding:14px}.qrBox{display:inline-block;border:2px dashed #17324d;padding:10px 14px;font-family:monospace;font-weight:700;background:#fff}.redRow{background:#ffe3e3!important}.greenRow{background:#e5f5e8!important}.miniGrid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin:12px 0}.miniCard{border:1px solid #d7e0e8;border-radius:8px;padding:12px}.stageNote{padding:12px;border-left:4px solid #2f6fad;background:#edf5fc;margin:10px 0}.opPill{display:inline-block;padding:5px 9px;border-radius:15px;background:#dfe8ef;margin:2px;font-weight:700}@media(max-width:900px){.miniGrid{grid-template-columns:1fr 1fr}}
+</style>
+<script>
+/* ===== PALLET / OPERATION WORKFLOW UPDATE ===== */
+let palletStage='KITTING';
+function ensurePalletModel(unit){
+ if(!unit.operations||!unit.operations.length){
+   unit.operations=[];
+   for(let n=1;n<=8;n++) unit.operations.push({number:n,parts:[
+     {id:uid(),stockCode:`${unit.mod}-${unit.subunit}-OP${n}-01`,description:`Operation ${n} Component A`,requiredQty:10,kittedQty:10},
+     {id:uid(),stockCode:`${unit.mod}-${unit.subunit}-OP${n}-02`,description:`Operation ${n} Component B`,requiredQty:5,kittedQty:5}
+   ]});
+ }
+ if(!unit.pallets) unit.pallets=[];
+}
+function palletStatus(p){if(p.floorIssued)return 'ISSUED TO FLOOR';if(p.pcVerified)return 'PC VERIFIED';if(p.warehouseDelivered)return 'DELIVERED TO PRODUCTION';if(p.qcComplete)return 'READY FOR DELIVERY';if(p.binTransferPosted)return 'READY FOR QC';return 'KITTING';}
+function palletBadge(p){return p.floorIssued?'green':p.qcComplete?'green':p.binTransferPosted?'yellow':'gray'}
+function createPallet(unitId){
+ const u=db.subunits.find(x=>x.id===unitId); ensurePalletModel(u);
+ const raw=prompt('Enter operation numbers for this pallet (example: 1-3 or 1,2,3):','1-3'); if(!raw)return;
+ let ops=[]; raw.split(',').forEach(x=>{x=x.trim();if(x.includes('-')){let[a,b]=x.split('-').map(Number);for(let i=a;i<=b;i++)ops.push(i)}else ops.push(Number(x))});
+ ops=[...new Set(ops)].filter(n=>n>=1&&n<=8);
+ if(!ops.length){alert('Enter operations between 1 and 8.');return}
+ const used=new Set(u.pallets.flatMap(p=>p.operations)); const conflict=ops.filter(n=>used.has(n));
+ if(conflict.length){alert('Operation(s) already assigned to another pallet: '+conflict.join(', '));return}
+ const seq=String(u.pallets.length+1).padStart(3,'0');
+ u.pallets.push({id:uid(),palletId:`PAL-${u.mod}-${u.subunit}-${seq}`,operations:ops,bin:`BIN-${u.mod}-${u.subunit}-${seq}`,qr:`QPAC|${u.mod}|${u.subunit}|PAL${seq}`,binTransferPosted:false,binTransferTime:'',qcComplete:false,qcTime:'',qcLines:{},warehouseDelivered:false,warehouseDeliveryTime:'',deliveryPhotos:[],qrScannedPC:false,pcVerified:false,pcTime:'',floorIssued:false,floorIssueTime:'',sysproIssueRef:''});
+ saveDB();
+}
+function palletParts(u,p){return p.operations.flatMap(n=>{const o=u.operations.find(x=>x.number===n);return (o?.parts||[]).map(x=>({...x,operation:n}))})}
+function simulateBinTransfer(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);p.binTransferPosted=true;p.binTransferTime=new Date().toISOString();p.sysproBinRef='BINTR-'+Date.now();saveDB()}
+function scanPalletQC(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);if(!p.binTransferPosted){alert('SYSPRO bin transfer has not been posted for this pallet.');return}p.qrScannedQC=true;saveDB()}
+function toggleQCLine(uid,pid,lineId,val){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);p.qcLines[lineId]=val;localStorage.setItem(DBKEY,JSON.stringify(db));renderDetail(uid)}
+function submitPalletQC(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);const parts=palletParts(u,p);if(!p.qrScannedQC){alert('Scan the pallet QR code first.');return}if(parts.some(x=>!p.qcLines[x.id])){alert('QC must verify every part line on this pallet.');return}p.qcComplete=true;p.qcTime=new Date().toISOString();saveDB()}
+function uploadPalletDeliveryPhotos(uid,pid,input){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);const files=[...(input.files||[])];if(!files.length)return;p.deliveryPhotos=p.deliveryPhotos||[];let left=files.length;files.forEach(f=>{const r=new FileReader();r.onload=()=>{p.deliveryPhotos.push({name:f.name,data:r.result});left--;if(!left)saveDB()};r.readAsDataURL(f)})}
+function confirmWarehouseDelivery(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);if(!p.qcComplete){alert('Warehouse QC must be complete first.');return}if(!(p.deliveryPhotos||[]).length){alert('Upload at least one delivery photo before confirming physical delivery.');return}p.warehouseDelivered=true;p.warehouseDeliveryTime=new Date().toISOString();saveDB()}
+function scanPalletPC(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);if(!p.warehouseDelivered){alert('Warehouse must physically deliver this pallet to Production first.');return}p.qrScannedPC=true;saveDB()}
+function verifyAndIssue(uid,pid){const u=db.subunits.find(x=>x.id===uid),p=u.pallets.find(x=>x.id===pid);if(!p.qrScannedPC){alert('Production Control must scan the pallet QR code first.');return}p.pcVerified=true;p.pcTime=new Date().toISOString();p.floorIssued=true;p.floorIssueTime=new Date().toISOString();p.sysproIssueRef='ISSUE-'+Date.now();saveDB()}
+function palletStageNav(u){const total=u.pallets.length,counts={KITTING:u.pallets.filter(p=>p.binTransferPosted).length,QC:u.pallets.filter(p=>p.qcComplete).length,DELIVERY:u.pallets.filter(p=>p.warehouseDelivered).length,PRODUCTION:u.pallets.filter(p=>p.floorIssued).length};return `<div class="opTabs"><button class="opTab ${palletStage==='KITTING'?'active':''}" onclick="palletStage='KITTING';renderDetail('${u.id}')">1. Pallet Kitting / Bin Transfer<br><small>${counts.KITTING}/${total} ready for QC</small></button><button class="opTab ${palletStage==='QC'?'active':''}" onclick="palletStage='QC';renderDetail('${u.id}')">2. Warehouse QC<br><small>${counts.QC}/${total} QC complete</small></button><button class="opTab ${palletStage==='DELIVERY'?'active':''}" onclick="palletStage='DELIVERY';renderDetail('${u.id}')">3. Warehouse Delivery<br><small>${counts.DELIVERY}/${total} delivered</small></button><button class="opTab ${palletStage==='PRODUCTION'?'active':''}" onclick="palletStage='PRODUCTION';renderDetail('${u.id}')">4. Production Control / Issue<br><small>${counts.PRODUCTION}/${total} issued</small></button></div>`}
+function kittingPalletHTML(u){return `<div class="stageNote"><b>New process:</b> Picker groups one or more operations onto a physical pallet, creates a pallet bin, attaches the pallet QR code, and completes the inventory bin-transfer transaction in SYSPRO. This demo button records the expected SYSPRO result; production integration should read the actual posted transaction.</div><button class="primary" onclick="createPallet('${u.id}')">+ Create Pallet / Assign Operations</button>${operationsSummary(u)}${u.pallets.map(p=>`<div class="palletCard"><div class="palletHead"><div><b>${p.palletId}</b> &nbsp; <span class="status ${palletBadge(p)}">${palletStatus(p)}</span></div><div class="qrBox">${p.qr}</div></div><div class="palletBody"><b>Operations:</b> ${p.operations.map(n=>`<span class="opPill">OP ${n}</span>`).join(' ')} &nbsp; <b>Bin:</b> ${p.bin}<br><br><table><thead><tr><th>Operation</th><th>Stock Code</th><th>Description</th><th>Required</th><th>Kitted</th></tr></thead><tbody>${palletParts(u,p).map(x=>`<tr><td>OP ${x.operation}</td><td><b>${x.stockCode}</b></td><td>${x.description}</td><td>${x.requiredQty}</td><td>${x.kittedQty}</td></tr>`).join('')}</tbody></table><br>${p.binTransferPosted?`<span class="status green">SYSPRO BIN TRANSFER POSTED</span> <span class="small">${fmt(p.binTransferTime)} · ${p.sysproBinRef}</span>`:`<button class="primary" onclick="simulateBinTransfer('${u.id}','${p.id}')">Demo: Receive Posted SYSPRO Bin Transfer</button>`}</div></div>`).join('')}`}
+function qcPalletHTML(u){const avail=u.pallets.filter(p=>p.binTransferPosted);return `<div class="stageNote">Each pallet becomes available to QC independently after its SYSPRO bin transfer is posted. QC scans the QR code attached to that pallet, then verifies every part line on that pallet.</div>${!avail.length?'<div class="note">No pallets are available for QC yet.</div>':avail.map(p=>`<div class="palletCard"><div class="palletHead"><div><b>${p.palletId}</b> · ${p.bin} · Operations ${p.operations.join(', ')}</div><div class="qrBox">${p.qr}</div></div><div class="palletBody">${!p.qrScannedQC?`<button class="primary" onclick="scanPalletQC('${u.id}','${p.id}')">Scan Pallet QR for QC</button>`:`<span class="status green">QR SCANNED</span>`}<br><br><table><thead><tr><th>Verified</th><th>Operation</th><th>Stock Code</th><th>Description</th><th>Qty on Pallet</th></tr></thead><tbody>${palletParts(u,p).map(x=>`<tr class="${p.qcLines[x.id]?'greenRow':''}"><td><input type="checkbox" ${p.qcLines[x.id]?'checked':''} ${p.qcComplete?'disabled':''} onchange="toggleQCLine('${u.id}','${p.id}','${x.id}',this.checked)"></td><td>OP ${x.operation}</td><td>${x.stockCode}</td><td>${x.description}</td><td>${x.kittedQty}</td></tr>`).join('')}</tbody></table><br>${p.qcComplete?`<span class="status green">QC COMPLETE</span> ${fmt(p.qcTime)}`:`<button class="primary" onclick="submitPalletQC('${u.id}','${p.id}')">Submit Pallet QC</button>`}</div></div>`).join('')}`}
+function deliveryPalletHTML(u){const avail=u.pallets.filter(p=>p.qcComplete);return `<div class="stageNote"><b>Warehouse physical delivery only:</b> After QC, Warehouse moves each pallet to the production floor. Warehouse does <b>not</b> make the final SYSPRO issue transaction. Upload delivery photos and confirm physical delivery.</div>${!avail.length?'<div class="note">No QC-complete pallets are ready for delivery yet.</div>':avail.map(p=>`<div class="palletCard"><div class="palletHead"><div><b>${p.palletId}</b> · ${p.bin} · Operations ${p.operations.join(', ')}</div><div class="qrBox">${p.qr}</div></div><div class="palletBody"><b>Delivery photos:</b><br><input type="file" accept="image/*" multiple ${p.warehouseDelivered?'disabled':''} onchange="uploadPalletDeliveryPhotos('${u.id}','${p.id}',this)"><div class="small">${(p.deliveryPhotos||[]).length?(p.deliveryPhotos||[]).map(x=>esc(x.name)).join(', '):'No photos uploaded.'}</div><br>${p.warehouseDelivered?`<span class="status green">DELIVERED TO PRODUCTION</span> ${fmt(p.warehouseDeliveryTime)}<div class="small">No SYSPRO issue was posted by Warehouse.</div>`:`<button class="primary" onclick="confirmWarehouseDelivery('${u.id}','${p.id}')">Confirm Physical Delivery to Production</button>`}</div></div>`).join('')}`};
+function productionPalletHTML(u){const avail=u.pallets.filter(p=>p.warehouseDelivered);return `<div class="stageNote"><b>Production Control owns the final transaction:</b> Warehouse has already physically delivered these pallets. Production Control scans the pallet QR, confirms receipt, then performs the SYSPRO Issue to Production Floor transaction.</div>${!avail.length?'<div class="note">No pallets have been physically delivered by Warehouse yet.</div>':avail.map(p=>`<div class="palletCard"><div class="palletHead"><div><b>${p.palletId}</b> · ${p.bin} · Operations ${p.operations.join(', ')}</div><div class="qrBox">${p.qr}</div></div><div class="palletBody"><span class="status green">WAREHOUSE DELIVERED</span> ${fmt(p.warehouseDeliveryTime)}<br><br>${!p.qrScannedPC?`<button class="primary" onclick="scanPalletPC('${u.id}','${p.id}')">Scan Pallet QR — Production Control</button>`:''}${p.qrScannedPC&&!p.floorIssued?`<div class="note">QR matched ${p.palletId}. ${palletParts(u,p).length} part lines are tied to this pallet. Confirm physical receipt before issuing.</div><button class="primary" onclick="verifyAndIssue('${u.id}','${p.id}')">Confirm Received + Post SYSPRO Issue to Floor</button>`:''}${p.floorIssued?`<div class="erpBanner"><b>PRODUCTION RECEIPT VERIFIED</b> &nbsp; <span class="status green">SYSPRO ISSUE POSTED</span><br><br><b>Issue reference:</b> ${p.sysproIssueRef} &nbsp; <b>Time:</b> ${fmt(p.floorIssueTime)}</div>`:''}</div></div>`).join('')}`};
+function renderDetail(id){const u=db.subunits.find(x=>x.id===id);if(!u)return;ensurePalletModel(u);localStorage.setItem(DBKEY,JSON.stringify(db));const body=palletStage==='QC'?qcPalletHTML(u):palletStage==='DELIVERY'?deliveryPalletHTML(u):palletStage==='PRODUCTION'?productionPalletHTML(u):kittingPalletHTML(u);document.getElementById('detailContent').innerHTML=`<div class="toolbar"><div><h2 style="margin:0">MOD ${esc(u.mod)} — ${esc(u.subunit)}</h2><span class="small">Production Start: ${fmt(u.productionStart)}</span></div><div><button class="secondary" onclick="currentDetailId=null;closeModal('detailModal')">Close</button></div></div><div class="erpBanner"><b>Operation-based Pallet Control</b> &nbsp; <span class="status yellow">SYSPRO BIN TRANSFER + PALLET QR</span><br><br><b>Operations:</b> 1–8 &nbsp; <b>Pallets Created:</b> ${u.pallets.length} &nbsp; <b>QC Complete:</b> ${u.pallets.filter(p=>p.qcComplete).length} &nbsp; <b>Issued to Floor:</b> ${u.pallets.filter(p=>p.floorIssued).length}</div><h3 class="sectionTitle">Workflow — Click a Stage to Open It</h3>${palletStageNav(u)}<h3 class="sectionTitle">${palletStage==='KITTING'?'1. Pallet Kitting / SYSPRO Bin Transfer':palletStage==='QC'?'2. Warehouse QC — Pallet QR Verification':palletStage==='DELIVERY'?'3. Warehouse Physical Delivery to Production':'4. Production Control — Verify Receipt & SYSPRO Issue'}</h3>${body}<h3 class="sectionTitle">Production Information</h3><div class="grid"><label>Priority<input value="${esc(u.priority)}" onchange="updateUnit('${u.id}','priority',this.value)"></label><label>Production Start<input type="datetime-local" value="${u.productionStart}" onchange="updateUnit('${u.id}','productionStart',this.value)"></label><label>Comments<textarea onchange="updateUnit('${u.id}','comments',this.value)">${esc(u.comments||'')}</textarea></label></div>`}
 </script>
 </body>
 </html>
